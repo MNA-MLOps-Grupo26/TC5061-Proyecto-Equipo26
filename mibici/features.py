@@ -1,29 +1,101 @@
-from pathlib import Path
+
+"""Partición temporal de los datos procesados de MiBici."""
+
 
 from loguru import logger
-from tqdm import tqdm
-import typer
+import pandas as pd
 
-from mibici.config import PROCESSED_DATA_DIR
+from mibici.config import (
+    DATA_END_EXCLUSIVE,
+    PROCESSED_DATA_DIR,
+    TEST_START,
+    TRAIN_START,
+    VALIDATION_START,
+)
 
-app = typer.Typer()
+SPLITS_DIR = PROCESSED_DATA_DIR / "splits"
 
 
-@app.command()
-def main(
-    # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
-    input_path: Path = PROCESSED_DATA_DIR / "dataset.csv",
-    output_path: Path = PROCESSED_DATA_DIR / "features.csv",
-    # -----------------------------------------
-):
-    # ---- REPLACE THIS WITH YOUR OWN CODE ----
-    logger.info("Generating features from dataset...")
-    for i in tqdm(range(10), total=10):
-        if i == 5:
-            logger.info("Something happened for iteration 5.")
-    logger.success("Features generation complete.")
-    # -----------------------------------------
+def particionar_dataframe(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
+    """Divide los viajes en entrenamiento, validación y prueba."""
+
+    if "inicio_viaje" not in df.columns:
+        raise ValueError("Falta la columna inicio_viaje.")
+
+    fechas = pd.to_datetime(df["inicio_viaje"], errors="raise")
+
+    inicio = pd.Timestamp(TRAIN_START)
+    validacion = pd.Timestamp(VALIDATION_START)
+    prueba = pd.Timestamp(TEST_START)
+    fin = pd.Timestamp(DATA_END_EXCLUSIVE)
+
+    return {
+        "train": df.loc[
+            (fechas >= inicio) & (fechas < validacion)
+        ].copy(),
+        "validation": df.loc[
+            (fechas >= validacion) & (fechas < prueba)
+        ].copy(),
+        "test": df.loc[
+            (fechas >= prueba) & (fechas < fin)
+        ].copy(),
+    }
+
+
+def main() -> None:
+    """Genera las particiones temporales a partir de los Parquet mensuales."""
+
+    archivos = sorted(
+        PROCESSED_DATA_DIR.glob("datos_abiertos_*.parquet")
+    )
+
+    if not archivos:
+        raise FileNotFoundError(
+            f"No se encontraron archivos Parquet en {PROCESSED_DATA_DIR}"
+        )
+
+    SPLITS_DIR.mkdir(parents=True, exist_ok=True)
+
+    totales = {"train": 0, "validation": 0, "test": 0}
+    fuera_periodo = 0
+
+    for archivo in archivos:
+        df = pd.read_parquet(archivo)
+        particiones = particionar_dataframe(df)
+
+        fechas = pd.to_datetime(df["inicio_viaje"], errors="raise")
+        inicio = pd.Timestamp(TRAIN_START)
+        fin = pd.Timestamp(DATA_END_EXCLUSIVE)
+
+        fuera = ~((fechas >= inicio) & (fechas < fin))
+        fuera_periodo += int(fuera.sum())
+
+        for nombre, subconjunto in particiones.items():
+            if subconjunto.empty:
+                continue
+
+            directorio = SPLITS_DIR / nombre
+            directorio.mkdir(parents=True, exist_ok=True)
+
+            destino = directorio / archivo.name
+            subconjunto.to_parquet(destino, index=False)
+            totales[nombre] += len(subconjunto)
+
+        logger.info(f"Procesado: {archivo.name}")
+
+    logger.success(
+        f"Entrenamiento: {totales['train']:,} | "
+        f"Validación: {totales['validation']:,} | "
+        f"Prueba: {totales['test']:,}"
+    )
+
+    if fuera_periodo:
+        logger.warning(
+            f"Registros fuera del periodo configurado: {fuera_periodo:,}"
+        )
+
+    logger.success(f"Particiones guardadas en: {SPLITS_DIR}")
 
 
 if __name__ == "__main__":
-    app()
+    main()
