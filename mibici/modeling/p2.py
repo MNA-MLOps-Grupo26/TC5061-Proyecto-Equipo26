@@ -33,6 +33,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 from mibici.config import (
+    DATA_END_EXCLUSIVE,
     FIGURES_DIR,
     P2_CLASES,
     P2_HORA_INICIO_DIA,
@@ -234,5 +235,7 @@ def run_logreg(datos: pd.DataFrame) -> None:
 def ejecutar(viajes: pd.DataFrame, estaciones: pd.DataFrame) -> None:
     """Construye el conjunto de P2 y registra baseline y candidato."""
     datos = dataset_p2(viajes, estaciones)
+    fin_dia = datos["fecha"] + pd.Timedelta(days=1, hours=P2_HORA_INICIO_DIA)
+    datos = datos.loc[fin_dia <= pd.Timestamp(DATA_END_EXCLUSIVE)].copy()
     run_baseline(datos)
     run_logreg(datos)
