@@ -91,3 +91,7 @@ try:
     logger.add(lambda msg: tqdm.write(msg, end=""), colorize=True)
 except ModuleNotFoundError:
     pass
+
+# P3: preparacion provisional de perfiles; no presupone disponibilidad diaria.
+P3_MIN_DIAS_ACTIVOS = 28
+P3_MIN_MOVIMIENTOS = 100
