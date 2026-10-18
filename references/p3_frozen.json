@@ -1,0 +1,74 @@
+{
+  "historical_run_id": "fbcf2809ea3b4132ba605fe6c31e37fb",
+  "decision_frozen_before_first_test_utc": "2026-10-18T19:06:40.423213+00:00",
+  "k": 3,
+  "min_training_active_days": 180,
+  "seed": 42,
+  "n_init": 20,
+  "max_iter": 300,
+  "algorithm": "lloyd",
+  "monthly_min_active_days": 14,
+  "monthly_min_movements": 100,
+  "shape": "sqrt(p)/sqrt(2), separate normalized departure/arrival 168-cell blocks",
+  "training_preparation_sha256": "9f8411ab7bf22fad7265b4e11dc911c96f52fb3c3dd0d5ba4f4435051bcaf680",
+  "centers_float64_sha256": "5b7e0726a7f295fd2c4edaa5cf7be3cb76cb147ea28da97f345205fe9f9ed31f",
+  "expected_results": {
+    "train": {
+      "n_estaciones": 369,
+      "silhouette": 0.14332863108454294,
+      "n_mapeables": 369,
+      "n_sin_ubicacion": 0
+    },
+    "val": {
+      "n_evaluables": 367,
+      "n_excluidas": 2,
+      "fraccion_evaluable": 0.994579945799458,
+      "fraccion_estable": 0.896457765667575,
+      "ari_vs_train": 0.684891103084184,
+      "distancia_mediana": 0.3371796003951961,
+      "distancia_p95": 0.6850374327709993,
+      "cambio_perfil_mediana": 0.30194089790276174,
+      "cambio_perfil_p95": 0.6451581321447986,
+      "fraccion_sobre_p95_train": 0.5858310626702997,
+      "silhouette_asignacion_fija": 0.048934970420373126,
+      "n_grupo_0": 165,
+      "n_grupo_1": 168,
+      "n_grupo_2": 34
+    },
+    "test": {
+      "n_evaluables": 368,
+      "n_excluidas": 1,
+      "fraccion_evaluable": 0.997289972899729,
+      "fraccion_estable": 0.875,
+      "ari_vs_train": 0.6162920366846782,
+      "distancia_mediana": 0.30397791449881134,
+      "distancia_p95": 0.6158638404071142,
+      "cambio_perfil_mediana": 0.28203008824805137,
+      "cambio_perfil_p95": 0.6049064059010345,
+      "fraccion_sobre_p95_train": 0.5027173913043478,
+      "silhouette_asignacion_fija": 0.05327876259059569,
+      "n_grupo_0": 179,
+      "n_grupo_1": 158,
+      "n_grupo_2": 31
+    },
+    "centroides_sin_refit": true,
+    "catalogo_fuente": "nomenclatura_2026_09.csv",
+    "limites": "Disponibilidad/cobertura desconocidas; mes vs anio; distancias p95train no calibradas; sin tuning tras test",
+    "llegadas_limite_desde_agosto_registros": 18
+  },
+  "assignment_file_sha256": {
+    "asignaciones_train.csv": "8026ff111af81186cb09a258779086bec6b6e019d59aaef4e40a05e03ccfef3d",
+    "asignaciones_val.csv": "dffdf91da10b9679abed4612065146425b15b7eb7aa8ad9471984a9744026ea6",
+    "asignaciones_test.csv": "fd6c15ce858c7742a5bd7c6b045da399aee47452cff2eeadedfc7402ca7ac052"
+  },
+  "environment": {
+    "numpy": "2.5.4",
+    "pandas": "3.0.6",
+    "scikit-learn": "1.9.1",
+    "matplotlib": "3.11.2",
+    "mlflow": "3.17.1",
+    "joblib": "1.6.0",
+    "pyarrow": "25.0.1"
+  },
+  "policy": "Exact replay authorized after test; no model, cohort, parameter or eligibility tuning."
+}

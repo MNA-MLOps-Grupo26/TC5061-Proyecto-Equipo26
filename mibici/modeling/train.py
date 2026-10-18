@@ -13,11 +13,11 @@ from loguru import logger
 import typer
 
 from mibici.dataset import cargar_estaciones, cargar_viajes
-from mibici.modeling import p1, p2
+from mibici.modeling import p1, p2, p3
 
 app = typer.Typer()
 
-EJECUTORES = {"P1": p1.ejecutar, "P2": p2.ejecutar}
+EJECUTORES = {"P1": p1.ejecutar, "P2": p2.ejecutar, "P3": p3.ejecutar}
 
 
 @app.command()
@@ -35,9 +35,9 @@ def main(
             f"{pregunta} no está disponible. Opciones: {', '.join(EJECUTORES)} o todas."
         )
 
-    viajes = cargar_viajes()
+    viajes = cargar_viajes() if any(p != "P3" for p in seleccion) else None
     estaciones = cargar_estaciones()
-    logger.info(f"{len(viajes):,} viajes y {len(estaciones)} estaciones cargados")
+    logger.info(f"{len(estaciones)} estaciones cargadas; P3 verifica sus fuentes por periodo")
 
     for clave in seleccion:
         logger.info(f"Ejecutando {clave}")
