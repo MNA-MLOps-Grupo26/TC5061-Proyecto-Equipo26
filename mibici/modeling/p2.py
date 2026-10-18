@@ -8,8 +8,10 @@ Dos runs en MLflow:
   balanceados, porque los días con riesgo son pocos.
 
 Métricas en validación y prueba: F1 macro (mismo peso a las tres clases),
-recall por clase de riesgo y Recall@K (de las estaciones con riesgo en un día,
-cuántas aparecen entre las K que el equipo de rebalanceo revisaría primero).
+recall por clase de riesgo, Recall@K y Precision@K (de las K estaciones que el
+equipo de rebalanceo revisaría primero, cuántas estaban en riesgo). Se registra
+también el techo de Recall@K, porque cuando hay más de K estaciones en riesgo
+al día, ni un modelo perfecto puede superarlo.
 La selección de configuraciones se hace con validación; prueba solo se reporta.
 """
 
@@ -45,21 +47,35 @@ SIN_RIESGO, SIN_BICIS, SIN_ANCLAJES = P2_CLASES
 CONJUNTOS_EVALUACION = {"val": "validation", "test": "test"}
 
 
-def recall_at_k(datos: pd.DataFrame, puntaje: pd.Series, k: int = P2_TOP_K) -> float:
-    """Promedio diario de la fracción de estaciones con riesgo que quedan en el top K.
+def metricas_top_k(datos: pd.DataFrame, puntaje: pd.Series, k: int = P2_TOP_K) -> dict:
+    """Recall@K y Precision@K promediados por día.
 
-    Solo se promedian días con al menos una estación en riesgo.
+    - Recall@K: de las estaciones con riesgo en el día, fracción que queda en el
+      top K. Tiene techo K / (estaciones en riesgo) cuando hay más de K en riesgo.
+    - Precision@K: de las K estaciones que el equipo revisaría, fracción que sí
+      estaba en riesgo. Refleja si las visitas con capacidad limitada valen la pena.
     """
     tabla = pd.DataFrame(
         {"fecha": datos["fecha"], "riesgo": datos["categoria"] != SIN_RIESGO, "puntaje": puntaje}
     )
     tabla["rango"] = tabla.groupby("fecha")["puntaje"].rank(method="first", ascending=False)
-    por_dia = (
-        tabla.loc[tabla["riesgo"]]
-        .groupby("fecha")["rango"]
-        .apply(lambda r: float((r <= k).mean()))
+    tabla["en_top"] = tabla["rango"] <= k
+
+    por_dia = tabla.groupby("fecha").agg(
+        en_riesgo=("riesgo", "sum"),
+        aciertos=("en_top", lambda s: int((s & tabla.loc[s.index, "riesgo"]).sum())),
+        revisadas=("en_top", "sum"),
     )
-    return float(por_dia.mean()) if len(por_dia) else float("nan")
+    con_riesgo = por_dia.loc[por_dia["en_riesgo"] > 0]
+    recall = (con_riesgo["aciertos"] / con_riesgo["en_riesgo"]).mean()
+    precision = (por_dia["aciertos"] / por_dia["revisadas"]).mean()
+    techo = (np.minimum(k, con_riesgo["en_riesgo"]) / con_riesgo["en_riesgo"]).mean()
+    return {
+        f"recall_at_{k}": float(recall),
+        f"precision_at_{k}": float(precision),
+        f"recall_at_{k}_max_posible": float(techo),
+        "estaciones_riesgo_por_dia": float(por_dia["en_riesgo"].mean()),
+    }
 
 
 def calcular_metricas(datos: pd.DataFrame, prediccion: pd.Series, puntaje: pd.Series) -> dict:
@@ -73,7 +89,7 @@ def calcular_metricas(datos: pd.DataFrame, prediccion: pd.Series, puntaje: pd.Se
         "balanced_accuracy": balanced_accuracy_score(real, prediccion),
         "recall_sin_bicis": recall_clases[0],
         "recall_sin_anclajes": recall_clases[1],
-        f"recall_at_{P2_TOP_K}": recall_at_k(datos, puntaje),
+        **metricas_top_k(datos, puntaje),
     }
 
 
