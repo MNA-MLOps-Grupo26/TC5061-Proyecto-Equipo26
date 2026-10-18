@@ -1,11 +1,12 @@
 """P1: predecir las salidas diarias por estacion y registrar resultados en MLflow."""
 
+import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
-from mibici.config import SEMANAS_BASELINE_P1
+from mibici.config import FIGURES_DIR, SEMANAS_BASELINE_P1
 from mibici.features import dataset_p1
-from mibici.tracking import iniciar_run, registrar_metricas
+from mibici.tracking import iniciar_run, registrar_artefacto, registrar_metricas
 
 
 def calcular_metricas(datos, prediccion):
@@ -26,6 +27,7 @@ def evaluar_conjunto(datos, conjunto):
     if subconjunto.empty:
         raise ValueError(f"No hay datos para {conjunto}")
     prediccion = predecir_baseline(subconjunto)
+    guardar_predicciones(subconjunto, prediccion, f"p1-baseline-{conjunto}")
     return calcular_metricas(subconjunto, prediccion)
 
 
@@ -41,3 +43,21 @@ def ejecutar(viajes, estaciones):
             metricas = evaluar_conjunto(datos, conjunto)
             registrar_metricas(etiqueta, metricas)
             print(etiqueta, metricas)
+
+
+def guardar_predicciones(datos, prediccion, nombre):
+    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+    tabla = datos[["estacion_id", "fecha", "salidas"]].copy()
+    tabla["prediccion"] = prediccion
+    ruta = FIGURES_DIR / f"{nombre}-predicciones.csv"
+    tabla.to_csv(ruta, index=False)
+    registrar_artefacto(ruta, "tablas")
+    diario = tabla.groupby("fecha")[["salidas", "prediccion"]].sum()
+    eje = diario.plot(figsize=(10, 4), title=f"{nombre}: estaciones evaluadas")
+    eje.set_ylabel("Salidas diarias")
+    figura = eje.get_figure()
+    figura.tight_layout()
+    ruta_grafica = FIGURES_DIR / f"{nombre}-grafica.png"
+    figura.savefig(ruta_grafica, dpi=150)
+    plt.close(figura)
+    registrar_artefacto(ruta_grafica, "figuras")
