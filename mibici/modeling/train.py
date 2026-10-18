@@ -19,7 +19,9 @@ app = typer.Typer()
 # Cada pregunta se agrega aquí al integrar su módulo, por ejemplo:
 #   from mibici.modeling import p1
 #   EJECUTORES = {"P1": p1.ejecutar}
-EJECUTORES = {}
+from mibici.modeling import p1
+
+EJECUTORES = {"P1": p1.ejecutar}
 
 
 @app.command()
