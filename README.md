@@ -20,7 +20,7 @@ parecidos.
 
 Los datos no incluyen el inventario por estación. El riesgo de P2 se aproxima con
 el saldo de salidas y llegadas y la capacidad de cada estación. La formulación
-completa está en el [ML Canvas](references/ml_canvas.md) y la arquitectura en
+completa está en el [ML Canvas](references/ML_Canvas_MiBici.pdf) y la arquitectura en
 [references/arquitectura.md](references/arquitectura.md).
 
 ## Datos
