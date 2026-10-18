@@ -14,11 +14,18 @@ import pandas as pd
 from sklearn.cluster import AgglomerativeClustering, KMeans
 from sklearn.metrics import silhouette_score
 
+from mibici.config import (
+    P3_K_EXPLORACION,
+    P3_N_INIT,
+    RANDOM_SEED,
+    TRAIN_START,
+    VALIDATION_START,
+)
 from mibici.features_p3 import columnas_perfil_p3
 
-K_VALUES = (2, 3, 4, 5, 6)
-SEED = 42
-N_INIT = 20
+K_VALUES = P3_K_EXPLORACION
+SEED = RANDOM_SEED
+N_INIT = P3_N_INIT
 
 
 def matriz_forma(perfiles):
@@ -139,8 +146,8 @@ def main():
     p = pd.read_parquet(args.entrada)
     if not (
         p.conjunto.eq("train").all()
-        and p.periodo_inicio.eq("2025-08-01").all()
-        and p.periodo_fin_exclusivo.eq("2026-08-01").all()
+        and p.periodo_inicio.eq(TRAIN_START.isoformat()).all()
+        and p.periodo_fin_exclusivo.eq(VALIDATION_START.isoformat()).all()
     ):
         raise ValueError("Solo se admite la preparacion del periodo de entrenamiento")
     p = p.loc[p.elegible].sort_values("estacion_id").reset_index(drop=True)
@@ -166,7 +173,7 @@ def main():
         ax.set(xlabel="Numero de grupos", xticks=K_VALUES)
         ax.legend()
         ax.grid(alpha=0.2)
-    fig.suptitle("P3 · comparacion exploratoria · 429 perfiles de entrenamiento")
+    fig.suptitle(f"P3 · comparacion exploratoria · {len(p)} perfiles de entrenamiento")
     fig.tight_layout()
     fig.savefig(args.salida / "comparacion.png", dpi=160)
     plt.close(fig)

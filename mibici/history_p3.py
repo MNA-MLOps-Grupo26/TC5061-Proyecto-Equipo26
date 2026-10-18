@@ -10,9 +10,10 @@ import pandas as pd
 from sklearn.metrics import adjusted_rand_score
 
 from mibici.compare_p3 import comparar, guardar_grafica
+from mibici.config import P3_COHORTES, TRAIN_START, VALIDATION_START
 from mibici.features_p3 import columnas_perfil_p3
 
-COHORTES = (180, 300)
+COHORTES = P3_COHORTES
 
 
 def cohorte_historia(perfiles, minimo):
@@ -20,8 +21,8 @@ def cohorte_historia(perfiles, minimo):
         raise ValueError("Umbral fuera del protocolo predeclarado")
     if not (
         perfiles.conjunto.eq("train").all()
-        and perfiles.periodo_inicio.eq("2025-08-01").all()
-        and perfiles.periodo_fin_exclusivo.eq("2026-08-01").all()
+        and perfiles.periodo_inicio.eq(TRAIN_START.isoformat()).all()
+        and perfiles.periodo_fin_exclusivo.eq(VALIDATION_START.isoformat()).all()
     ):
         raise ValueError("Solo entrenamiento")
     if perfiles.estacion_id.duplicated().any():

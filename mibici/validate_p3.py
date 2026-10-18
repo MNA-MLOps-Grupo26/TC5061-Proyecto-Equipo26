@@ -14,6 +14,8 @@ from sklearn.metrics import adjusted_rand_score, silhouette_score
 from mibici.compare_p3 import N_INIT, SEED, guardar_grafica, matriz_forma
 from mibici.config import (
     MANIFESTS_DIR,
+    P3_MES_MIN_DIAS,
+    P3_MES_MIN_MOVIMIENTOS,
     PROCESSED_DATA_DIR,
     TEST_START,
     TRAIN_START,
@@ -23,8 +25,8 @@ from mibici.features import validar_columnas_viajes
 from mibici.features_p3 import columnas_perfil_p3
 from mibici.history_p3 import cohorte_historia
 
-AUG_MIN_DAYS = 14
-AUG_MIN_MOVEMENTS = 100
+AUG_MIN_DAYS = P3_MES_MIN_DIAS
+AUG_MIN_MOVEMENTS = P3_MES_MIN_MOVIMIENTOS
 
 
 def eventos_periodo(viajes, inicio, fin):

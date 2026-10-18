@@ -130,7 +130,9 @@ Desde la raíz del repositorio, con `.venv` activo:
 python -m pytest tests
 ```
 
-Estas pruebas comprueban la configuración temporal y el nombre del experimento.
+Las pruebas cubren la normalización de datos, la partición temporal, los rezagos
+sin fuga de información, la etiqueta de riesgo de P2, las métricas de P1 y la
+preparación y reproducción de P3. No necesitan los datos de MiBici.
 La revisión de estilo es opcional:
 
 ```bash
@@ -167,12 +169,15 @@ Ejecuten los comandos desde la raíz del repositorio con `.venv` activo.
 | Paso | Comando | Qué hace |
 |---|---|---|
 | 1. Ingesta y versionado | `python -m mibici.dataset` | Descarga los 14 meses y la nomenclatura, verifica, normaliza a Parquet y genera manifiestos con `data_version` |
-| 2. Experimento base | `python -m mibici.modeling.train` | Construye variables y registra los runs en MLflow (`--pregunta P2` para una sola) |
+| 2. Experimento base | `python -m mibici.modeling.train` | Construye variables y registra los 4 runs de P1, P2 y P3 en MLflow (`--pregunta P1`, `P2` o `P3` para una sola) |
 | 3. Interfaz de MLflow | `mlflow ui --backend-store-uri sqlite:///mlflow.db` | Muestra runs, parámetros, métricas y artefactos en `http://127.0.0.1:5000` |
-| Pruebas | `python -m pytest tests` | Partición temporal, rezagos sin fuga e indicador de riesgo |
+| Pruebas | `python -m pytest tests` | Ingesta, partición, rezagos sin fuga, indicador de riesgo, métricas y P3 |
 
 La ingesta reutiliza los CSV que ya estén en `data/raw` y solo consulta el
-portal si falta alguno. Si cambian los manifiestos, súbanlos en un commit antes
+portal si falta alguno. En una computadora nueva la ingesta tarda unos minutos
+(descarga de ~600 MB) y el experimento completo, alrededor de un minuto.
+Las gráficas, tablas y el mapa de P3 se guardan en `reports/figures/` (no se
+versionan) y se registran como artefactos de cada run. Si cambian los manifiestos, súbanlos en un commit antes
 de correr el experimento: cada run registra el commit y marca `git_dirty=true`
 si había cambios de código sin commit.
 
@@ -180,12 +185,31 @@ si había cambios de código sin commit.
 
 - Experimento único: `mibici-equipo26`. Todos los runs pasan por
 `mibici/tracking.py`, que registra los mismos parámetros y etiquetas.
-- Un run por pregunta con nombre descriptivo, nunca el nombre aleatorio.
+- Runs con nombre descriptivo, nunca el nombre aleatorio:
+
+  | Pregunta | Run | Modelo |
+  |---|---|---|
+  | P1 | `p1-baseline-promedio-semanal` | Baseline: promedio del mismo día de la semana en las 4 semanas previas |
+  | P2 | `p2-baseline-semana-anterior` | Baseline: categoría de riesgo de la semana anterior |
+  | P2 | `p2-logreg-multiclase` | Candidato: regresión logística multiclase balanceada |
+  | P3 | `p3-kmeans-k3-historia180` | KMeans k=3 sobre perfiles semanales de salidas y llegadas, con mapa |
+
 - Parámetros: rango de fechas, versión de los datos, semilla, modelo e
   hiperparámetros.
 - Etiquetas: equipo, pregunta (P1, P2 o P3) y commit de Git.
 - Métricas con el conjunto en el nombre, por ejemplo `test_mae`.
 - Sin credenciales ni datos personales en parámetros, etiquetas o artefactos.
+- P3 fija su configuración en `references/p3_frozen.json` (elegida sin ver
+  prueba). El run agrega la etiqueta `reproduce_configuracion_congelada=true`
+  cuando sus métricas coinciden con las registradas al congelarla. El protocolo
+  de auditoría con evidencias intermedias está en
+  [references/P3_REPRODUCIBILIDAD.md](references/P3_REPRODUCIBILIDAD.md).
+
+**Limitación conocida:** el hash de `data/processed/estaciones.parquet` puede
+variar entre sistemas operativos aunque el contenido sea el mismo. Si la ingesta
+modifica ese valor en `manifests/mibici_processed.json`, el run queda con
+`git_dirty=true`. `data_version` no cambia, porque se calcula con los CSV
+originales.
 
 ## Flujo de trabajo con Git
 
@@ -245,14 +269,9 @@ Integrantes del equipo 26:
 - Kimberly Ruiz
 - Eduardo Daniel Sauza Machado
 
-Roles y responsabilidades propuestos:
-
-| Rol | Responsabilidades |
-|---|---|
-| I1 · Infraestructura e integración | Estructura, configuración, dependencias, arquitectura, README y validación |
-| I2 · Datos y P1 | `dataset.py`, manifiesto, features y baseline de P1 |
-| I3 · P2 | Indicador de riesgo, features y baseline de P2 |
-| I4 · P3 | Features, agrupación y visualizaciones de P3 |
-
-El equipo acordará la asignación de estos roles y actualizará este apartado
-mediante un Pull Request.
+| Integrante | Rol | Contribuciones principales |
+|---|---|---|
+| Francisco Vicente Eugenio Ponce | Infraestructura e integración | Estructura con ccds, configuración, dependencias, arquitectura, README, protección de `main`, revisión e integración de PRs, ejecución desde un clon limpio |
+| Eduardo Daniel Sauza Machado | Datos y exploración | Notebook de exploración, descarga y normalización inicial, manifiesto procesado, partición temporal y utilidades de features |
+| Dan Michael García Rios | Ingesta, tracking y P2 | Ingesta en un comando con nomenclatura, helper común de MLflow, panel estación-día sin fuga, indicador de riesgo y modelos de P2 |
+| Kimberly Ruiz | P1 y P3 | Baseline de P1 con evidencias, integración de P1 y P2, perfiles de estaciones, agrupación, mapa y reproducibilidad de P3 |

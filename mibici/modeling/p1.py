@@ -10,10 +10,14 @@ from mibici.tracking import iniciar_run, registrar_artefacto, registrar_metricas
 
 
 def calcular_metricas(datos, prediccion):
+    """MAE y RMSE en viajes por estación-día; WAPE es el error relativo al volumen total."""
     reales = datos["salidas"]
+    errores = np.abs(np.asarray(reales, dtype=float) - np.asarray(prediccion, dtype=float))
+    total = float(np.sum(reales))
     return {
         "mae": float(mean_absolute_error(reales, prediccion)),
         "rmse": float(np.sqrt(mean_squared_error(reales, prediccion))),
+        "wape": float(errores.sum() / total) if total else float("nan"),
     }
 
 

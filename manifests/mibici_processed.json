@@ -132,7 +132,7 @@
   ],
   "stations": {
     "filename": "estaciones.parquet",
-    "sha256": "bcfd7d47b881edd6159cec56c68325a805d4354417f46ab600f54eec77014eaa",
+    "sha256": "80ef17e6566e9a1821896e9739a19fc765c8590f27660488267606ed5a56afce",
     "records": 484,
     "without_capacity": 4,
     "source_filename": "nomenclatura_2026_09.csv",

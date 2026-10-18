@@ -15,3 +15,9 @@ def test_error_conocido():
     resultado = calcular_metricas(datos, [8, 22])
     assert resultado["mae"] == 2
     assert resultado["rmse"] == 2
+
+
+def test_wape_pondera_por_volumen():
+    datos = pd.DataFrame({"salidas": [10, 30]})
+    resultado = calcular_metricas(datos, [12, 26])
+    assert resultado["wape"] == 6 / 40

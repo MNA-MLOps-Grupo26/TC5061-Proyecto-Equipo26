@@ -5,7 +5,7 @@ Uso, desde la raíz del repositorio con el entorno activo y después de la inges
     python -m mibici.modeling.train              # todas las preguntas disponibles
     python -m mibici.modeling.train --pregunta P2
 
-Cada pregunta vive en su módulo (p1.py, p2.py, p3.py) y expone
+Cada pregunta vive en su módulo (p1.py, p2.py, p3_base.py) y expone
 ``ejecutar(viajes, estaciones)``. Para agregar una, regístrenla en EJECUTORES.
 """
 
@@ -13,11 +13,11 @@ from loguru import logger
 import typer
 
 from mibici.dataset import cargar_estaciones, cargar_viajes
-from mibici.modeling import p1, p2, p3
+from mibici.modeling import p1, p2, p3_base
 
 app = typer.Typer()
 
-EJECUTORES = {"P1": p1.ejecutar, "P2": p2.ejecutar, "P3": p3.ejecutar}
+EJECUTORES = {"P1": p1.ejecutar, "P2": p2.ejecutar, "P3": p3_base.ejecutar}
 
 
 @app.command()
