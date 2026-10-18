@@ -231,12 +231,21 @@ integrante.
 
 ## Integrantes y roles
 
-| Rol | Integrante | Responsabilidades |
-|---|---|---|
-| I1 · Infraestructura e integración | Francisco Vicente Eugenio Ponce | Estructura, configuración, dependencias, arquitectura, README y validación |
-| I2 · Datos y P1 | Por confirmar | `dataset.py`, manifiesto, features y baseline de P1 |
-| I3 · P2 | Por confirmar | Indicador de riesgo, features y baseline de P2 |
-| I4 · P3 | Por confirmar | Features, agrupación y visualizaciones de P3 |
+Integrantes del equipo 26:
 
-Cada integrante completará su nombre y confirmará sus responsabilidades mediante
-un Pull Request. Las asignaciones I2–I4 quedan pendientes de acuerdo del equipo.
+- Francisco Vicente Eugenio Ponce
+- Dan Michael García Rios
+- Kimberly Ruiz
+- Eduardo Daniel Sauza Machado
+
+Roles y responsabilidades propuestos:
+
+| Rol | Responsabilidades |
+|---|---|
+| I1 · Infraestructura e integración | Estructura, configuración, dependencias, arquitectura, README y validación |
+| I2 · Datos y P1 | `dataset.py`, manifiesto, features y baseline de P1 |
+| I3 · P2 | Indicador de riesgo, features y baseline de P2 |
+| I4 · P3 | Features, agrupación y visualizaciones de P3 |
+
+El equipo acordará la asignación de estos roles y actualizará este apartado
+mediante un Pull Request.
