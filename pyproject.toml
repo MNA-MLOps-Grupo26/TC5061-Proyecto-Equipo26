@@ -18,6 +18,11 @@ classifiers = [
 requires-python = "~=3.13.0"
 
 
+[tool.uv]
+# Las dependencias se manejan con requirements.in y requirements.txt.
+# Esto desactiva uv add y uv sync para no crear un uv.lock paralelo.
+managed = false
+
 [tool.ruff]
 line-length = 99
 src = ["mibici"]
