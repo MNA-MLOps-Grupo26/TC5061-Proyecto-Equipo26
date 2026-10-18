@@ -1,6 +1,10 @@
-"""Normalización de los archivos mensuales de MiBici."""
+"""Normalización de los archivos de MiBici y manifiesto de datos procesados.
 
-from datetime import UTC, datetime
+Se ejecuta desde ``python -m mibici.dataset`` después de la descarga. También
+puede correrse sola (``python -m mibici.preprocess``) si los CSV ya existen en
+``data/raw`` y su manifiesto de descarga está actualizado.
+"""
+
 import hashlib
 import json
 from pathlib import Path
@@ -8,8 +12,18 @@ from pathlib import Path
 from loguru import logger
 import pandas as pd
 
-from mibici.config import MANIFESTS_DIR, PROCESSED_DATA_DIR, RAW_DATA_DIR
+from mibici.config import (
+    DOWNLOADS_MANIFEST,
+    ESTACIONES_PARQUET,
+    MANIFESTS_DIR,
+    NOMENCLATURA_FILENAME,
+    PROCESSED_DATA_DIR,
+    PROCESSED_MANIFEST,
+    RAW_DATA_DIR,
+)
 
+# Solo se conservan columnas operativas. Usuario_Id, Genero y
+# Año_de_nacimiento se descartan aquí y nunca llegan a data/processed.
 COLUMNAS = {
     "Viaje_Id": "viaje_id",
     "Inicio_del_viaje": "inicio_viaje",
@@ -18,157 +32,187 @@ COLUMNAS = {
     "Destino_Id": "destino_id",
 }
 
+COLUMNAS_ESTACIONES = {
+    "id": "estacion_id",
+    "name": "nombre",
+    "latitude": "latitud",
+    "longitude": "longitud",
+    "dpcapacity": "capacidad",
+}
 
-def normalizar_archivo(archivo: Path) -> dict:
-    """Normaliza un CSV mensual y lo guarda como Parquet."""
 
-    encoding = (
-        "cp1252"
-        if "2026_01" in archivo.name
-        else "utf-8-sig"
-    )
+def normalizar_archivo(archivo: Path, encoding: str = "utf-8-sig") -> dict:
+    """Normaliza un CSV mensual de viajes y lo guarda como Parquet.
 
-    df = pd.read_csv(
-        archivo,
-        encoding=encoding,
-        usecols=list(COLUMNAS),
-    )
-
+    El encoding viene del manifiesto de descarga (``dataset.verify_csv`` lo
+    detecta leyendo el archivo completo), así no depende del nombre del mes.
+    """
+    df = pd.read_csv(archivo, encoding=encoding, usecols=list(COLUMNAS))
     registros_originales = len(df)
 
-    # Estandarizar nombres
     df = df.rename(columns=COLUMNAS)
 
-    # Convertir fechas
     for columna in ["inicio_viaje", "fin_viaje"]:
-        df[columna] = pd.to_datetime(
-            df[columna],
-            errors="raise",
-        )
+        df[columna] = pd.to_datetime(df[columna], errors="raise")
 
-    # Estandarizar identificadores
     for columna in ["viaje_id", "origen_id", "destino_id"]:
-        df[columna] = pd.to_numeric(
-            df[columna],
-            errors="raise",
-        ).astype("int64")
+        df[columna] = pd.to_numeric(df[columna], errors="raise").astype("int64")
 
-    # Eliminar duplicados exactos en las columnas conservadas
+    # Duplicados exactos en las columnas conservadas
     df = df.drop_duplicates()
+    duplicados = registros_originales - len(df)
 
-    # Ordenar para obtener resultados reproducibles
-    df = df.sort_values(
-        ["inicio_viaje", "viaje_id"]
-    ).reset_index(drop=True)
+    # Viajes con fin anterior al inicio no son físicamente posibles
+    invalidos = int((df["fin_viaje"] < df["inicio_viaje"]).sum())
+    df = df.loc[df["fin_viaje"] >= df["inicio_viaje"]]
 
-    PROCESSED_DATA_DIR.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
+    df = df.sort_values(["inicio_viaje", "viaje_id"]).reset_index(drop=True)
 
-    salida = (
-        PROCESSED_DATA_DIR
-        / f"{archivo.stem}.parquet"
-    )
-
-    df.to_parquet(salida, index=False)
+    PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(PROCESSED_DATA_DIR / f"{archivo.stem}.parquet", index=False)
 
     return {
         "archivo": archivo.name,
         "originales": registros_originales,
         "normalizados": len(df),
-        "duplicados_eliminados": registros_originales - len(df),
+        "duplicados_eliminados": duplicados,
+        "fin_antes_de_inicio": invalidos,
     }
+
+
+def normalizar_estaciones(archivo: Path, encoding: str = "utf-8-sig") -> dict:
+    """Normaliza el catálogo de estaciones y lo guarda como Parquet.
+
+    Capacidad 0 o nula se guarda como nula: no permite calcular el indicador
+    de riesgo de P2 y no debe confundirse con una estación sin anclajes.
+    """
+    df = pd.read_csv(archivo, encoding=encoding, usecols=list(COLUMNAS_ESTACIONES))
+    df = df.rename(columns=COLUMNAS_ESTACIONES)
+
+    df["estacion_id"] = pd.to_numeric(df["estacion_id"], errors="raise").astype("int64")
+    for columna in ["latitud", "longitud", "capacidad"]:
+        df[columna] = pd.to_numeric(df[columna], errors="coerce")
+    df["nombre"] = df["nombre"].astype("string").str.strip()
+    df.loc[df["capacidad"] <= 0, "capacidad"] = pd.NA
+
+    df = df.drop_duplicates("estacion_id").sort_values("estacion_id").reset_index(drop=True)
+
+    PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(PROCESSED_DATA_DIR / ESTACIONES_PARQUET, index=False)
+
+    return {
+        "archivo": archivo.name,
+        "estaciones": len(df),
+        "sin_capacidad": int(df["capacidad"].isna().sum()),
+    }
+
 
 def calcular_sha256(archivo: Path) -> str:
     """Calcula el hash SHA-256 de un archivo."""
     sha256 = hashlib.sha256()
-
     with archivo.open("rb") as f:
         for bloque in iter(lambda: f.read(1024 * 1024), b""):
             sha256.update(bloque)
-
     return sha256.hexdigest()
 
 
-def generar_manifiesto(resultados: list[dict]) -> None:
-    """Genera el manifiesto de los archivos Parquet procesados."""
+def calcular_data_version(descargas: list[dict]) -> str:
+    """Identificador corto y determinista de la versión de los datos.
 
-    origen = MANIFESTS_DIR / "mibici_downloads.json"
+    Se deriva solo de los SHA-256 de los archivos originales, por lo que no
+    cambia entre computadoras ni entre corridas si MiBici no modifica sus CSV.
+    Es el valor que se registra en MLflow como ``data_version``.
+    """
+    huella = sorted((item["filename"], item["sha256"]) for item in descargas)
+    return hashlib.sha256(json.dumps(huella).encode("utf-8")).hexdigest()[:12]
 
-    with origen.open(encoding="utf-8") as f:
-        descargas = json.load(f)
 
-    hashes_origen = {
-        item["filename"]: item["sha256"]
-        for item in descargas
-    }
+def generar_manifiesto(descargas: list[dict], viajes: list[dict], estaciones: dict) -> dict:
+    """Genera el manifiesto de los Parquet procesados con su data_version."""
+    hashes_origen = {item["filename"]: item["sha256"] for item in descargas}
 
     archivos = []
-
-    for resultado in resultados:
+    for resultado in viajes:
         nombre_csv = resultado["archivo"]
-        nombre_parquet = Path(nombre_csv).with_suffix(".parquet").name
-        ruta_parquet = PROCESSED_DATA_DIR / nombre_parquet
+        ruta_parquet = PROCESSED_DATA_DIR / Path(nombre_csv).with_suffix(".parquet").name
+        archivos.append(
+            {
+                "filename": ruta_parquet.name,
+                "sha256": calcular_sha256(ruta_parquet),
+                "records": resultado["normalizados"],
+                "duplicates_removed": resultado["duplicados_eliminados"],
+                "invalid_removed": resultado["fin_antes_de_inicio"],
+                "source_filename": nombre_csv,
+                "source_sha256": hashes_origen[nombre_csv],
+            }
+        )
 
-        archivos.append({
-            "filename": nombre_parquet,
-            "sha256": calcular_sha256(ruta_parquet),
-            "records": resultado["normalizados"],
-            "source_filename": nombre_csv,
-            "source_sha256": hashes_origen[nombre_csv],
-        })
-
+    ruta_estaciones = PROCESSED_DATA_DIR / ESTACIONES_PARQUET
     manifiesto = {
-        "version": "1.0.0",
-        "generated_at": datetime.now(UTC).isoformat(),
+        "data_version": calcular_data_version(descargas),
         "total_files": len(archivos),
         "total_records": sum(item["records"] for item in archivos),
         "files": archivos,
+        "stations": {
+            "filename": ruta_estaciones.name,
+            "sha256": calcular_sha256(ruta_estaciones),
+            "records": estaciones["estaciones"],
+            "without_capacity": estaciones["sin_capacidad"],
+            "source_filename": estaciones["archivo"],
+            "source_sha256": hashes_origen[estaciones["archivo"]],
+        },
     }
 
     MANIFESTS_DIR.mkdir(parents=True, exist_ok=True)
-
-    destino = MANIFESTS_DIR / "mibici_processed.json"
-
-    with destino.open("w", encoding="utf-8") as f:
-        json.dump(manifiesto, f, indent=2, ensure_ascii=False)
-
-    logger.success(f"Manifiesto generado: {destino}")
-
-def main() -> None:
-    """Normaliza todos los archivos mensuales disponibles."""
-
-    archivos = sorted(
-        RAW_DATA_DIR.glob("datos_abiertos_*.csv")
+    destino = MANIFESTS_DIR / PROCESSED_MANIFEST
+    destino.write_text(
+        json.dumps(manifiesto, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
+    logger.success(f"Manifiesto generado: {destino} (data_version={manifiesto['data_version']})")
+    return manifiesto
 
-    if not archivos:
-        raise FileNotFoundError(
-            f"No se encontraron CSV en {RAW_DATA_DIR}"
-        )
 
-    total_originales = 0
-    total_normalizados = 0
-    resultados=[] 
-    for archivo in archivos:
-        resultado = normalizar_archivo(archivo)
+def procesar(descargas: list[dict]) -> dict:
+    """Normaliza viajes y estaciones listados en el manifiesto de descarga."""
+    resultados = []
+    estaciones = None
+
+    for info in descargas:
+        archivo = RAW_DATA_DIR / info["filename"]
+        if info["filename"] == NOMENCLATURA_FILENAME:
+            estaciones = normalizar_estaciones(archivo, info["encoding"])
+            logger.info(
+                f"{archivo.name}: {estaciones['estaciones']} estaciones, "
+                f"{estaciones['sin_capacidad']} sin capacidad"
+            )
+            continue
+
+        resultado = normalizar_archivo(archivo, info["encoding"])
         resultados.append(resultado)
-        total_originales += resultado["originales"]
-        total_normalizados += resultado["normalizados"]
-
         logger.info(
-            f"{resultado['archivo']}: "
-            f"{resultado['normalizados']:,} viajes, "
-            f"{resultado['duplicados_eliminados']} duplicados eliminados"
+            f"{resultado['archivo']}: {resultado['normalizados']:,} viajes, "
+            f"{resultado['duplicados_eliminados']} duplicados, "
+            f"{resultado['fin_antes_de_inicio']} con fin antes de inicio"
         )
 
+    if estaciones is None:
+        raise FileNotFoundError(f"El manifiesto no incluye {NOMENCLATURA_FILENAME}")
+
+    total_originales = sum(r["originales"] for r in resultados)
+    total_normalizados = sum(r["normalizados"] for r in resultados)
     logger.success(
-        f"Normalización completada: "
-        f"{total_originales:,} registros originales → "
+        f"Normalización completada: {total_originales:,} registros originales -> "
         f"{total_normalizados:,} registros normalizados"
     )
-    generar_manifiesto(resultados)
+    return generar_manifiesto(descargas, resultados, estaciones)
+
+
+def main() -> None:
+    """Normaliza los archivos listados en el manifiesto de descarga existente."""
+    origen = MANIFESTS_DIR / DOWNLOADS_MANIFEST
+    descargas = json.loads(origen.read_text(encoding="utf-8"))
+    procesar(descargas)
+
 
 if __name__ == "__main__":
     main()

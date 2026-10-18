@@ -36,10 +36,18 @@ completa está en el [ML Canvas](references/ML_Canvas_MiBici.pdf) y la arquitect
 - **Datos personales:** no se usan `Usuario_Id`, `Genero` ni `Año_de_nacimiento`
   como variables, ni se registran en MLflow.
 
-Los datos no se versionan en Git. La ingesta pendiente deberá reconstruirlos y
-generar un manifiesto versionado con el número de registros y el hash SHA-256
-de cada archivo. El tamaño total y los conteos limpios se documentarán al
-integrar ese proceso.
+- **Tamaño:** 14 meses, 5,248,635 viajes después de limpieza y entre 367 y 468
+estaciones activas por mes (`reports/mibici_resumen_mensual.csv`).
+
+Los datos no se versionan en Git. `python -m mibici.dataset` los reconstruye y
+actualiza dos manifiestos versionados en `manifests/`:
+
+- `mibici_downloads.json`: URL, encoding, columnas, registros y SHA-256 de cada
+CSV original, incluida la nomenclatura.
+- `mibici_processed.json`: registros limpios, duplicados e inválidos eliminados,
+SHA-256 de cada Parquet y el `data_version`, un identificador de 12 caracteres
+derivado de los hashes de los CSV originales. Ese valor se registra en cada run
+de MLflow; si MiBici modifica un archivo, cambia la versión.
 
 ## Estructura del repositorio
 
@@ -155,24 +163,23 @@ Reglas:
 ## Comandos del proyecto
 
 Ejecuten los comandos desde la raíz del repositorio con `.venv` activo.
-La estructura y configuración ya están disponibles. Los módulos de ingesta,
-features y entrenamiento conservan el código de ejemplo de la plantilla;
-todavía no descargan ni procesan MiBici y no entrenan sus baselines.
-Los siguientes comandos serán los puntos de entrada al integrar esos módulos.
 
-
-| Paso | Comando | Estado |
+| Paso | Comando | Qué hace |
 |---|---|---|
-| Ingesta y versionado | `python -m mibici.dataset` | Pendiente |
-| Experimento base (P1, P2, P3) | `python -m mibici.modeling.train` | Pendiente |
-| Interfaz de MLflow | `mlflow ui --backend-store-uri sqlite:///mlflow.db` | Disponible tras instalar; runs pendientes |
+| 1. Ingesta y versionado | `python -m mibici.dataset` | Descarga los 14 meses y la nomenclatura, verifica, normaliza a Parquet y genera manifiestos con `data_version` |
+| 2. Experimento base | `python -m mibici.modeling.train` | Construye variables y registra los runs en MLflow (`--pregunta P2` para una sola) |
+| 3. Interfaz de MLflow | `mlflow ui --backend-store-uri sqlite:///mlflow.db` | Muestra runs, parámetros, métricas y artefactos en `http://127.0.0.1:5000` |
+| Pruebas | `python -m pytest tests` | Partición temporal, rezagos sin fuga e indicador de riesgo |
 
-La interfaz se consulta en `http://127.0.0.1:5000`. Abrirla no ejecuta los
-baselines; las ejecuciones aparecerán cuando se integre el entrenamiento.
+La ingesta reutiliza los CSV que ya estén en `data/raw` y solo consulta el
+portal si falta alguno. Si cambian los manifiestos, súbanlos en un commit antes
+de correr el experimento: cada run registra el commit y marca `git_dirty=true`
+si había cambios de código sin commit.
 
 ## Experimentos en MLflow
 
-- Experimento único: `mibici-equipo26`.
+- Experimento único: `mibici-equipo26`. Todos los runs pasan por
+`mibici/tracking.py`, que registra los mismos parámetros y etiquetas.
 - Un run por pregunta con nombre descriptivo, nunca el nombre aleatorio.
 - Parámetros: rango de fechas, versión de los datos, semilla, modelo e
   hiperparámetros.
