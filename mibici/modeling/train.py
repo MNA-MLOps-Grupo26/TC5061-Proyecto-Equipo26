@@ -13,13 +13,14 @@ from loguru import logger
 import typer
 
 from mibici.dataset import cargar_estaciones, cargar_viajes
+from mibici.modeling import p2
 
 app = typer.Typer()
 
-# Cada pregunta se agrega aquí al integrar su módulo, por ejemplo:
-#   from mibici.modeling import p1
-#   EJECUTORES = {"P1": p1.ejecutar}
-EJECUTORES = {}
+# Pendientes: "P1": p1.ejecutar y "P3": p3.ejecutar
+EJECUTORES = {
+    "P2": p2.ejecutar,
+}
 
 
 @app.command()
@@ -27,8 +28,6 @@ def main(
     pregunta: str = typer.Option("todas", help="P1, P2, P3 o todas."),
 ):
     """Corre el experimento base para una pregunta o para todas."""
-    if not EJECUTORES:
-        raise typer.Exit("Todavía no hay preguntas registradas en EJECUTORES.")
     pregunta = pregunta.upper()
     if pregunta == "TODAS":
         seleccion = list(EJECUTORES)
