@@ -1,0 +1,48 @@
+digraph MiBici {
+ graph [rankdir=TB, bgcolor="white", pad="0.35", nodesep="0.4", ranksep="0.35", fontname="Arial", label="MiBici · Equipo 26
+Arquitectura propuesta", labelloc=t, fontsize=22];
+ node [shape=box, style="rounded,filled", color="#cbd5e1", fillcolor="#eff6ff", fontname="Arial", fontsize=12, margin="0.18,0.12"];
+ edge [color="#64748b", arrowsize=0.7];
+ source [label="MiBici
+CSV viajes + estaciones"];
+ ingest [label="dataset.py
+Descarga y hashes", fillcolor="#dcfce7"];
+ raw [label="data/raw
+Originales"];
+ manifest [label="manifests/
+URL + SHA-256 + conteos"];
+ clean [label="Normalización
+y controles de calidad"];
+ parquet [label="data/processed
+Parquet"];
+ feat [label="features.py
+Agregaciones y rezagos"];
+ split [label="config.py
+Partición temporal"];
+ train [label="modeling/train.py
+P1 · P2 · P3"];
+ tracking [label="MLflow local
+Parámetros, métricas,
+etiquetas y artefactos"];
+ models [label="models/
+Modelos locales"];
+ figures [label="reports/figures
+Gráficas y mapa"];
+ git [label="Git
+Código + config + manifiesto", fillcolor="#f1f5f9"];
+ city [label="CityBikes
+Contraste opcional", style="rounded,dashed", fillcolor="white"];
+ source -> ingest -> raw -> clean -> parquet -> feat -> split -> train -> tracking -> figures;
+ ingest -> manifest;
+ train -> models;
+ manifest -> git;
+ git -> tracking [style=dashed, label="versiones", fontname="Arial", fontsize=10];
+ city -> clean [style=dashed];
+ note [shape=plaintext, fillcolor="white", label="Disponible: estructura base.
+Pendiente: ingesta, limpieza, features, entrenamiento y MLflow.", fontsize=11];
+ {rank=same; source; city;}
+ {rank=same; raw; manifest;}
+ {rank=same; clean; git;}
+ {rank=same; tracking; models;}
+ figures -> note [style=invis];
+}

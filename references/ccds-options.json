@@ -1,0 +1,22 @@
+{
+  "cookiecutter": {
+    "project_name": "Proyecto MiBici Equipo 26",
+    "repo_name": "TC5061-Proyecto-Equipo26",
+    "module_name": "mibici",
+    "author_name": "Equipo 26 TC5061",
+    "description": "Predicción de viajes, aproximación de riesgo y patrones de uso de MiBici.",
+    "python_version_number": "3.13",
+    "dataset_storage": {
+      "none": "none"
+    },
+    "environment_manager": "uv",
+    "dependency_file": "requirements.txt",
+    "pydata_packages": "basic",
+    "testing_framework": "pytest",
+    "linting_and_formatting": "ruff",
+    "open_source_license": "No license file",
+    "docs": "none",
+    "include_code_scaffold": "Yes",
+    "_template": "https://github.com/drivendataorg/cookiecutter-data-science"
+  }
+}

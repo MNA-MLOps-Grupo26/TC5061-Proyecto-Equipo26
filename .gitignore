@@ -1,6 +1,26 @@
 # Data
 /data/
 
+# Datos de MiBici fuera de data/ (por si alguien descarga en otra carpeta)
+*.csv
+*.parquet
+
+# MLflow
+mlruns/
+mlartifacts/
+mlflow.db
+
+# Modelos serializados
+/models/*
+!/models/.gitkeep
+*.pkl
+*.joblib
+*.onnx
+
+# Credenciales
+.env
+.env.*
+
 # Mac OS-specific storage files
 .DS_Store
 

@@ -1,0 +1,18 @@
+# Dependencias directas del proyecto (sin versión).
+# Las versiones exactas se generan en requirements.txt; ver README.
+ipython
+jupyterlab
+loguru
+matplotlib
+mlflow
+notebook
+numpy
+pandas
+pyarrow
+pytest
+python-dotenv
+ruff
+scikit-learn
+tqdm
+typer
+-e .
