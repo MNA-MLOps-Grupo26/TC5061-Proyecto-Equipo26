@@ -1,7 +1,12 @@
 import pandas as pd
+import pytest
 
 from mibici import config
-from mibici.features import particionar_dataframe
+from mibici.features import (
+    agregar_variables_temporales,
+    particionar_dataframe,
+    validar_columnas_viajes,
+)
 
 
 def test_particion_temporal_en_orden():
@@ -51,3 +56,54 @@ def test_particion_excluye_fecha_final():
     particiones = particionar_dataframe(df)
 
     assert sum(len(p) for p in particiones.values()) == 0
+
+
+def test_validar_columnas_viajes():
+    """Acepta las columnas requeridas y rechaza las incompletas."""
+    df = pd.DataFrame(columns=[
+        "viaje_id",
+        "inicio_viaje",
+        "fin_viaje",
+        "origen_id",
+        "destino_id",
+    ])
+
+    validar_columnas_viajes(df)
+
+    with pytest.raises(ValueError, match="Faltan columnas"):
+        validar_columnas_viajes(
+            pd.DataFrame(columns=["viaje_id"])
+        )
+
+
+def test_agregar_variables_temporales():
+    """Genera correctamente las variables de calendario."""
+    df = pd.DataFrame({
+        "inicio_viaje": pd.to_datetime([
+            "2026-08-03 09:30:00",  # Lunes
+            "2026-08-08 18:15:00",  # Sábado
+        ])
+    })
+
+    resultado = agregar_variables_temporales(
+        df,
+        "inicio_viaje",
+    )
+
+    assert resultado["hora"].tolist() == [9, 18]
+    assert resultado["dia_semana"].tolist() == [0, 5]
+    assert resultado["mes"].tolist() == [8, 8]
+    assert resultado["anio"].tolist() == [2026, 2026]
+    assert resultado["es_fin_semana"].tolist() == [0, 1]
+
+    # La función debe conservar el DataFrame original.
+    assert "hora" not in df.columns
+
+
+def test_agregar_variables_temporales_rechaza_columna_inexistente():
+    """Informa claramente si la columna temporal no existe."""
+    df = pd.DataFrame({"viaje_id": [1]})
+
+    with pytest.raises(ValueError, match="No existe la columna"):
+        agregar_variables_temporales(df, "fecha_inexistente")
+
