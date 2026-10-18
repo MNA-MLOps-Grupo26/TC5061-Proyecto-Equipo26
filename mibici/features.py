@@ -1,5 +1,53 @@
 
-"""Partición temporal de los datos procesados de MiBici."""
+"""
+Módulo de funciones reutilizables para la ingeniería de variables de MiBici.
+
+Funciones disponibles
+--------------------
+
+1. particionar_dataframe(df: pd.DataFrame) -> dict[str, pd.DataFrame]
+   Divide los viajes en tres conjuntos temporales:
+   - train: entrenamiento.
+   - validation: validación.
+   - test: prueba.
+
+   Utiliza la columna inicio_viaje y las fechas definidas en config.py.
+   Los intervalos son cerrados por la izquierda y abiertos por la derecha,
+   evitando traslapes entre conjuntos.
+
+2. validar_columnas_viajes(df: pd.DataFrame) -> None
+   Comprueba que el DataFrame contenga las columnas requeridas:
+   - viaje_id
+   - inicio_viaje
+   - fin_viaje
+   - origen_id
+   - destino_id
+
+   Genera un ValueError si falta alguna columna.
+
+3. agregar_variables_temporales(
+       df: pd.DataFrame,
+       columna_fecha: str
+   ) -> pd.DataFrame
+   Genera variables de calendario a partir de una columna temporal:
+   - fecha: fecha del registro.
+   - hora: hora del día (0-23).
+   - dia_semana: día de la semana (0=lunes, 6=domingo).
+   - mes: mes del año (1-12).
+   - anio: año del registro.
+   - es_fin_semana: 1 si es sábado o domingo; 0 en caso contrario.
+
+   Devuelve una copia del DataFrame original con las nuevas variables,
+   sin modificar el DataFrame de entrada.
+
+Consideraciones
+---------------
+- Las rutas, fechas y parámetros temporales se obtienen de config.py.
+- Las funciones son reutilizables para la preparación de datos de P1, P2 y P3.
+- Las variables temporales deben construirse únicamente con información
+  disponible en el momento de la predicción para evitar fuga de información.
+- Este módulo prepara y particiona los datos; no entrena modelos.
+"""
 
 
 from loguru import logger
