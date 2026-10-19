@@ -4,10 +4,10 @@ import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
 
-from mibici.compare_p3 import matriz_forma
-from mibici.features_p3 import columnas_perfil_p3
+from mibici import evaluation, plots
+from mibici.dataset import sha256
+from mibici.features import columnas_perfil_p3, matriz_forma, perfiles_agosto
 from mibici.modeling import p3, train
-from mibici.validate_p3 import perfiles_agosto
 
 
 def test_septiembre_mismos_umbrales_y_primer_dia_completo():
@@ -66,7 +66,7 @@ def test_metricas_fijas_no_ajustan_centroides_y_reportan_exclusiones():
     before = model.cluster_centers_.copy()
     v = t.copy().assign(evaluable=True)
     v.loc[0, "evaluable"] = False
-    q, a, m, g = p3.resumir_fijo(model, t, v)
+    q, a, m, g = evaluation.resumir_fijo(model, t, v)
     assert len(q) == 17
     assert m["n_excluidas"] == 1
     assert m["fraccion_estable"] == 1
@@ -95,7 +95,7 @@ def test_mapa_identifica_estaciones_sin_coordenadas(tmp_path):
     e = pd.DataFrame(
         {"estacion_id": [1, 2], "latitud": [20.7, np.nan], "longitud": [-103.3, np.nan]}
     )
-    assert p3.guardar_mapa(t, np.array([0, 1]), e, tmp_path) == (1, 1)
+    assert plots.guardar_mapa(t, np.array([0, 1]), e, tmp_path) == (1, 1)
     missing = pd.read_csv(tmp_path / "estaciones_sin_ubicacion.csv")
     assert missing.estacion_id.tolist() == [2]
 
@@ -110,13 +110,13 @@ def test_reproduccion_rechaza_metricas_distintas_sin_tuning(tmp_path):
     spec = {
         "historical_run_id": "historico",
         "expected_results": {s: dict(summary[s]) for s in ("train", "val", "test")},
-        "assignment_file_sha256": {path.name: p3.sha256(path)},
+        "assignment_file_sha256": {path.name: sha256(path)},
     }
-    p3.verificar_reproduccion(summary, tmp_path, spec)
+    evaluation.verificar_reproduccion(summary, tmp_path, spec)
     assert (tmp_path / "verificacion_reproduccion.json").exists()
     summary["test"]["silhouette"] = 0.2
     with pytest.raises(ValueError, match="Reproduccion difiere"):
-        p3.verificar_reproduccion(summary, tmp_path, spec)
+        evaluation.verificar_reproduccion(summary, tmp_path, spec)
 
 
 def test_reproduccion_rechaza_asignaciones_distintas(tmp_path):
@@ -129,8 +129,8 @@ def test_reproduccion_rechaza_asignaciones_distintas(tmp_path):
     spec = {
         "historical_run_id": "historico",
         "expected_results": summary,
-        "assignment_file_sha256": {path.name: p3.sha256(path)},
+        "assignment_file_sha256": {path.name: sha256(path)},
     }
     path.write_text("estacion_id,grupo\n1,1\n", encoding="utf-8")
     with pytest.raises(ValueError, match="Asignaciones diferentes"):
-        p3.verificar_reproduccion(summary, tmp_path, spec)
+        evaluation.verificar_reproduccion(summary, tmp_path, spec)

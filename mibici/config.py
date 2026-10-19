@@ -104,3 +104,10 @@ P3_MIN_DIAS_TRAIN = 180  # cohorte con historia suficiente en entrenamiento
 P3_COHORTES = (180, 300)  # umbrales de historia predeclarados para la sensibilidad
 P3_MES_MIN_DIAS = 14  # días con eventos para evaluar una estación en un mes
 P3_MES_MIN_MOVIMIENTOS = 100
+# P3: evidencias históricas de la selección y de la evaluación congelada (no se
+# versionan; viven en la máquina donde se generaron). Solo se leen o se crean nuevas.
+P3_PREPARACION_PARQUET = REPORTS_DIR / "p3-preparacion-20261018/perfiles_entrenamiento.parquet"
+P3_VALIDACION_DIR = REPORTS_DIR / "p3-validacion-agosto-tentativa-20261018"
+P3_SENSIBILIDAD_DIR = REPORTS_DIR / "p3-sensibilidad-historia-20261018"
+P3_EVALUACION_CONGELADA_DIR = REPORTS_DIR / "p3-evaluacion-congelada-20261018"
+P3_REPRODUCCION_DIR = REPORTS_DIR / "p3-reproduccion-limpia-20261018"

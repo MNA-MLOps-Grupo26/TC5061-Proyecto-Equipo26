@@ -70,14 +70,20 @@ de MLflow; si MiBici modifica un archivo, cambia la versión.
 ├── reports
 │   └── figures        <- Gráficas y mapas
 ├── tests              <- Pruebas con pytest
-└── mibici             <- Código del proyecto
-    ├── config.py      <- Rutas, fechas, semilla y MLflow en un solo lugar
-    ├── dataset.py     <- Ingesta y versionado de datos
-    ├── features.py    <- Variables por pregunta
-    ├── plots.py       <- Visualizaciones
-    └── modeling
-        ├── train.py   <- Entrenamiento y registro en MLflow
-        └── predict.py <- Inferencia
+└── mibici                 <- Código del proyecto
+    ├── config.py          <- Rutas, fechas, semilla, umbrales y MLflow en un solo lugar
+    ├── dataset.py         <- Ingesta, versionado y lectura verificada contra el manifiesto
+    ├── preprocess.py      <- Normalización de CSV a Parquet
+    ├── features.py        <- Variables de P1, P2 y P3 (panel estación-día y perfiles de uso)
+    ├── evaluation.py      <- Comparación y evaluación de P3 (selección de k, validación, reproducción)
+    ├── plots.py           <- Gráficas y mapa de P3
+    ├── tracking.py        <- Registro común de runs en MLflow
+    ├── modeling
+    │   ├── train.py       <- Entrada única: corre P1, P2 y P3 y los registra en MLflow
+    │   ├── p1.py          <- Baseline de demanda (P1)
+    │   ├── p2.py          <- Baseline y regresión logística de riesgo (P2)
+    │   ├── p3.py          <- KMeans de perfiles de estaciones (P3) y auditoría congelada
+    │   └── predict.py     <- Inferencia (plantilla)
 ```
 
 La estructura se generó con Cookiecutter Data Science v2.3.0 (`ccds`, con
@@ -201,8 +207,13 @@ si había cambios de código sin commit.
 - Sin credenciales ni datos personales en parámetros, etiquetas o artefactos.
 - P3 fija su configuración en `references/p3_frozen.json` (elegida sin ver
   prueba). El run agrega la etiqueta `reproduce_configuracion_congelada=true`
-  cuando sus métricas coinciden con las registradas al congelarla. El protocolo
-  de auditoría con evidencias intermedias está en
+  cuando sus métricas coinciden con las registradas al congelarla.
+- La secuencia con la que se eligió esa configuración (revisión, comparación de
+  k, sensibilidad a la historia y validación en agosto) está en
+  `notebooks/2.0-fvep-p3-seleccion.ipynb`, y la auditoría de la evaluación
+  congelada en `notebooks/3.0-fvep-p3-auditoria.ipynb`. Ambos llaman funciones
+  de `dataset.py`, `features.py`, `evaluation.py`, `plots.py` y
+  `modeling/p3.py`. El protocolo está en
   [references/P3_REPRODUCIBILIDAD.md](references/P3_REPRODUCIBILIDAD.md).
 
 **Limitación conocida:** el hash de `data/processed/estaciones.parquet` puede

@@ -1,57 +1,195 @@
-"""P3 congelado: KMeans descriptivo, evaluacion unica de septiembre y MLflow."""
+"""P3 en un solo comando: perfiles, KMeans, mapa y run de MLflow.
+
+Reproduce sin pasos manuales la configuración que el equipo fijó en
+``references/p3_frozen.json``: KMeans con k=3 sobre las estaciones con al menos
+180 días con eventos en entrenamiento. Los centroides se ajustan solo con
+entrenamiento; agosto (validación) y septiembre (prueba) se asignan a esos
+centroides fijos, sin reajustar.
+
+Solo necesita la ingesta (``python -m mibici.dataset``). La selección de esta
+configuración se documenta en ``notebooks/2.0-fvep-p3-seleccion.ipynb``.
+
+Este módulo también conserva la auditoría de la evaluación congelada
+(``congelar`` y ``evaluar_congelado``), documentada en
+``notebooks/3.0-fvep-p3-auditoria.ipynb`` y ejecutable con
+``python -m mibici.modeling.p3 [--solo-congelar | --reproducir]``.
+"""
 
 from datetime import UTC, datetime
 import hashlib
 import json
 from pathlib import Path
+import shutil
 
 import joblib
-import matplotlib.pyplot as plt
 import mlflow
 import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
-from sklearn.metrics import adjusted_rand_score, silhouette_score
+from sklearn.metrics import silhouette_score
 
-from mibici.compare_p3 import N_INIT, SEED, guardar_grafica, matriz_forma
 from mibici.config import (
     DATA_END_EXCLUSIVE,
+    FIGURES_DIR,
     MANIFESTS_DIR,
+    P3_EVALUACION_CONGELADA_DIR,
+    P3_K,
+    P3_MAX_ITER,
+    P3_MES_MIN_DIAS,
+    P3_MES_MIN_MOVIMIENTOS,
+    P3_MIN_DIAS_TRAIN,
+    P3_N_INIT,
+    P3_PREPARACION_PARQUET,
+    P3_REPRODUCCION_DIR,
+    P3_SENSIBILIDAD_DIR,
+    P3_VALIDACION_DIR,
     PROCESSED_DATA_DIR,
     PROJ_ROOT,
-    REPORTS_DIR,
+    RANDOM_SEED,
     TEST_START,
+    TRAIN_START,
+    VALIDATION_START,
 )
-from mibici.history_p3 import cohorte_historia
+from mibici.dataset import leer_catalogo_verificado, leer_verificado, sha256
+from mibici.evaluation import comparar_con_congelado, resumir_fijo, verificar_reproduccion
+from mibici.features import cohorte_historia, matriz_forma, perfiles_agosto, preparar_perfiles_p3
+from mibici.plots import guardar_grafica, guardar_mapa
 from mibici.tracking import iniciar_run, obtener_commit, registrar_artefacto, registrar_metricas
-from mibici.validate_p3 import (
-    AUG_MIN_DAYS,
-    AUG_MIN_MOVEMENTS,
-    asignar_fijo,
-    leer_verificado,
-    perfiles_agosto,
-)
 
-DESTINO = REPORTS_DIR / "p3-evaluacion-congelada-20261018"
-PREPARACION = REPORTS_DIR / "p3-preparacion-20261018/perfiles_entrenamiento.parquet"
-VALIDACION = REPORTS_DIR / "p3-validacion-agosto-tentativa-20261018"
-SENSIBILIDAD = REPORTS_DIR / "p3-sensibilidad-historia-20261018"
-COLORES = ("#2166ac", "#d6604d", "#1b7837")
+DESTINO = FIGURES_DIR / "p3"
 
 
-def sha256(path):
-    with Path(path).open("rb") as f:
-        return hashlib.file_digest(f, "sha256").hexdigest()
+def cargar_periodo(records: dict, inicio, fin_exclusivo) -> pd.DataFrame:
+    """Lee los Parquet mensuales del periodo y verifica hash y conteo contra el manifiesto."""
+    meses = pd.period_range(inicio, pd.Timestamp(fin_exclusivo) - pd.Timedelta(days=1), freq="M")
+    frames = [
+        leer_verificado(f"datos_abiertos_{mes.year}_{mes.month:02d}.parquet", records)[0]
+        for mes in meses
+    ]
+    return pd.concat(frames, ignore_index=True)
+
+
+def llegadas_desde(viajes: pd.DataFrame, momento) -> pd.DataFrame:
+    """Viajes del mes anterior que terminan dentro del periodo evaluado.
+
+    Sin ellos se perderían las llegadas del primer día (viajes que empiezan el
+    día 31 y terminan el día 1).
+    """
+    return viajes.loc[pd.to_datetime(viajes.fin_viaje).ge(pd.Timestamp(momento))]
+
+
+def ejecutar(viajes=None, estaciones=None) -> None:
+    """Entrena y evalúa P3 y registra el run.
+
+    Los argumentos se aceptan por compatibilidad con ``train.py`` y se ignoran:
+    P3 lee los viajes por mes y el catálogo después de verificarlos contra el
+    manifiesto.
+    """
+    manifest = json.loads((MANIFESTS_DIR / "mibici_processed.json").read_text(encoding="utf-8"))
+    records = {r["filename"]: r for r in manifest["files"]}
+    estaciones = leer_catalogo_verificado(
+        PROCESSED_DATA_DIR / manifest["stations"]["filename"], manifest["stations"]
+    )
+
+    if DESTINO.exists():
+        shutil.rmtree(DESTINO)
+    DESTINO.mkdir(parents=True)
+
+    # 1. Perfiles y ajuste: solo entrenamiento.
+    viajes_train = cargar_periodo(records, TRAIN_START, VALIDATION_START)
+    train = cohorte_historia(preparar_perfiles_p3(viajes_train, estaciones), P3_MIN_DIAS_TRAIN)
+    modelo = KMeans(
+        n_clusters=P3_K,
+        random_state=RANDOM_SEED,
+        n_init=P3_N_INIT,
+        max_iter=P3_MAX_ITER,
+        algorithm="lloyd",
+    ).fit(matriz_forma(train))
+    labels = modelo.labels_
+
+    # 2. Validación y prueba: asignación a centroides fijos, sin reajustar.
+    agosto = cargar_periodo(records, VALIDATION_START, TEST_START)
+    val = perfiles_agosto(
+        pd.concat([llegadas_desde(viajes_train, VALIDATION_START), agosto], ignore_index=True),
+        train,
+    )
+    septiembre = cargar_periodo(records, TEST_START, DATA_END_EXCLUSIVE)
+    test = perfiles_agosto(
+        pd.concat([llegadas_desde(agosto, TEST_START), septiembre], ignore_index=True),
+        train,
+        inicio=TEST_START,
+        fin=DATA_END_EXCLUSIVE,
+    )
+    del viajes_train, agosto, septiembre
+
+    _, asign_val, metricas_val, _ = resumir_fijo(modelo, train, val)
+    q_test, asign_test, metricas_test, grupos_test = resumir_fijo(modelo, train, test)
+
+    # 3. Evidencia: mapa, perfiles medios y asignaciones por estación (sin datos personales).
+    mapeables, sin_ubicacion = guardar_mapa(train, labels, estaciones, DESTINO)
+    guardar_grafica(train, labels, "train", DESTINO)
+    guardar_grafica(
+        q_test,
+        asign_test.grupo_periodo.to_numpy(),
+        "test_septiembre",
+        DESTINO,
+        contexto="septiembre: asignación a centroides de entrenamiento",
+    )
+    train[["estacion_id", "nombre", "dias_con_eventos", "total_movimientos"]].assign(
+        grupo_train=labels
+    ).to_csv(DESTINO / "asignaciones_train.csv", index=False)
+    asign_val.to_csv(DESTINO / "asignaciones_val.csv", index=False)
+    asign_test.to_csv(DESTINO / "asignaciones_test.csv", index=False)
+    grupos_test.to_csv(DESTINO / "metricas_grupos_test.csv", index=False)
+
+    metricas_train = {
+        "n_estaciones": len(train),
+        "silhouette": float(silhouette_score(matriz_forma(train), labels)),
+        "n_mapeables": mapeables,
+        "n_sin_ubicacion": sin_ubicacion,
+    }
+    resultados = {"train": metricas_train, "val": metricas_val, "test": metricas_test}
+    (DESTINO / "resultados.json").write_text(json.dumps(resultados, indent=2), encoding="utf-8")
+    coincide = comparar_con_congelado(resultados)
+
+    params = {
+        "k": P3_K,
+        "cohorte_min_dias_activos_train": P3_MIN_DIAS_TRAIN,
+        "n_init": P3_N_INIT,
+        "max_iter": P3_MAX_ITER,
+        "algorithm": "lloyd",
+        "n_variables": 336,
+        "transformacion": "sqrt(p)/sqrt(2)",
+        "distancia": "euclidean",
+        "min_dias_mes": P3_MES_MIN_DIAS,
+        "min_movimientos_mes": P3_MES_MIN_MOVIMIENTOS,
+        "fit": "train_only",
+        "catalogo_coordenadas": manifest["stations"]["source_filename"],
+    }
+    with iniciar_run("P3", "p3-kmeans-k3-historia180", "KMeans", params):
+        mlflow.set_tags(
+            {
+                "interpretacion": "descriptiva_con_solapamiento",
+                "reproduce_configuracion_congelada": str(coincide).lower(),
+            }
+        )
+        registrar_metricas("train", metricas_train)
+        registrar_metricas("val", metricas_val)
+        registrar_metricas("test", metricas_test)
+        for ruta in sorted(DESTINO.iterdir()):
+            registrar_artefacto(ruta, "p3")
+
+
+# --- Auditoría de la evaluación congelada --------------------------------------
 
 
 def fuentes_codigo():
     nombres = [
         "mibici/config.py",
+        "mibici/dataset.py",
         "mibici/features.py",
-        "mibici/features_p3.py",
-        "mibici/compare_p3.py",
-        "mibici/history_p3.py",
-        "mibici/validate_p3.py",
+        "mibici/plots.py",
+        "mibici/evaluation.py",
         "mibici/modeling/p3.py",
         "mibici/modeling/train.py",
         "mibici/tracking.py",
@@ -59,18 +197,18 @@ def fuentes_codigo():
     return {n: sha256(PROJ_ROOT / n) for n in nombres}
 
 
-def congelar(destino=DESTINO, *, reproduccion=False):
+def congelar(destino=P3_EVALUACION_CONGELADA_DIR, *, reproduccion=False):
     """Se llama antes de abrir septiembre. Nunca selecciona usando prueba."""
     if destino.exists():
         raise FileExistsError("Configuracion ya congelada; no se sobrescribe")
     spec = json.loads((PROJ_ROOT / "references/p3_frozen.json").read_text(encoding="utf-8"))
-    if sha256(PREPARACION) != spec["training_preparation_sha256"]:
+    if sha256(P3_PREPARACION_PARQUET) != spec["training_preparation_sha256"]:
         raise ValueError("La preparacion cambio desde la revision")
-    train = cohorte_historia(pd.read_parquet(PREPARACION), 180)
+    train = cohorte_historia(pd.read_parquet(P3_PREPARACION_PARQUET), 180)
     if len(train) != 369:
         raise ValueError("Cambio la cohorte revisada de369estaciones")
     modelo = KMeans(
-        n_clusters=3, random_state=SEED, n_init=N_INIT, max_iter=300, algorithm="lloyd"
+        n_clusters=3, random_state=RANDOM_SEED, n_init=P3_N_INIT, max_iter=300, algorithm="lloyd"
     ).fit(matriz_forma(train))
     centers_sha = hashlib.sha256(
         np.asarray(modelo.cluster_centers_, dtype="<f8").tobytes()
@@ -86,18 +224,18 @@ def congelar(destino=DESTINO, *, reproduccion=False):
         "k": 3,
         "cohorte_min_dias_train": 180,
         "n_train": 369,
-        "random_state": SEED,
-        "n_init": N_INIT,
+        "random_state": RANDOM_SEED,
+        "n_init": P3_N_INIT,
         "max_iter": 300,
         "algorithm": "lloyd",
         "distancia": "euclidea sobre sqrt(p)/sqrt(2),336variables;igual peso direcciones",
         "escalado": "sin StandardScaler;probabilidades separadas por direccion",
-        "umbral_mes_dias": AUG_MIN_DAYS,
-        "umbral_mes_movimientos": AUG_MIN_MOVEMENTS,
+        "umbral_mes_dias": P3_MES_MIN_DIAS,
+        "umbral_mes_movimientos": P3_MES_MIN_MOVIMIENTOS,
         "salvaguardas_mes": "7weekdays y ambas direcciones positivas",
         "test_inicio": str(TEST_START),
         "test_fin_exclusivo": str(DATA_END_EXCLUSIVE),
-        "preparacion_sha256": sha256(PREPARACION),
+        "preparacion_sha256": sha256(P3_PREPARACION_PARQUET),
         "modelo_sha256": sha256(destino / "kmeans_train_congelado.joblib"),
         "fuentes_codigo_sha256": fuentes_codigo(),
         "septiembre_inspeccionado_al_congelar": reproduccion,
@@ -115,157 +253,13 @@ def congelar(destino=DESTINO, *, reproduccion=False):
     return p
 
 
-def resumir_fijo(modelo, train, periodo):
-    q = periodo.loc[periodo.evaluable].sort_values("estacion_id").reset_index(drop=True)
-    if len(q) < 2:
-        raise ValueError("Muy pocas estaciones evaluables")
-    x, labels, dist = asignar_fijo(modelo, q)
-    matched = train.set_index("estacion_id").loc[q.estacion_id].reset_index()
-    xt = matriz_forma(matched)
-    lt = modelo.predict(xt)
-    fullx = matriz_forma(train)
-    full_labels = modelo.predict(fullx)
-    dtrain = modelo.transform(fullx)[np.arange(len(fullx)), full_labels]
-    p95 = np.array([np.quantile(dtrain[full_labels == g], 0.95) for g in range(3)])
-    shift = np.linalg.norm(x - xt, axis=1)
-    a = q[["estacion_id", "nombre", "dias_con_eventos", "total_movimientos"]].copy()
-    a["grupo_train"] = lt
-    a["grupo_periodo"] = labels
-    a["estable"] = lt == labels
-    a["distancia_centro_asignado"] = dist
-    a["cambio_perfil_pareado"] = shift
-    a["supera_p95_train_grupo_asignado"] = dist > p95[labels]
-    metrics = {
-        "n_evaluables": len(q),
-        "n_excluidas": len(periodo) - len(q),
-        "fraccion_evaluable": len(q) / len(train),
-        "fraccion_estable": float((lt == labels).mean()),
-        "ari_vs_train": float(adjusted_rand_score(lt, labels)),
-        "distancia_mediana": float(np.median(dist)),
-        "distancia_p95": float(np.quantile(dist, 0.95)),
-        "cambio_perfil_mediana": float(np.median(shift)),
-        "cambio_perfil_p95": float(np.quantile(shift, 0.95)),
-        "fraccion_sobre_p95_train": float((dist > p95[labels]).mean()),
-    }
-    if 2 <= len(np.unique(labels)) < len(labels):
-        metrics["silhouette_asignacion_fija"] = float(silhouette_score(x, labels))
-    groups = []
-    for g in range(3):
-        original = lt == g
-        assigned = labels == g
-        metrics[f"n_grupo_{g}"] = int(assigned.sum())
-        groups.append(
-            {
-                "grupo": g,
-                "n_train": int((full_labels == g).sum()),
-                "n_train_evaluables": int(original.sum()),
-                "n_periodo": int(assigned.sum()),
-                "retencion": float((labels[original] == g).mean()) if original.any() else None,
-                "distancia_train_mediana": float(np.median(dtrain[full_labels == g])),
-                "distancia_train_p95": float(p95[g]),
-                "distancia_periodo_mediana": float(np.median(dist[assigned]))
-                if assigned.any()
-                else None,
-            }
-        )
-    return q, a, metrics, pd.DataFrame(groups)
+def evaluar_congelado(*, destino=P3_EVALUACION_CONGELADA_DIR, reproduccion=False):
+    """Auditoría: evalúa septiembre una sola vez con la configuración congelada.
 
-
-def guardar_mapa(train, labels, estaciones, destino):
-    """Mapa de puntos sin basemap; coordenadas del catalogo septiembre2026."""
-    datos = (
-        train[["estacion_id", "nombre"]]
-        .assign(grupo_train=labels)
-        .merge(
-            estaciones[["estacion_id", "latitud", "longitud"]],
-            on="estacion_id",
-            how="left",
-            validate="one_to_one",
-        )
-    )
-    valid = datos.latitud.between(-90, 90) & datos.longitud.between(-180, 180)
-    datos["ubicacion_valida"] = valid
-    datos.to_csv(destino / "estaciones_mapa.csv", index=False)
-    datos.loc[~valid].to_csv(destino / "estaciones_sin_ubicacion.csv", index=False)
-    fig, ax = plt.subplots(figsize=(10, 8))
-    for g in range(3):
-        z = datos.loc[valid & datos.grupo_train.eq(g)]
-        ax.scatter(
-            z.longitud,
-            z.latitud,
-            s=25,
-            c=COLORES[g],
-            label=f"Grupo {g}: {len(z)}",
-            alpha=0.8,
-            edgecolors="white",
-            linewidths=0.3,
-        )
-    for station in (200, 11, 196):
-        z = datos.loc[valid & datos.estacion_id.eq(station)]
-        if len(z):
-            ax.annotate(
-                str(station),
-                (z.longitud.iloc[0], z.latitud.iloc[0]),
-                xytext=(5, 5),
-                textcoords="offset points",
-                fontsize=9,
-            )
-    if valid.any():
-        ax.set_aspect(1 / np.cos(np.deg2rad(datos.loc[valid, "latitud"].mean())))
-    ax.set(
-        title=f"P3 · grupos de entrenamiento congelados\nCatalogo septiembre2026 · {int(valid.sum())}/{len(datos)} con ubicacion",
-        xlabel="Longitud (grados)",
-        ylabel="Latitud (grados)",
-    )
-    ax.text(0.98, 0.98, "N ↑", transform=ax.transAxes, ha="right", va="top")
-    ax.grid(alpha=0.2)
-    ax.legend(loc="best")
-    fig.text(
-        0.5,
-        0.015,
-        "Mapa de puntos sin cartografia base. Coordenadas actuales no prueban ubicacion historica ni disponibilidad.\nUbicacion y volumen NO usados para agrupar; etiquetas descriptivas con solapamiento.",
-        ha="center",
-        fontsize=8,
-    )
-    fig.tight_layout(rect=(0, 0.055, 1, 1))
-    fig.savefig(destino / "mapa_grupos_train.png", dpi=180)
-    plt.close(fig)
-    return int(valid.sum()), int((~valid).sum())
-
-
-def verificar_reproduccion(summary, destino, spec=None):
-    """Compara evidencia congelada; una discrepancia detiene, no provoca tuning."""
-    if spec is None:
-        spec = json.loads((PROJ_ROOT / "references/p3_frozen.json").read_text(encoding="utf-8"))
-    expected = spec["expected_results"]
-    for split in ("train", "val", "test"):
-        if set(summary[split]) != set(expected[split]):
-            raise ValueError(f"Metricas diferentes: {split}")
-        for key, value in expected[split].items():
-            if not np.isclose(summary[split][key], value, rtol=1e-12, atol=1e-12):
-                raise ValueError(f"Reproduccion difiere: {split}.{key}")
-    checks = {}
-    for nombre, digest in spec["assignment_file_sha256"].items():
-        checks[nombre] = sha256(destino / nombre) == digest
-    if not all(checks.values()):
-        raise ValueError("Asignaciones diferentes; no reajustar configuracion")
-    (destino / "verificacion_reproduccion.json").write_text(
-        json.dumps(
-            {
-                "historical_run_id": spec["historical_run_id"],
-                "metricas_coinciden_tolerancia": "rtol=atol=1e-12",
-                "asignaciones_sha256_coinciden": checks,
-                "centroides_sin_refit": summary["centroides_sin_refit"],
-                "tuning": False,
-            },
-            indent=2,
-        ),
-        encoding="utf-8",
-    )
-
-
-def ejecutar(viajes=None, estaciones=None, *, destino=DESTINO, reproduccion=False):
-    """Entrada compartida; P3 verifica archivos por periodo, no usa viajes globales."""
+    Congela primero si ``destino`` no existe. Con ``reproduccion=True`` exige Git
+    limpio y compara contra ``references/p3_frozen.json``. Un marcador impide
+    repetir o sobrescribir la evaluación.
+    """
     if reproduccion and obtener_commit()[1]:
         raise ValueError("La reproduccion requiere estado Git versionado limpio")
     if not destino.exists():
@@ -335,10 +329,12 @@ def ejecutar(viajes=None, estaciones=None, *, destino=DESTINO, reproduccion=Fals
     train[["estacion_id", "nombre", "dias_con_eventos", "total_movimientos"]].assign(
         grupo_train=labels
     ).to_csv(destino / "asignaciones_train.csv", index=False)
-    val = pd.read_parquet(VALIDACION / "perfiles_agosto.parquet")
+    val = pd.read_parquet(P3_VALIDACION_DIR / "perfiles_agosto.parquet")
     _, aval, valmetrics, _ = resumir_fijo(modelo, train, val)
     aval.to_csv(destino / "asignaciones_val.csv", index=False)
-    valmetrics_previous = json.loads((VALIDACION / "resumen.json").read_text(encoding="utf-8"))
+    valmetrics_previous = json.loads(
+        (P3_VALIDACION_DIR / "resumen.json").read_text(encoding="utf-8")
+    )
     if not np.isclose(valmetrics["fraccion_estable"], valmetrics_previous["fraccion_estable"]):
         raise ValueError("Validacion no reproduce resumen revisado")
     trainmetrics = {
@@ -375,14 +371,14 @@ def ejecutar(viajes=None, estaciones=None, *, destino=DESTINO, reproduccion=Fals
     params = {
         "k": 3,
         "cohorte_min_dias_activos_train": 180,
-        "n_init": N_INIT,
+        "n_init": P3_N_INIT,
         "max_iter": 300,
         "algorithm": "lloyd",
         "n_variables": 336,
         "transformacion": "sqrt(p)/sqrt(2)",
         "distancia": "euclidean",
-        "min_dias_mes": AUG_MIN_DAYS,
-        "min_movimientos_mes": AUG_MIN_MOVEMENTS,
+        "min_dias_mes": P3_MES_MIN_DIAS,
+        "min_movimientos_mes": P3_MES_MIN_MOVIMIENTOS,
         "fit": "train_only",
         "configuracion_congelada_utc": frozen["congelado_utc"],
         "catalogo_coordenadas": manifest["stations"]["source_filename"],
@@ -407,9 +403,9 @@ def ejecutar(viajes=None, estaciones=None, *, destino=DESTINO, reproduccion=Fals
                 PROJ_ROOT / relative, "codigo/" + str(Path(relative).parent).replace("\\", "/")
             )
         for previous in (
-            SENSIBILIDAD / "comparacion_cohortes.csv",
-            SENSIBILIDAD / "estabilidad_entre_cohortes.csv",
-            VALIDACION / "grupo_domingo_recurrencia.csv",
+            P3_SENSIBILIDAD_DIR / "comparacion_cohortes.csv",
+            P3_SENSIBILIDAD_DIR / "estabilidad_entre_cohortes.csv",
+            P3_VALIDACION_DIR / "grupo_domingo_recurrencia.csv",
         ):
             registrar_artefacto(previous, "diagnosticos_previos")
         run_id = run.info.run_id
@@ -432,7 +428,7 @@ def ejecutar(viajes=None, estaciones=None, *, destino=DESTINO, reproduccion=Fals
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description="Auditoría de la evaluación congelada de P3.")
     parser.add_argument("--solo-congelar", action="store_true")
     parser.add_argument(
         "--reproducir",
@@ -443,8 +439,8 @@ if __name__ == "__main__":
     if args.solo_congelar and args.reproducir:
         parser.error("Elegir solo una fase")
     if args.reproducir:
-        ejecutar(destino=REPORTS_DIR / "p3-reproduccion-limpia-20261018", reproduccion=True)
+        evaluar_congelado(destino=P3_REPRODUCCION_DIR, reproduccion=True)
     elif args.solo_congelar:
         congelar()
     else:
-        ejecutar()
+        evaluar_congelado()

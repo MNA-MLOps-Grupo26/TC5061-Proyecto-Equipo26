@@ -3,9 +3,8 @@ import pandas as pd
 import pytest
 from sklearn.cluster import KMeans
 
-from mibici.compare_p3 import matriz_forma
-from mibici.features_p3 import columnas_perfil_p3
-from mibici.validate_p3 import asignar_fijo, perfiles_agosto
+from mibici.features import columnas_perfil_p3, matriz_forma, perfiles_agosto
+from mibici.evaluation import asignar_fijo
 
 
 def estaciones():
