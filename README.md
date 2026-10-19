@@ -175,7 +175,7 @@ Ejecuten los comandos desde la raíz del repositorio con `.venv` activo.
 | Paso | Comando | Qué hace |
 |---|---|---|
 | 1. Ingesta y versionado | `python -m mibici.dataset` | Descarga los 14 meses y la nomenclatura, verifica, normaliza a Parquet y genera manifiestos con `data_version` |
-| 2. Experimento base | `python -m mibici.modeling.train` | Construye variables y registra los 4 runs de P1, P2 y P3 en MLflow (`--pregunta P1`, `P2` o `P3` para una sola) |
+| 2. Experimento base | `python -m mibici.modeling.train` | Construye variables y registra los 5 runs de P1, P2 y P3 en MLflow (`--pregunta P1`, `P2` o `P3` para una sola) |
 | 3. Interfaz de MLflow | `mlflow ui --backend-store-uri sqlite:///mlflow.db` | Muestra runs, parámetros, métricas y artefactos en `http://127.0.0.1:5000` |
 | Pruebas | `python -m pytest tests` | Ingesta, partición, rezagos sin fuga, indicador de riesgo, métricas y P3 |
 
@@ -196,6 +196,7 @@ si había cambios de código sin commit.
   | Pregunta | Run | Modelo |
   |---|---|---|
   | P1 | `p1-baseline-promedio-semanal` | Baseline: promedio del mismo día de la semana en las 4 semanas previas |
+  | P1 | `p1-hgb-poisson` | Candidato: `HistGradientBoostingRegressor` con pérdida Poisson |
   | P2 | `p2-baseline-semana-anterior` | Baseline: categoría de riesgo de la semana anterior |
   | P2 | `p2-logreg-multiclase` | Candidato: regresión logística multiclase balanceada |
   | P3 | `p3-kmeans-k3-historia180` | KMeans k=3 sobre perfiles semanales de salidas y llegadas, con mapa |
