@@ -2,18 +2,34 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
-from mibici.config import FIGURES_DIR, SEMANAS_BASELINE_P1
-from mibici.features import dataset_p1
+from mibici.config import FIGURES_DIR, RANDOM_SEED, SEMANAS_BASELINE_P1
+from mibici.features import VARIABLES_P1, dataset_p1
 from mibici.tracking import iniciar_run, registrar_artefacto, registrar_metricas
+
+# Candidato: pérdida Poisson porque el objetivo es un conteo no negativo con
+# muchos días en cero; acepta valores faltantes (estaciones sin capacidad).
+HIPERPARAMETROS_CANDIDATO = {
+    "loss": "poisson",
+    "learning_rate": 0.05,
+    "max_iter": 300,
+    "max_leaf_nodes": 31,
+    "min_samples_leaf": 50,
+    "early_stopping": False,
+}
 
 
 def calcular_metricas(datos, prediccion):
+    """MAE y RMSE en viajes por estación-día; WAPE es el error relativo al volumen total."""
     reales = datos["salidas"]
+    errores = np.abs(np.asarray(reales, dtype=float) - np.asarray(prediccion, dtype=float))
+    total = float(np.sum(reales))
     return {
         "mae": float(mean_absolute_error(reales, prediccion)),
         "rmse": float(np.sqrt(mean_squared_error(reales, prediccion))),
+        "wape": float(errores.sum() / total) if total else float("nan"),
     }
 
 
@@ -33,6 +49,12 @@ def evaluar_conjunto(datos, conjunto):
 
 def ejecutar(viajes, estaciones):
     datos = dataset_p1(viajes, estaciones)
+    run_baseline(datos)
+    run_candidato(datos)
+
+
+def run_baseline(datos):
+    """Baseline: promedio del mismo día de la semana en las semanas previas."""
     with iniciar_run(
         "P1",
         "p1-baseline-promedio-semanal",
@@ -61,3 +83,30 @@ def guardar_predicciones(datos, prediccion, nombre):
     figura.savefig(ruta_grafica, dpi=150)
     plt.close(figura)
     registrar_artefacto(ruta_grafica, "figuras")
+
+
+def run_candidato(datos):
+    """Candidato: gradient boosting con pérdida Poisson sobre las variables de P1.
+
+    Se ajusta solo con entrenamiento; validación y prueba se evalúan sin reajustar.
+    """
+    modelo = HistGradientBoostingRegressor(random_state=RANDOM_SEED, **HIPERPARAMETROS_CANDIDATO)
+    train = datos.loc[datos["conjunto"] == "train"]
+    with iniciar_run(
+        "P1",
+        "p1-hgb-poisson",
+        modelo="HistGradientBoostingRegressor",
+        parametros={
+            **HIPERPARAMETROS_CANDIDATO,
+            "horizonte_dias": 1,
+            "n_variables": len(VARIABLES_P1),
+            "fit": "train_only",
+        },
+    ):
+        modelo.fit(train[VARIABLES_P1], train["salidas"])
+        registrar_metricas("train", calcular_metricas(train, modelo.predict(train[VARIABLES_P1])))
+        for etiqueta, conjunto in [("val", "validation"), ("test", "test")]:
+            subconjunto = datos.loc[datos["conjunto"] == conjunto]
+            prediccion = modelo.predict(subconjunto[VARIABLES_P1])
+            guardar_predicciones(subconjunto, prediccion, f"p1-hgb-{conjunto}")
+            registrar_metricas(etiqueta, calcular_metricas(subconjunto, prediccion))

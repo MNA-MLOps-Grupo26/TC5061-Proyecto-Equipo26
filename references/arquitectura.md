@@ -1,11 +1,12 @@
-# Arquitectura propuesta de MiBici
+# Arquitectura de MiBici
 
-![Arquitectura propuesta](arquitectura.svg)
+![Arquitectura](arquitectura.svg)
 
-En esta revisión solo está disponible la estructura base del repositorio.
-La ingesta, normalización, features, modelos, visualizaciones y registro de
-experimentos son componentes propuestos; el diagrama no acredita que ya se
-ejecutaron.
+Todos los componentes del diagrama están implementados en el módulo `mibici`,
+excepto CityBikes, que es un contraste opcional pendiente. Dos comandos
+reconstruyen el flujo completo desde un clon limpio:
+`python -m mibici.dataset` (ingesta y versionado) y
+`python -m mibici.modeling.train` (runs de P1, P2 y P3 en MLflow).
 
 ```mermaid
 flowchart LR
@@ -18,7 +19,7 @@ flowchart LR
     F --> G[Partición temporal desde config.py]
     G --> H[modeling/train.py P1 P2 P3]
     H --> I[MLflow parámetros métricas etiquetas artefactos]
-    H --> J[models modelos locales]
+    H -.-> J[models modelos serializados, siguiente entrega]
     I --> K[reports/figures gráficas y mapa]
     L[Git código configuración y manifiesto] -. versión de datos y commit .-> I
     X[CityBikes contraste opcional pendiente] -.-> D
@@ -31,19 +32,19 @@ flowchart LR
 | Organización | CCDS separa datos, exploración, código y resultados; evita mezclar notebooks con lógica reutilizable (Wilson, 2022, cap. 6). |
 | Entorno y dependencias | `requirements.txt` fija todas las versiones, incluidas las transitivas, y se instala igual con `pip` o con `uv pip`. Fijar el entorno es una de las condiciones para reproducir un resultado (Tecnológico de Monterrey, 2024). |
 | Descarga | Python estándar con transferencia en bloques descarga cada CSV sin cargarlo completo en memoria; los hashes SHA-256 se guardan en un manifiesto versionado en Git (Huyen, 2022, cap. 6). |
-| Limpieza y almacenamiento | pandas y PyArrow permitirán normalizar esquemas y escribir Parquet; el procesamiento debe hacerse por mes o bloques para controlar memoria. |
-| Features | Funciones reutilizables en `features.py`, con rezagos calculados antes del corte de predicción. Las transformaciones aprendidas se ajustarán solo en entrenamiento, y la partición cronológica evita fuga de información del futuro (Thompson, 2023, sec. 7.4). |
+| Limpieza y almacenamiento | pandas y PyArrow normalizan columnas, codificación y fechas, y escriben un Parquet por mes; procesar por mes mantiene acotada la memoria. |
+| Features | Funciones reutilizables en `features.py`, con rezagos calculados antes del corte de predicción. Las transformaciones aprendidas se ajustan solo en entrenamiento, y la partición cronológica evita fuga de información del futuro (Thompson, 2023, sec. 7.4). |
 | Modelos | scikit-learn para baselines y candidatos de regresión, clasificación y clustering; semilla centralizada. Cada pregunta parte de un baseline simple para que las métricas tengan contra qué compararse (Huyen, 2022, cap. 6). |
 | Experimentos | MLflow Tracking con SQLite y artefactos locales; registrar fechas, versión de datos, semilla, métricas por conjunto y commit (Huyen, 2022, cap. 6; Tecnológico de Monterrey, 2024; Thompson, 2023, sec. 7.4; Wilson, 2022, cap. 6). No se propone todavía un servidor compartido. |
 | Modelos registrados | Los modelos de scikit-learn se pueden guardar con el formato de modelos de MLflow; el Model Registry queda para una etapa posterior (Lauchande, 2021, cap. 5). |
 | Versionado | Git conserva código, configuración y manifiestos. SHA-256 identifica archivos; los originales deben conservarse externamente para recuperar versiones antiguas (Huyen, 2022, cap. 6). |
 | Figuras | Matplotlib para gráficas y ubicación de grupos por coordenadas, sin incluir datos personales. |
 
-P1/P2 se evaluarán con entrenamiento de agosto de 2025 a julio de 2026,
+P1 y P2 se evalúan con entrenamiento de agosto de 2025 a julio de 2026,
 validación en agosto de 2026 y prueba en septiembre de 2026. El año de
-entrenamiento incluye distintas temporadas. P3 ajustará perfiles y agrupaciones con entrenamiento, seleccionará
-configuraciones sin usar prueba y documentará cómo evaluar estabilidad fuera del
-periodo de ajuste. Las fechas efectivas proceden de `config.py`.
+entrenamiento incluye distintas temporadas. P3 ajusta perfiles y
+agrupaciones solo con entrenamiento, eligió su configuración sin usar prueba y mide
+la estabilidad asignando agosto y septiembre a los centroides de entrenamiento. Las fechas efectivas proceden de `config.py`.
 
 CityBikes es un contraste opcional del indicador P2. Su incorporación depende de
 validar cobertura, identificadores y zona horaria; no es un requisito de la

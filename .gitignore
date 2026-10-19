@@ -17,6 +17,11 @@ mlflow.db
 *.joblib
 *.onnx
 
+# Salidas del experimento: se registran como artefactos en MLflow
+/reports/figures/*
+!/reports/figures/.gitkeep
+/reports/p3-*/
+
 # Credenciales
 .env
 .env.*

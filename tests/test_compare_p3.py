@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from mibici.compare_p3 import comparar, matriz_forma
-from mibici.features_p3 import columnas_perfil_p3
+from mibici.evaluation import comparar
+from mibici.features import columnas_perfil_p3, matriz_forma
 
 
 def perfiles():

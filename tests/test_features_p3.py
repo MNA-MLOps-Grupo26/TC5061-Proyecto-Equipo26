@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from mibici.features_p3 import columnas_perfil_p3, preparar_perfiles_p3
+from mibici.features import columnas_perfil_p3, preparar_perfiles_p3
 
 
 def viajes(filas):

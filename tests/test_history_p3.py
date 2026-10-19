@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from mibici.history_p3 import cohorte_historia, eta_historia
+from mibici.evaluation import eta_historia
+from mibici.features import cohorte_historia
 
 
 def test_cohortes_preservan_salvaguardas_y_limites():
