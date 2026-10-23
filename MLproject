@@ -1,0 +1,14 @@
+name: mibici-equipo26
+
+python_env: python_env.yaml
+
+entry_points:
+  ingest:
+    command: "python -m mibici.dataset"
+  train:
+    parameters:
+      question: {type: str, default: "P1"}
+      model: {type: str, default: "default"}
+      learning_rate: {type: str, default: "None"}
+      max_iter: {type: str, default: "None"}
+    command: "python -m mibici.modeling.train --pregunta {question} --modelo {model} --learning-rate {learning_rate} --max-iter {max_iter}"

@@ -10,6 +10,9 @@ Todos los runs del equipo pasan por ``iniciar_run`` para que registren lo mismo:
 Nunca se registran credenciales ni columnas de usuario.
 """
 
+import os
+import subprocess
+
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
@@ -62,7 +65,7 @@ def obtener_commit() -> tuple[str, bool]:
 
 def configurar_mlflow() -> str:
     """Apunta a la base local y crea el experimento único del equipo si no existe."""
-    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+    mlflow.set_tracking_uri(os.environ.get("MLFLOW_TRACKING_URI", MLFLOW_TRACKING_URI))
     experimento = mlflow.get_experiment_by_name(EXPERIMENT_NAME)
     if experimento is None:
         MLFLOW_ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -108,13 +111,21 @@ def iniciar_run(
         "team": f"equipo{TEAM_NUMBER:02d}",
         "question": pregunta,
         "model": modelo,
+        "model_family": modelo,
         "git_commit": commit,
         "git_dirty": str(sucio).lower(),
         "mlflow.source.git.commit": commit,
     }
 
     with mlflow.start_run(run_name=nombre, tags=etiquetas) as run:
-        mlflow.log_params({**parametros_comunes(), "model": modelo, **(parametros or {})})
+        parametros_run = {**parametros_comunes(), **(parametros or {})}
+        if "max_iter" in parametros_run:
+            parametros_run["effective_max_iter"] = parametros_run.pop("max_iter")
+        if "learning_rate" in parametros_run:
+            parametros_run["effective_learning_rate"] = parametros_run.pop("learning_rate")
+
+        mlflow.log_params(parametros_run)
+
         logger.info(f"Run iniciado: {nombre} ({run.info.run_id})")
         yield run
         logger.success(f"Run terminado: {nombre}")

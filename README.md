@@ -223,6 +223,80 @@ modifica ese valor en `manifests/mibici_processed.json`, el run queda con
 `git_dirty=true`. `data_version` no cambia, porque se calcula con los CSV
 originales.
 
+
+### MLflow Projects: ejecución reproducible
+
+El proyecto utiliza **MLflow Projects** para ejecutar la ingesta y el entrenamiento mediante comandos estandarizados. El archivo `MLproject` define los puntos de entrada `ingest` y `train`, mientras que `python_env.yaml` y `requirements.txt` especifican el entorno de Python y las dependencias.
+
+#### 1. Preparación del entorno
+
+Desde una copia del repositorio, seguir las instrucciones de instalación descritas anteriormente en este README. Activar el entorno virtual e instalar las dependencias antes de continuar.
+
+#### 2. Iniciar el servidor de MLflow
+
+En una terminal, desde la raíz del repositorio:
+
+```bash
+mlflow server --backend-store-uri sqlite:///mlflow.db --host 127.0.0.1 --port 5000
+```
+
+El servidor estará disponible en http://127.0.0.1:5000.
+
+El archivo `mlflow.db` almacena los metadatos de seguimiento y está excluido del control de versiones mediante `.gitignore`.
+
+#### 3. Configurar el servidor de seguimiento
+
+En una segunda terminal, desde la raíz del repositorio:
+
+```bash
+export MLFLOW_TRACKING_URI=http://127.0.0.1:5000
+```
+
+Esta variable permite que los experimentos registren sus resultados en el servidor local.
+
+#### 4. Ejecutar la ingesta
+
+```bash
+mlflow run . -e ingest --env-manager uv --experiment-name mibici-equipo26
+```
+
+La ingesta descarga o reutiliza los datos necesarios, realiza su procesamiento y genera los manifiestos correspondientes.
+
+#### 5. Ejecutar los entrenamientos
+
+**P1 — Predicción de demanda:**
+
+```bash
+mlflow run . -e train --env-manager uv --experiment-name mibici-equipo26 -P question=P1 -P model=hgb
+```
+
+**P2 — Clasificación de riesgo:**
+
+```bash
+mlflow run . -e train --env-manager uv --experiment-name mibici-equipo26 -P question=P2 -P model=logreg
+```
+
+**P3 — Agrupamiento de estaciones:**
+
+```bash
+mlflow run . -e train --env-manager uv --experiment-name mibici-equipo26 -P question=P3
+```
+
+Los hiperparámetros predeterminados se encuentran centralizados en `mibici/config.py`.
+
+Para P1 y P2, los parámetros opcionales `learning_rate` y `max_iter` permiten modificar determinados valores desde `MLproject`. Los valores realmente utilizados se registran en MLflow como `effective_learning_rate` y `effective_max_iter`, cuando corresponda.
+
+#### 6. Consultar resultados
+
+Abrir http://127.0.0.1:5000 y seleccionar el experimento `mibici-equipo26`.
+
+Cada ejecución permite consultar parámetros, métricas, etiquetas y artefactos generados durante el entrenamiento.
+
+**Reproducibilidad:** para repetir el procedimiento desde una copia limpia del repositorio, instalar las dependencias según la sección «Instalación», iniciar el servidor MLflow, configurar `MLFLOW_TRACKING_URI`, ejecutar la ingesta y posteriormente los entrenamientos. Los datos utilizados deben corresponder a la versión indicada en los manifiestos.
+
+
+
+
 ## Flujo de trabajo con Git
 
 Seguimos [GitHub Flow](https://docs.github.com/en/get-started/using-github/github-flow):

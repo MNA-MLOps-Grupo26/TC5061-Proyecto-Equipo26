@@ -23,6 +23,10 @@ EJECUTORES = {"P1": p1.ejecutar, "P2": p2.ejecutar, "P3": p3.ejecutar}
 @app.command()
 def main(
     pregunta: str = typer.Option("todas", help="P1, P2, P3 o todas."),
+    modelo: str = typer.Option("default", help="Algoritmo a utilizar."),
+    learning_rate: str = typer.Option("None", help="Tasa de aprendizaje opcional."),
+    max_iter: str = typer.Option("None", help="Número máximo de iteraciones opcional."),
+
 ):
     """Corre el experimento base para una pregunta o para todas."""
     pregunta = pregunta.upper()
@@ -39,9 +43,25 @@ def main(
     estaciones = cargar_estaciones()
     logger.info(f"{len(estaciones)} estaciones cargadas; P3 verifica sus fuentes por periodo")
 
+    learning_rate = None if learning_rate == "None" else float(learning_rate)
+    max_iter = None if max_iter == "None" else int(max_iter)
+
     for clave in seleccion:
         logger.info(f"Ejecutando {clave}")
-        EJECUTORES[clave](viajes, estaciones)
+
+        if clave == "P1":
+            p1.ejecutar(
+                viajes,
+                estaciones,
+                modelo=modelo,
+                learning_rate=learning_rate,
+                max_iter=max_iter,
+            )
+        elif clave == "P2":
+            p2.ejecutar(viajes,estaciones,modelo=modelo,max_iter=max_iter,)
+        else:
+            EJECUTORES[clave](viajes, estaciones)
+
 
     logger.success(
         "Experimento base terminado. Consulten: mlflow ui --backend-store-uri sqlite:///mlflow.db"

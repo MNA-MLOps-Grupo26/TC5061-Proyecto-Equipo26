@@ -65,6 +65,24 @@ RANDOM_SEED = 42
 # Rezagos y ventanas en días previos al día pronosticado.
 VENTANAS_MEDIA = (7, 28)
 SEMANAS_BASELINE_P1 = 4  # promedio del mismo día de la semana en 4 semanas previas
+# P1: hiperparámetros predeterminados del candidato
+P1_HIPERPARAMETROS = {
+    "loss": "poisson",
+    "learning_rate": 0.05,
+    "max_iter": 300,
+    "max_leaf_nodes": 31,
+    "min_samples_leaf": 50,
+    "early_stopping": False,
+}
+P2_HIPERPARAMETROS = {
+    "C": 1.0,
+    "class_weight": "balanced",
+    "max_iter": 2000,
+    "solver": "lbfgs",
+}
+
+
+
 
 # P2: indicador de riesgo aproximado
 # Día operativo de 05:00 a 05:00 del día siguiente (el sistema reinicia a las 05:00).
