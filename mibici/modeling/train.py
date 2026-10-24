@@ -4,14 +4,19 @@ Uso, desde la raíz del repositorio con el entorno activo y después de la inges
 
     python -m mibici.modeling.train              # todas las preguntas disponibles
     python -m mibici.modeling.train --pregunta P2
+    python -m mibici.modeling.train --pregunta P1 --modelo hgb --max-iter 500
 
 Cada pregunta vive en su módulo (p1.py, p2.py, p3.py) y expone
-``ejecutar(viajes, estaciones)``. Para agregar una, regístrenla en EJECUTORES.
+``ejecutar(viajes, estaciones)``; P1 y P2 aceptan además el modelo y sus
+hiperparámetros. Para agregar una, regístrenla en EJECUTORES y en
+``modelos_permitidos``.
 """
+
+from typing import Annotated
 
 from loguru import logger
 import typer
-from typing import Annotated
+
 from mibici.dataset import cargar_estaciones, cargar_viajes
 from mibici.modeling import p1, p2, p3
 
@@ -41,6 +46,20 @@ def main(
         raise typer.BadParameter(
             f"{pregunta} no está disponible. Opciones: {', '.join(EJECUTORES)} o todas."
         )
+
+    modelos_permitidos = {
+        "P1": {"default", "hgb"},
+        "P2": {"default", "logreg"},
+        "P3": {"default"},
+    }
+
+    for clave in seleccion:
+        if modelo not in modelos_permitidos[clave]:
+            opciones = ", ".join(sorted(modelos_permitidos[clave]))
+            raise typer.BadParameter(
+                f"El modelo '{modelo}' no está disponible para {clave}. Opciones: {opciones}.",
+                param_hint="--modelo",
+            )
 
     # Convertir los parámetros opcionales
     learning_rate = None if learning_rate in (None, "None") else float(learning_rate)
@@ -88,7 +107,8 @@ def main(
             EJECUTORES[clave](viajes, estaciones)
 
     logger.success(
-        "Experimento base terminado. Consulten: mlflow ui --backend-store-uri sqlite:///mlflow.db"
+        "Experimento terminado. Consulten el servidor de MLflow (MLFLOW_TRACKING_URI), "
+        "por ejemplo http://127.0.0.1:5000"
     )
 
 
