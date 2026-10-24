@@ -187,6 +187,21 @@ versionan) y se registran como artefactos de cada run. Si cambian los manifiesto
 de correr el experimento: cada run registra el commit y marca `git_dirty=true`
 si había cambios de código sin commit.
 
+## Apartado B.4 — Búsqueda de candidatos
+
+Se exploraron tres configuraciones adicionales para cada pregunta
+(P1, P2 y P3), conservando la partición temporal del proyecto.
+
+Los experimentos utilizan runs anidados de MLflow para registrar
+los candidatos, sus hiperparámetros y sus métricas de evaluación.
+
+La metodología del apartado B.4, los resultados comparativos y las decisiones
+preliminares están documentados en
+[references/BUSQUEDA_CANDIDATOS.md](references/BUSQUEDA_CANDIDATOS.md).
+
+Los scripts reproducibles están en `experiments/` y las pruebas
+automatizadas se ejecutan con `python -m pytest -q`.
+
 ## Experimentos en MLflow
 
 - Experimento único: `mibici-equipo26`. Todos los runs pasan por
