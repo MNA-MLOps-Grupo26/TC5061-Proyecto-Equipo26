@@ -39,7 +39,7 @@ completa está en el [ML Canvas](references/ML_Canvas_MiBici.pdf) y la arquitect
 - **Tamaño:** 14 meses, 5,248,635 viajes después de limpieza y entre 367 y 468
 estaciones activas por mes (`reports/mibici_resumen_mensual.csv`).
 
-Los datos no se versionan en Git. `python -m mibici.dataset` los reconstruye y
+Los datos no se versionan en Git. `mlflow run . -e ingest` los reconstruye y
 actualiza dos manifiestos versionados en `manifests/`:
 
 - `mibici_downloads.json`: URL, encoding, columnas, registros y SHA-256 de cada
@@ -52,6 +52,8 @@ de MLflow; si MiBici modifica un archivo, cambia la versión.
 ## Estructura del repositorio
 
 ```
+├── MLproject          <- MLflow Project: puntos de entrada ingest, train y search
+├── python_env.yaml    <- Entorno del MLflow Project (Python + requirements.txt)
 ├── Makefile           <- Comandos de conveniencia (make requirements, make lint)
 ├── README.md
 ├── pyproject.toml     <- Metadatos del paquete y configuración de ruff
@@ -77,11 +79,13 @@ de MLflow; si MiBici modifica un archivo, cambia la versión.
     ├── features.py        <- Variables de P1, P2 y P3 (panel estación-día y perfiles de uso)
     ├── evaluation.py      <- Comparación y evaluación de P3 (selección de k, validación, reproducción)
     ├── plots.py           <- Gráficas y mapa de P3
-    ├── tracking.py        <- Registro común de runs en MLflow
+    ├── tracking.py        <- Registro común de runs y artefactos de candidatos en MLflow
     ├── modeling
-    │   ├── train.py       <- Entrada única: corre P1, P2 y P3 y los registra en MLflow
-    │   ├── p1.py          <- Baseline de demanda (P1)
-    │   ├── p2.py          <- Baseline y regresión logística de riesgo (P2)
+    │   ├── train.py       <- Punto de entrada `train`: un modelo de una pregunta
+    │   ├── search.py      <- Punto de entrada `search`: búsqueda con nested runs
+    │   ├── comparar.py    <- Tabla comparativa por pregunta desde MLflow (reporte)
+    │   ├── p1.py          <- Demanda (P1): baseline, HGB Poisson y GLM Poisson
+    │   ├── p2.py          <- Riesgo (P2): baseline, regresión logística y HGB
     │   ├── p3.py          <- KMeans de perfiles de estaciones (P3) y auditoría congelada
     │   └── predict.py     <- Inferencia (plantilla)
 ```
@@ -170,56 +174,119 @@ Reglas:
 
 ## Comandos del proyecto
 
-Ejecuten los comandos desde la raíz del repositorio con `.venv` activo.
+Todas las corridas de la entrega se lanzan desde el MLflow Project (`MLproject`),
+no desde notebooks ni scripts sueltos. El entorno está en `python_env.yaml`
+(Python 3.13.16 y las versiones fijas de `requirements.txt`).
 
-| Paso | Comando | Qué hace |
+| Punto de entrada | Qué hace | Parámetros |
 |---|---|---|
-| 1. Ingesta y versionado | `python -m mibici.dataset` | Descarga los 14 meses y la nomenclatura, verifica, normaliza a Parquet y genera manifiestos con `data_version` |
-| 2. Experimento base | `python -m mibici.modeling.train` | Construye variables y registra los 5 runs de P1, P2 y P3 en MLflow (`--pregunta P1`, `P2` o `P3` para una sola) |
-| 3. Interfaz de MLflow | `mlflow ui --backend-store-uri sqlite:///mlflow.db` | Muestra runs, parámetros, métricas y artefactos en `http://127.0.0.1:5000` |
-| Pruebas | `python -m pytest tests` | Ingesta, partición, rezagos sin fuga, indicador de riesgo, métricas y P3 |
+| `ingest` | Descarga, verifica y normaliza los datos; genera manifiestos con `data_version` | Ninguno |
+| `train` | Entrena un modelo (o baseline) de una pregunta | `question`, `model`, `learning_rate`, `max_iter` |
+| `search` | Búsqueda de hiperparámetros con nested runs (un padre y un hijo por combinación) | `question`, `model` |
+
+### 1. Servidor de tracking (terminal 1)
+
+```bash
+mlflow server \
+  --backend-store-uri sqlite:///mlflow.db \
+  --artifacts-destination ./mlartifacts \
+  --host 127.0.0.1 --port 5000
+```
+
+`mlflow.db` y `mlartifacts/` están en `.gitignore`. En macOS, si el puerto 5000
+está ocupado (AirPlay Receiver), usen `--port 5001` y ajusten la URI.
+
+### 2. Reproducir desde un clon limpio (terminal 2)
+
+```bash
+git clone https://github.com/MNA-MLOps-Grupo26/TC5061-Proyecto-Equipo26.git
+cd TC5061-Proyecto-Equipo26
+export MLFLOW_TRACKING_URI=http://127.0.0.1:5000
+RUN="mlflow run . --env-manager uv --experiment-name mibici-equipo26"
+
+# Ingesta
+$RUN -e ingest
+
+# Baselines y candidatos
+$RUN -e train -P question=P1 -P model=baseline
+$RUN -e train -P question=P1 -P model=hgb
+$RUN -e train -P question=P1 -P model=glm
+$RUN -e train -P question=P2 -P model=baseline
+$RUN -e train -P question=P2 -P model=logreg
+$RUN -e train -P question=P2 -P model=hgb
+$RUN -e train -P question=P3                      # k=3 congelado (baseline de P3)
+
+# Búsquedas con nested runs (combinaciones en config.BUSQUEDAS)
+$RUN -e search -P question=P1                     # hgb: learning_rate y max_iter
+$RUN -e search -P question=P2 -P model=logreg     # C
+$RUN -e search -P question=P2 -P model=hgb        # learning_rate y max_leaf_nodes
+$RUN -e search -P question=P3                     # k = 2, 4, 5
+
+# Tabla comparativa por pregunta para el reporte (solo lee MLflow)
+python -m mibici.modeling.comparar
+```
+
+- `--env-manager uv` crea el entorno de `python_env.yaml` desde cero y requiere
+  `uv` actualizado: se verificó con **uv 0.13.5** y **Python 3.13.16**. Para
+  iterar más rápido con `.venv` activo, usen `--env-manager local`.
+- `--experiment-name mibici-equipo26` es obligatorio: `mlflow run` crea el run
+  del proyecto en ese experimento antes de ejecutar el código.
+- Agreguen `--run-name <nombre>` para nombrar el run del proyecto; los runs de
+  modelos ya tienen nombre descriptivo.
+
+| Pregunta | `model` en `train` | Hiperparámetros por `-P` | `model` en `search` |
+|---|---|---|---|
+| P1 | `default` (baseline + hgb), `baseline`, `hgb`, `glm` | hgb: `learning_rate`, `max_iter`; glm: `max_iter` | `hgb` |
+| P2 | `default` (baseline + logreg), `baseline`, `logreg`, `hgb` | hgb: `learning_rate`, `max_iter`; logreg: `max_iter` | `logreg`, `hgb` |
+| P3 | `default` (k=3) | Ninguno | `kmeans` |
+
+Los valores por defecto viven en `mibici/config.py` (`P1_HIPERPARAMETROS`,
+`P1_GLM_HIPERPARAMETROS`, `P2_HIPERPARAMETROS`, `P2_HGB_HIPERPARAMETROS`,
+`P3_HIPERPARAMETROS` y `BUSQUEDAS`).
 
 La ingesta reutiliza los CSV que ya estén en `data/raw` y solo consulta el
-portal si falta alguno. En una computadora nueva la ingesta tarda unos minutos
-(descarga de ~600 MB) y el experimento completo, alrededor de un minuto.
-Las gráficas, tablas y el mapa de P3 se guardan en `reports/figures/` (no se
-versionan) y se registran como artefactos de cada run. Si cambian los manifiestos, súbanlos en un commit antes
-de correr el experimento: cada run registra el commit y marca `git_dirty=true`
-si había cambios de código sin commit.
+portal si falta alguno (~600 MB en una computadora nueva). Si cambian los
+manifiestos, súbanlos en un commit antes de entrenar: cada run registra el
+commit y marca `git_dirty=true` si había cambios de código sin commit.
 
-## Apartado B.4 — Búsqueda de candidatos
-
-Se exploraron tres configuraciones adicionales para cada pregunta
-(P1, P2 y P3), conservando la partición temporal del proyecto.
-
-Los experimentos utilizan runs anidados de MLflow para registrar
-los candidatos, sus hiperparámetros y sus métricas de evaluación.
-
-La metodología del apartado B.4, los resultados comparativos y las decisiones
-preliminares están documentados en
-[references/BUSQUEDA_CANDIDATOS.md](references/BUSQUEDA_CANDIDATOS.md).
-
-Los scripts reproducibles están en `experiments/` y las pruebas
-automatizadas se ejecutan con `python -m pytest -q`.
+Pruebas y estilo: `python -m pytest tests`, `ruff check` y `ruff format --check`.
 
 ## Experimentos en MLflow
 
 - Experimento único: `mibici-equipo26`. Todos los runs pasan por
-`mibici/tracking.py`, que registra los mismos parámetros y etiquetas.
-- Runs con nombre descriptivo, nunca el nombre aleatorio:
+  `mibici/tracking.py`, que registra los mismos parámetros y etiquetas.
+- Jerarquía: cada `mlflow run` crea un run de proyecto (`stage_of_work=project`);
+  cada modelo es su hijo. En `search`, el padre de la búsqueda cuelga del run
+  de proyecto y cada combinación es hija del padre de la búsqueda.
+- Parámetros: rango de fechas, `data_version`, semilla, modelo, hiperparámetros
+  efectivos y `selection_metric`.
+- Etiquetas: `team`, `question`, `model`, `model_family`, `stage_of_work`
+  (`project`, `baseline`, `search`, `candidate`), `git_commit` y `git_dirty`.
+  Ejemplo de filtro en la interfaz: `tags.question = 'P2' and tags.stage_of_work != 'project'`.
+- Métricas con el conjunto en el nombre (`train_`, `val_`, `test_`), más
+  `fit_time_s` como costo de entrenamiento.
+- Artefactos de cada candidato:
 
-  | Pregunta | Run | Modelo |
+  | Carpeta | Contenido |
+  |---|---|
+  | `model` (Logged model) | Modelo sklearn con firma y ejemplo de entrada |
+  | `data/` | Manifiestos de la ingesta; el entrenamiento se registra como input del run (`log_input`: esquema, perfil y digest, sin filas) |
+  | `config/` | `run_config.json` (hiperparámetros efectivos, partición, variables) y `config.py` |
+  | `plots/` | P1: real vs. predicho, residuales y serie diaria; P2: matriz de confusión y curva precisión-recall; P3: mapa y perfiles de grupos |
+  | `tables/` | Predicciones o asignaciones agregadas por estación, sin datos personales |
+
+- Selección (validación elige, prueba solo se reporta):
+
+  | Pregunta | Métrica de negocio | Apoyo |
   |---|---|---|
-  | P1 | `p1-baseline-promedio-semanal` | Baseline: promedio del mismo día de la semana en las 4 semanas previas |
-  | P1 | `p1-hgb-poisson` | Candidato: `HistGradientBoostingRegressor` con pérdida Poisson |
-  | P2 | `p2-baseline-semana-anterior` | Baseline: categoría de riesgo de la semana anterior |
-  | P2 | `p2-logreg-multiclase` | Candidato: regresión logística multiclase balanceada |
-  | P3 | `p3-kmeans-k3-historia180` | KMeans k=3 sobre perfiles semanales de salidas y llegadas, con mapa |
+  | P1 | `val_wape` (menor) | `val_mae`, `val_rmse` |
+  | P2 | `val_recall_at_30` (mayor) | `val_precision_at_30`, `val_f1_macro` |
+  | P3 | `val_ari_vs_train` (mayor) | `val_fraccion_estable`, `train_silhouette`, interpretabilidad |
 
-- Parámetros: rango de fechas, versión de los datos, semilla, modelo e
-  hiperparámetros.
-- Etiquetas: equipo, pregunta (P1, P2 o P3) y commit de Git.
-- Métricas con el conjunto en el nombre, por ejemplo `test_mae`.
+  `python -m mibici.modeling.comparar` arma esta comparación con la mejora
+  respecto al baseline, la brecha validación-prueba (estabilidad) y
+  `fit_time_s` (costo). La metodología y la decisión están en
+  [references/BUSQUEDA_CANDIDATOS.md](references/BUSQUEDA_CANDIDATOS.md).
 - Sin credenciales ni datos personales en parámetros, etiquetas o artefactos.
 - P3 fija su configuración en `references/p3_frozen.json` (elegida sin ver
   prueba). El run agrega la etiqueta `reproduce_configuracion_congelada=true`
@@ -227,9 +294,7 @@ automatizadas se ejecutan con `python -m pytest -q`.
 - La secuencia con la que se eligió esa configuración (revisión, comparación de
   k, sensibilidad a la historia y validación en agosto) está en
   `notebooks/2.0-fvep-p3-seleccion.ipynb`, y la auditoría de la evaluación
-  congelada en `notebooks/3.0-fvep-p3-auditoria.ipynb`. Ambos llaman funciones
-  de `dataset.py`, `features.py`, `evaluation.py`, `plots.py` y
-  `modeling/p3.py`. El protocolo está en
+  congelada en `notebooks/3.0-fvep-p3-auditoria.ipynb`. El protocolo está en
   [references/P3_REPRODUCIBILIDAD.md](references/P3_REPRODUCIBILIDAD.md).
 
 **Limitación conocida:** el hash de `data/processed/estaciones.parquet` puede
@@ -237,96 +302,6 @@ variar entre sistemas operativos aunque el contenido sea el mismo. Si la ingesta
 modifica ese valor en `manifests/mibici_processed.json`, el run queda con
 `git_dirty=true`. `data_version` no cambia, porque se calcula con los CSV
 originales.
-
-
-### MLflow Projects: ejecución reproducible
-
-El proyecto utiliza **MLflow Projects** para ejecutar la ingesta y el entrenamiento mediante comandos estandarizados. El archivo `MLproject` define los puntos de entrada `ingest` y `train`, mientras que `python_env.yaml` y `requirements.txt` especifican el entorno de Python y las dependencias.
-
-#### 1. Preparación del entorno
-
-Desde una copia del repositorio, seguir las instrucciones de instalación descritas anteriormente en este README. Activar el entorno virtual e instalar las dependencias antes de continuar.
-
-Los comandos con `--env-manager uv` requieren tener `uv` instalado y actualizado,
-incluso si las dependencias iniciales se instalaron con pip. La ejecución desde
-un clon limpio se verificó con **uv 0.13.5** y **Python 3.13.16**, la versión
-de Python fijada en `python_env.yaml`. Versiones antiguas de `uv` pueden no
-reconocer esa versión de Python para descargarla. Comprueben `uv --version` y,
-si es necesario, actualicen `uv` mediante el mismo método con el que lo instalaron.
-
-#### 2. Iniciar el servidor de MLflow
-
-En una terminal, desde la raíz del repositorio:
-
-```bash
-mlflow server --backend-store-uri sqlite:///mlflow.db --host 127.0.0.1 --port 5000
-```
-
-El servidor estará disponible en http://127.0.0.1:5000.
-
-El archivo `mlflow.db` almacena los metadatos de seguimiento y está excluido del control de versiones mediante `.gitignore`.
-
-#### 3. Configurar el servidor de seguimiento
-
-En una segunda terminal, desde la raíz del repositorio:
-
-```bash
-export MLFLOW_TRACKING_URI=http://127.0.0.1:5000
-```
-
-Esta variable permite que los experimentos registren sus resultados en el servidor local.
-
-#### 4. Ejecutar la ingesta
-
-```bash
-mlflow run . -e ingest --env-manager uv --experiment-name mibici-equipo26
-```
-
-La ingesta descarga o reutiliza los datos necesarios, realiza su procesamiento y genera los manifiestos correspondientes.
-
-#### 5. Ejecutar los entrenamientos
-
-**P1 — Predicción de demanda:**
-
-```bash
-mlflow run . -e train --env-manager uv --experiment-name mibici-equipo26 -P question=P1 -P model=hgb
-```
-
-**P2 — Clasificación de riesgo:**
-
-```bash
-mlflow run . -e train --env-manager uv --experiment-name mibici-equipo26 -P question=P2 -P model=logreg
-```
-
-**P3 — Agrupamiento de estaciones:**
-
-```bash
-mlflow run . -e train --env-manager uv --experiment-name mibici-equipo26 -P question=P3
-```
-
-Los hiperparámetros predeterminados se encuentran centralizados en `mibici/config.py`.
-
-Los hiperparámetros opcionales requieren seleccionar un modelo específico:
-P1 con `model=hgb` admite `learning_rate` y `max_iter`; P2 con
-`model=logreg` admite únicamente `max_iter`. Con `model=default` no se
-aceptan estos hiperparámetros. P3 admite únicamente `model=default`,
-sin hiperparámetros adicionales.
-
-Al ejecutar mediante MLflow Projects, cada modelo se registra como un run
-hijo del run del proyecto. Los parámetros solicitados quedan en el padre
-y los valores utilizados se registran en cada hijo como `learning_rate`
-y `max_iter`, cuando corresponda.
-
-#### 6. Consultar resultados
-
-Abrir http://127.0.0.1:5000 y seleccionar el experimento `mibici-equipo26`.
-
-Cada ejecución permite consultar parámetros, métricas, etiquetas y artefactos generados durante el entrenamiento.
-
-**Reproducibilidad:** para repetir el procedimiento desde una copia limpia del repositorio, instalar las dependencias según la sección «Instalación», iniciar el servidor MLflow, configurar `MLFLOW_TRACKING_URI`, ejecutar la ingesta y posteriormente los entrenamientos. Los datos utilizados deben corresponder a la versión indicada en los manifiestos.
-
-
-
 
 ## Flujo de trabajo con Git
 

@@ -17,26 +17,30 @@ seleccionar hiperparámetros.
 
 ## 2. Experimentos y trazabilidad
 
-Los scripts de búsqueda están en:
+Todas las corridas se lanzan desde el MLflow Project. Las combinaciones viven en
+`config.BUSQUEDAS` y se ejecutan con el punto de entrada `search`:
 
-- `experiments/busqueda_p1.py`
-- `experiments/busqueda_p2.py`
-- `experiments/busqueda_p3.py`
+```bash
+RUN="mlflow run . --env-manager uv --experiment-name mibici-equipo26"
+$RUN -e search -P question=P1                     # HGB: learning_rate y max_iter
+$RUN -e search -P question=P2 -P model=logreg     # C
+$RUN -e search -P question=P2 -P model=hgb        # learning_rate y max_leaf_nodes
+$RUN -e search -P question=P3                     # k = 2, 4, 5
+```
 
-La evaluación temporal generalizada de P3 está en
-`experiments/evaluacion_p3.py`.
+Cada búsqueda abre un run padre (`stage_of_work=search`) y un run hijo por
+combinación. Además de las búsquedas, cada pregunta tiene candidatos de otra
+familia de modelo lanzados con `train`: P1 `glm` (Poisson lineal) y P2 `hgb`
+(gradient boosting). Todos los hijos registran métricas de entrenamiento,
+validación y prueba, `fit_time_s` y los artefactos completos (modelo con firma,
+manifiestos, gráficas y configuración).
 
-Las búsquedas utilizan runs anidados de MLflow: un run padre por
-pregunta y tres runs hijos, uno por configuración candidata.
+La tabla comparativa por pregunta se genera con
+`python -m mibici.modeling.comparar` a partir de los runs del servidor.
 
-| Pregunta | Run padre |
-|---|---|
-| P1 | `c75206dd2a584d67939aa708b41bbb9b` |
-| P2 | `90ef1aa7d7a141a4b46e68100a20f464` |
-| P3 | `35500c48c9474138ab9170bec686104e` |
-
-Los runs hijos incluyen las etiquetas `question`, `model_family`
-y `stage_of_work=search`.
+**Pendiente:** actualizar las tablas de las secciones 3 a 5 y los IDs de run
+con la corrida final en un solo servidor. Los valores de abajo vienen de la
+búsqueda exploratoria inicial (solo validación) y se conservan como referencia.
 
 ## 3. P1 — Predicción de demanda
 

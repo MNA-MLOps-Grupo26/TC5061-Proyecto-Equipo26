@@ -1,15 +1,19 @@
 """P2: clasificación del riesgo aproximado de quedarse sin bicicletas o sin anclajes.
 
-Dos runs en MLflow:
+Modelos (``mlflow run . -e train -P question=P2 -P model=...``):
 
-- ``p2-baseline-semana-anterior``: repite la categoría del mismo día de la
-  semana anterior (sin entrenamiento).
-- ``p2-logreg-multiclase``: regresión logística multiclase con pesos
-  balanceados, porque los días con riesgo son pocos.
+- ``baseline``: repite la categoría del mismo día de la semana anterior.
+- ``logreg``: regresión logística multiclase con pesos balanceados (referencia).
+- ``hgb``: ``HistGradientBoostingClassifier`` con pesos balanceados (otra familia).
+- ``default``: baseline y logreg, como en la entrega anterior.
+
+La búsqueda (``mlflow run . -e search -P question=P2 -P model=logreg|hgb``) usa
+``buscar``.
 
 Métricas en validación y prueba: F1 macro (mismo peso a las tres clases),
 recall por clase de riesgo, Recall@K y Precision@K (de las K estaciones que el
-equipo de rebalanceo revisaría primero, cuántas estaban en riesgo). Se registra
+equipo de rebalanceo revisaría primero, cuántas estaban en riesgo). Recall@K y
+Precision@K son las métricas ligadas a la decisión de negocio. Se registra
 también el techo de Recall@K, porque cuando hay más de K estaciones en riesgo
 al día, ni un modelo perfecto puede superarlo.
 La selección de configuraciones se hace con validación; prueba solo se reporta.
@@ -21,10 +25,12 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
     ConfusionMatrixDisplay,
+    PrecisionRecallDisplay,
     balanced_accuracy_score,
     f1_score,
     recall_score,
@@ -33,9 +39,11 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 from mibici.config import (
+    BUSQUEDAS,
     DATA_END_EXCLUSIVE,
     FIGURES_DIR,
     P2_CLASES,
+    P2_HGB_HIPERPARAMETROS,
     P2_HIPERPARAMETROS,
     P2_HORA_INICIO_DIA,
     P2_OCUPACION_INICIAL,
@@ -43,10 +51,17 @@ from mibici.config import (
     RANDOM_SEED,
 )
 from mibici.features import VARIABLES_P2, dataset_p2, umbrales_riesgo
-from mibici.tracking import iniciar_run, registrar_artefacto, registrar_metricas
+from mibici.tracking import (
+    iniciar_run,
+    medir_tiempo,
+    registrar_artefacto,
+    registrar_candidato,
+    registrar_metricas,
+)
 
 SIN_RIESGO, SIN_BICIS, SIN_ANCLAJES = P2_CLASES
 CONJUNTOS_EVALUACION = {"val": "validation", "test": "test"}
+MODELOS = ("default", "baseline", "logreg", "hgb")
 
 
 def metricas_top_k(datos: pd.DataFrame, puntaje: pd.Series, k: int = P2_TOP_K) -> dict:
@@ -116,6 +131,32 @@ def guardar_matriz_confusion(datos: pd.DataFrame, prediccion: pd.Series, nombre:
     return ruta
 
 
+def guardar_curva_pr(datos: pd.DataFrame, puntaje: pd.Series, nombre: str):
+    """Curva precisión-recall de "en riesgo" (cualquier clase) contra sin riesgo.
+
+    El puntaje es 1 - P(sin_riesgo), el mismo que ordena el top K de rebalanceo.
+    """
+    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+    figura, eje = plt.subplots(figsize=(5.5, 4.5))
+    PrecisionRecallDisplay.from_predictions(
+        datos["categoria"] != SIN_RIESGO, puntaje, name="en riesgo", ax=eje
+    )
+    eje.axhline(
+        float((datos["categoria"] != SIN_RIESGO).mean()),
+        color="#999999",
+        ls="--",
+        lw=1,
+        label="prevalencia",
+    )
+    eje.set_title(nombre)
+    eje.legend(loc="upper right")
+    figura.tight_layout()
+    ruta = FIGURES_DIR / f"{nombre}.png"
+    figura.savefig(ruta, dpi=150)
+    plt.close(figura)
+    return ruta
+
+
 def guardar_distribucion(datos: pd.DataFrame):
     """Guarda la distribución agregada de clases por conjunto (sin datos personales)."""
     FIGURES_DIR.mkdir(parents=True, exist_ok=True)
@@ -154,6 +195,7 @@ def run_baseline(datos: pd.DataFrame) -> None:
         nombre,
         modelo="BaselineSemanaAnterior",
         parametros={**parametros_p2(datos), "regla": "categoria_lag7; sin historia = sin_riesgo"},
+        etapa="baseline",
     ):
         for prefijo, conjunto in CONJUNTOS_EVALUACION.items():
             subset = datos.loc[datos["conjunto"] == conjunto]
@@ -167,44 +209,73 @@ def run_baseline(datos: pd.DataFrame) -> None:
             if prefijo == "val":
                 registrar_artefacto(
                     guardar_matriz_confusion(subset, prediccion, f"{nombre}-confusion-val"),
-                    "figuras",
+                    "plots",
                 )
-        registrar_artefacto(guardar_distribucion(datos), "tablas")
+        registrar_artefacto(guardar_distribucion(datos), "tables")
 
 
-def run_logreg(datos: pd.DataFrame, hiperparametros=None) -> None:
-    """Candidato: regresión logística multiclase con imputación y escalamiento."""
-    nombre = "p2-logreg-multiclase"
-    hiper = P2_HIPERPARAMETROS.copy()
-    if hiperparametros is not None:
-        hiper.update(hiperparametros)
-    modelo = make_pipeline(
-        SimpleImputer(strategy="median"),
-        StandardScaler(),
-        LogisticRegression(random_state=RANDOM_SEED, **hiper),
+def hiperparametros(modelo: str, cambios: dict | None = None) -> dict:
+    """Valores por defecto de config.py con los cambios pedidos."""
+    base = {"logreg": P2_HIPERPARAMETROS, "hgb": P2_HGB_HIPERPARAMETROS}[modelo]
+    return {**base, **(cambios or {})}
+
+
+def construir_modelo(modelo: str, hiper: dict):
+    """Estimador sklearn de un candidato de P2."""
+    if modelo == "logreg":
+        return make_pipeline(
+            SimpleImputer(strategy="median"),
+            StandardScaler(),
+            LogisticRegression(random_state=RANDOM_SEED, **hiper),
+        )
+    if modelo == "hgb":
+        return HistGradientBoostingClassifier(random_state=RANDOM_SEED, **hiper)
+    raise ValueError(f"Modelo no disponible para P2: {modelo}")
+
+
+def nombre_candidato(modelo: str, hiper: dict) -> str:
+    if modelo == "logreg":
+        return f"p2-logreg-C{hiper['C']}"
+    return f"p2-hgb-lr{hiper['learning_rate']}-leaf{hiper['max_leaf_nodes']}"
+
+
+def run_candidato(
+    datos: pd.DataFrame, modelo: str = "logreg", hiper: dict | None = None, etapa="candidate"
+) -> None:
+    """Entrena un candidato de P2 y registra métricas, gráficas y artefactos."""
+    hiper = hiper or hiperparametros(modelo)
+    estimador = construir_modelo(modelo, hiper)
+    nombre = nombre_candidato(modelo, hiper)
+    clase = type(estimador[-1] if hasattr(estimador, "steps") else estimador).__name__
+    detalles = (
+        {"imputacion": "mediana", "escalamiento": "StandardScaler"}
+        if modelo == "logreg"
+        else {"imputacion": "nativa_hgb"}
     )
 
     train = datos.loc[datos["conjunto"] == "train"]
     with iniciar_run(
         "P2",
         nombre,
-        modelo="LogisticRegression",
+        modelo=clase,
         parametros={
             **parametros_p2(datos),
             **hiper,
-            "imputacion": "mediana",
-            "escalamiento": "StandardScaler",
+            **detalles,
             "n_variables": len(VARIABLES_P2),
+            "selection_metric": f"val_recall_at_{P2_TOP_K}",
         },
+        etapa=etapa,
     ):
-        modelo.fit(train[VARIABLES_P2], train["categoria"])
-        clases = list(modelo.classes_)
+        with medir_tiempo("fit_time_s"):
+            estimador.fit(train[VARIABLES_P2], train["categoria"])
+        clases = list(estimador.classes_)
         registrar_metricas(
             "train",
             {
                 "f1_macro": f1_score(
                     train["categoria"],
-                    modelo.predict(train[VARIABLES_P2]),
+                    estimador.predict(train[VARIABLES_P2]),
                     labels=list(P2_CLASES),
                     average="macro",
                 )
@@ -213,7 +284,7 @@ def run_logreg(datos: pd.DataFrame, hiperparametros=None) -> None:
 
         for prefijo, conjunto in CONJUNTOS_EVALUACION.items():
             subset = datos.loc[datos["conjunto"] == conjunto]
-            probabilidades = modelo.predict_proba(subset[VARIABLES_P2])
+            probabilidades = estimador.predict_proba(subset[VARIABLES_P2])
             prediccion = pd.Series(
                 np.asarray(clases)[probabilidades.argmax(axis=1)], index=subset.index
             )
@@ -221,38 +292,83 @@ def run_logreg(datos: pd.DataFrame, hiperparametros=None) -> None:
                 1 - probabilidades[:, clases.index(SIN_RIESGO)], index=subset.index
             )
             registrar_metricas(prefijo, calcular_metricas(subset, prediccion, puntaje))
-            if prefijo == "val":
-                registrar_artefacto(
-                    guardar_matriz_confusion(subset, prediccion, f"{nombre}-confusion-val"),
-                    "figuras",
-                )
+            registrar_artefacto(
+                guardar_matriz_confusion(subset, prediccion, f"{nombre}-confusion-{prefijo}"),
+                "plots",
+            )
+            registrar_artefacto(
+                guardar_curva_pr(subset, puntaje, f"{nombre}-precision-recall-{prefijo}"),
+                "plots",
+            )
 
-        coeficientes = pd.DataFrame(modelo[-1].coef_.T, index=VARIABLES_P2, columns=clases).round(
-            4
+        if modelo == "logreg":
+            coeficientes = pd.DataFrame(
+                estimador[-1].coef_.T, index=VARIABLES_P2, columns=clases
+            ).round(4)
+            ruta = FIGURES_DIR / f"{nombre}-coeficientes.csv"
+            coeficientes.to_csv(ruta)
+            registrar_artefacto(ruta, "tables")
+
+        registrar_candidato(
+            estimador,
+            train[VARIABLES_P2],
+            hiper,
+            nombre_datos="p2-train-estacion-dia",
+            y_train=train["categoria"],
+            extra_config={"pregunta": "P2", "modelo": modelo, "objetivo": "categoria"},
         )
-        ruta = FIGURES_DIR / f"{nombre}-coeficientes.csv"
-        coeficientes.to_csv(ruta)
-        registrar_artefacto(ruta, "tablas")
+
+
+def run_logreg(datos: pd.DataFrame, hiperparametros_run=None) -> None:
+    """Compatibilidad con la entrega anterior: candidato logreg con cambios opcionales."""
+    run_candidato(datos, "logreg", hiperparametros("logreg", hiperparametros_run))
+
+
+def preparar(viajes: pd.DataFrame, estaciones: pd.DataFrame) -> pd.DataFrame:
+    """Conjunto de P2 sin los días operativos que terminan después del periodo."""
+    datos = dataset_p2(viajes, estaciones)
+    fin_dia = datos["fecha"] + pd.Timedelta(days=1, hours=P2_HORA_INICIO_DIA)
+    return datos.loc[fin_dia <= pd.Timestamp(DATA_END_EXCLUSIVE)].copy()
 
 
 def ejecutar(
     viajes: pd.DataFrame,
     estaciones: pd.DataFrame,
     modelo: str = "default",
+    learning_rate: float | None = None,
     max_iter: int | None = None,
 ) -> None:
     """Construye el conjunto de P2 y ejecuta los modelos seleccionados."""
-    datos = dataset_p2(viajes, estaciones)
-    fin_dia = datos["fecha"] + pd.Timedelta(days=1, hours=P2_HORA_INICIO_DIA)
-    datos = datos.loc[fin_dia <= pd.Timestamp(DATA_END_EXCLUSIVE)].copy()
+    datos = preparar(viajes, estaciones)
+    cambios = {
+        clave: valor
+        for clave, valor in {"learning_rate": learning_rate, "max_iter": max_iter}.items()
+        if valor is not None
+    }
 
     if modelo == "default":
         run_baseline(datos)
-        run_logreg(datos)
-    elif modelo == "logreg":
-        hiperparametros = {}
-        if max_iter is not None:
-            hiperparametros["max_iter"] = max_iter
-        run_logreg(datos, hiperparametros)
+        run_candidato(datos, "logreg")
+    elif modelo == "baseline":
+        run_baseline(datos)
+    elif modelo in ("logreg", "hgb"):
+        run_candidato(datos, modelo, hiperparametros(modelo, cambios))
     else:
         raise ValueError(f"Modelo no disponible para P2: {modelo}")
+
+
+def buscar(viajes: pd.DataFrame, estaciones: pd.DataFrame, modelo: str = "logreg") -> None:
+    """Búsqueda con nested runs: un padre y un hijo por combinación de BUSQUEDAS."""
+    combinaciones = BUSQUEDAS[("P2", modelo)]
+    datos = preparar(viajes, estaciones)
+    clase = construir_modelo(modelo, hiperparametros(modelo))
+    clase = type(clase[-1] if hasattr(clase, "steps") else clase).__name__
+    with iniciar_run(
+        "P2",
+        f"p2-busqueda-{modelo}",
+        modelo=clase,
+        parametros={"search_method": "grid", "n_combinations": len(combinaciones)},
+        etapa="search",
+    ):
+        for cambios in combinaciones:
+            run_candidato(datos, modelo, hiperparametros(modelo, cambios), etapa="search")

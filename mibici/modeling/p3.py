@@ -29,12 +29,12 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
 from mibici.config import (
+    BUSQUEDAS,
     DATA_END_EXCLUSIVE,
     FIGURES_DIR,
     MANIFESTS_DIR,
     P3_EVALUACION_CONGELADA_DIR,
-    P3_K,
-    P3_MAX_ITER,
+    P3_HIPERPARAMETROS,
     P3_MES_MIN_DIAS,
     P3_MES_MIN_MOVIMIENTOS,
     P3_MIN_DIAS_TRAIN,
@@ -52,9 +52,22 @@ from mibici.config import (
 )
 from mibici.dataset import leer_catalogo_verificado, leer_verificado, sha256
 from mibici.evaluation import comparar_con_congelado, resumir_fijo, verificar_reproduccion
-from mibici.features import cohorte_historia, matriz_forma, perfiles_agosto, preparar_perfiles_p3
+from mibici.features import (
+    cohorte_historia,
+    columnas_perfil_p3,
+    matriz_forma,
+    perfiles_agosto,
+    preparar_perfiles_p3,
+)
 from mibici.plots import guardar_grafica, guardar_mapa
-from mibici.tracking import iniciar_run, obtener_commit, registrar_artefacto, registrar_metricas
+from mibici.tracking import (
+    iniciar_run,
+    medir_tiempo,
+    obtener_commit,
+    registrar_artefacto,
+    registrar_candidato,
+    registrar_metricas,
+)
 
 DESTINO = FIGURES_DIR / "p3"
 
@@ -78,36 +91,19 @@ def llegadas_desde(viajes: pd.DataFrame, momento) -> pd.DataFrame:
     return viajes.loc[pd.to_datetime(viajes.fin_viaje).ge(pd.Timestamp(momento))]
 
 
-def ejecutar(viajes=None, estaciones=None) -> None:
-    """Entrena y evalúa P3 y registra el run.
+def preparar() -> dict:
+    """Perfiles de entrenamiento, validación y prueba; se calculan una sola vez.
 
-    Los argumentos se aceptan por compatibilidad con ``train.py`` y se ignoran:
-    P3 lee los viajes por mes y el catálogo después de verificarlos contra el
-    manifiesto.
+    La cohorte (estaciones con al menos ``P3_MIN_DIAS_TRAIN`` días con eventos)
+    es la misma para todos los valores de k, así que la búsqueda compara solo k.
     """
     manifest = json.loads((MANIFESTS_DIR / "mibici_processed.json").read_text(encoding="utf-8"))
     records = {r["filename"]: r for r in manifest["files"]}
     estaciones = leer_catalogo_verificado(
         PROCESSED_DATA_DIR / manifest["stations"]["filename"], manifest["stations"]
     )
-
-    if DESTINO.exists():
-        shutil.rmtree(DESTINO)
-    DESTINO.mkdir(parents=True)
-
-    # 1. Perfiles y ajuste: solo entrenamiento.
     viajes_train = cargar_periodo(records, TRAIN_START, VALIDATION_START)
     train = cohorte_historia(preparar_perfiles_p3(viajes_train, estaciones), P3_MIN_DIAS_TRAIN)
-    modelo = KMeans(
-        n_clusters=P3_K,
-        random_state=RANDOM_SEED,
-        n_init=P3_N_INIT,
-        max_iter=P3_MAX_ITER,
-        algorithm="lloyd",
-    ).fit(matriz_forma(train))
-    labels = modelo.labels_
-
-    # 2. Validación y prueba: asignación a centroides fijos, sin reajustar.
     agosto = cargar_periodo(records, VALIDATION_START, TEST_START)
     val = perfiles_agosto(
         pd.concat([llegadas_desde(viajes_train, VALIDATION_START), agosto], ignore_index=True),
@@ -120,43 +116,38 @@ def ejecutar(viajes=None, estaciones=None) -> None:
         inicio=TEST_START,
         fin=DATA_END_EXCLUSIVE,
     )
-    del viajes_train, agosto, septiembre
-
-    _, asign_val, metricas_val, _ = resumir_fijo(modelo, train, val)
-    q_test, asign_test, metricas_test, grupos_test = resumir_fijo(modelo, train, test)
-
-    # 3. Evidencia: mapa, perfiles medios y asignaciones por estación (sin datos personales).
-    mapeables, sin_ubicacion = guardar_mapa(train, labels, estaciones, DESTINO)
-    guardar_grafica(train, labels, "train", DESTINO)
-    guardar_grafica(
-        q_test,
-        asign_test.grupo_periodo.to_numpy(),
-        "test_septiembre",
-        DESTINO,
-        contexto="septiembre: asignación a centroides de entrenamiento",
-    )
-    train[["estacion_id", "nombre", "dias_con_eventos", "total_movimientos"]].assign(
-        grupo_train=labels
-    ).to_csv(DESTINO / "asignaciones_train.csv", index=False)
-    asign_val.to_csv(DESTINO / "asignaciones_val.csv", index=False)
-    asign_test.to_csv(DESTINO / "asignaciones_test.csv", index=False)
-    grupos_test.to_csv(DESTINO / "metricas_grupos_test.csv", index=False)
-
-    metricas_train = {
-        "n_estaciones": len(train),
-        "silhouette": float(silhouette_score(matriz_forma(train), labels)),
-        "n_mapeables": mapeables,
-        "n_sin_ubicacion": sin_ubicacion,
+    return {
+        "manifest": manifest,
+        "estaciones": estaciones,
+        "train": train,
+        "val": val,
+        "test": test,
     }
-    resultados = {"train": metricas_train, "val": metricas_val, "test": metricas_test}
-    (DESTINO / "resultados.json").write_text(json.dumps(resultados, indent=2), encoding="utf-8")
-    coincide = comparar_con_congelado(resultados)
+
+
+def run_kmeans(prep: dict, hiper: dict | None = None, etapa: str | None = None) -> None:
+    """Ajusta KMeans con entrenamiento, asigna validación y prueba sin reajustar y registra.
+
+    Sin cambios de hiperparámetros reproduce la configuración congelada
+    (``references/p3_frozen.json``), que es el baseline de P3.
+    """
+    hiper = {**P3_HIPERPARAMETROS, **(hiper or {})}
+    es_congelada = hiper == P3_HIPERPARAMETROS
+    etapa = etapa or ("baseline" if es_congelada else "candidate")
+    k = hiper["n_clusters"]
+    nombre = f"p3-kmeans-k{k}-historia{P3_MIN_DIAS_TRAIN}"
+    train, estaciones = prep["train"], prep["estaciones"]
+
+    destino = DESTINO / nombre
+    if destino.exists():
+        shutil.rmtree(destino)
+    destino.mkdir(parents=True)
 
     params = {
-        "k": P3_K,
+        "k": k,
         "cohorte_min_dias_activos_train": P3_MIN_DIAS_TRAIN,
-        "n_init": P3_N_INIT,
-        "max_iter": P3_MAX_ITER,
+        "n_init": hiper["n_init"],
+        "max_iter": hiper["max_iter"],
         "algorithm": "lloyd",
         "n_variables": 336,
         "transformacion": "sqrt(p)/sqrt(2)",
@@ -164,20 +155,102 @@ def ejecutar(viajes=None, estaciones=None) -> None:
         "min_dias_mes": P3_MES_MIN_DIAS,
         "min_movimientos_mes": P3_MES_MIN_MOVIMIENTOS,
         "fit": "train_only",
-        "catalogo_coordenadas": manifest["stations"]["source_filename"],
+        "catalogo_coordenadas": prep["manifest"]["stations"]["source_filename"],
+        "selection_metric": "val_ari_vs_train",
     }
-    with iniciar_run("P3", "p3-kmeans-k3-historia180", "KMeans", params):
-        mlflow.set_tags(
-            {
-                "interpretacion": "descriptiva_con_solapamiento",
-                "reproduce_configuracion_congelada": str(coincide).lower(),
-            }
+    with iniciar_run("P3", nombre, "KMeans", params, etapa=etapa):
+        x_train = matriz_forma(train)
+        with medir_tiempo("fit_time_s"):
+            modelo = KMeans(random_state=RANDOM_SEED, algorithm="lloyd", **hiper).fit(x_train)
+        labels = modelo.labels_
+
+        _, asign_val, metricas_val, _ = resumir_fijo(modelo, train, prep["val"])
+        q_test, asign_test, metricas_test, grupos_test = resumir_fijo(modelo, train, prep["test"])
+
+        # Evidencia: mapa, perfiles medios y asignaciones por estación (sin datos personales).
+        mapeables, sin_ubicacion = guardar_mapa(train, labels, estaciones, destino)
+        guardar_grafica(train, labels, "train", destino)
+        guardar_grafica(
+            q_test,
+            asign_test.grupo_periodo.to_numpy(),
+            "test_septiembre",
+            destino,
+            contexto="septiembre: asignación a centroides de entrenamiento",
         )
+        train[["estacion_id", "nombre", "dias_con_eventos", "total_movimientos"]].assign(
+            grupo_train=labels
+        ).to_csv(destino / "asignaciones_train.csv", index=False)
+        asign_val.to_csv(destino / "asignaciones_val.csv", index=False)
+        asign_test.to_csv(destino / "asignaciones_test.csv", index=False)
+        grupos_test.to_csv(destino / "metricas_grupos_test.csv", index=False)
+
+        tamanos = np.bincount(labels, minlength=k)
+        metricas_train = {
+            "n_estaciones": len(train),
+            "silhouette": float(silhouette_score(x_train, labels)),
+            "inertia": float(modelo.inertia_),
+            "min_cluster_size": int(tamanos.min()),
+            "n_mapeables": mapeables,
+            "n_sin_ubicacion": sin_ubicacion,
+        }
+        resultados = {"train": metricas_train, "val": metricas_val, "test": metricas_test}
+        (destino / "resultados.json").write_text(
+            json.dumps(resultados, indent=2), encoding="utf-8"
+        )
+        etiquetas = {"interpretacion": "descriptiva_con_solapamiento"}
+        if es_congelada:
+            congelado = {
+                c: {m: v for m, v in r.items() if m not in ("inertia", "min_cluster_size")}
+                for c, r in resultados.items()
+            }
+            etiquetas["reproduce_configuracion_congelada"] = str(
+                comparar_con_congelado(congelado)
+            ).lower()
+        mlflow.set_tags(etiquetas)
+
         registrar_metricas("train", metricas_train)
         registrar_metricas("val", metricas_val)
         registrar_metricas("test", metricas_test)
-        for ruta in sorted(DESTINO.iterdir()):
-            registrar_artefacto(ruta, "p3")
+        for ruta in sorted(destino.iterdir()):
+            registrar_artefacto(ruta, "plots" if ruta.suffix == ".png" else "tables")
+        registrar_candidato(
+            modelo,
+            pd.DataFrame(x_train, columns=columnas_perfil_p3()),
+            hiper,
+            nombre_datos="p3-perfiles-train",
+            extra_config={
+                "pregunta": "P3",
+                "modelo": "kmeans",
+                "cohorte_min_dias_activos_train": P3_MIN_DIAS_TRAIN,
+            },
+        )
+
+
+def ejecutar(viajes=None, estaciones=None, modelo="default", hiper=None) -> None:
+    """Entrena y evalúa P3 y registra el run.
+
+    ``viajes`` y ``estaciones`` se aceptan por compatibilidad con ``train.py`` y se
+    ignoran: P3 lee los viajes por mes y el catálogo después de verificarlos
+    contra el manifiesto.
+    """
+    if modelo not in ("default", "kmeans"):
+        raise ValueError(f"Modelo no disponible para P3: {modelo}")
+    run_kmeans(preparar(), hiper)
+
+
+def buscar(viajes=None, estaciones=None, modelo="kmeans") -> None:
+    """Búsqueda de k con nested runs: un padre y un hijo por combinación de BUSQUEDAS."""
+    combinaciones = BUSQUEDAS[("P3", "kmeans")]
+    prep = preparar()
+    with iniciar_run(
+        "P3",
+        "p3-busqueda-kmeans",
+        "KMeans",
+        {"search_method": "grid", "n_combinations": len(combinaciones)},
+        etapa="search",
+    ):
+        for cambios in combinaciones:
+            run_kmeans(prep, cambios, etapa="search")
 
 
 # --- Auditoría de la evaluación congelada --------------------------------------

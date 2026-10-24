@@ -10,7 +10,9 @@ from mibici.modeling import train
     "argumentos",
     [
         {"pregunta": "P1", "modelo": "logreg"},
-        {"pregunta": "P2", "modelo": "hgb"},
+        {"pregunta": "P2", "modelo": "glm"},
+        {"pregunta": "P1", "modelo": "glm", "learning_rate": "0.1"},
+        {"pregunta": "P1", "modelo": "baseline", "max_iter": "7"},
         {"pregunta": "P3", "modelo": "hgb"},
         {"pregunta": "todas", "modelo": "hgb"},
         {"pregunta": "todas", "modelo": "logreg"},
