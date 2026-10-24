@@ -10,6 +10,10 @@ Actualización posterior a la verificación: se registraron los **modelos ya ent
 
 Todos conservan experimento, run, logged model, commit `8c7c709feb1a118f1a87a931e4a362492fa3f744`, data_version `cd917f9aa025` y caveat `git_dirty=true` en descripciones/tags. Se inspeccionaron versiones y aliases antes de crear: no había registros al inicio; no se reemplazaron aliases ajenos. El intento inicial del harness completó P1 y registró P2 antes de fallar en una comprobación numérica aplicada a etiquetas de texto. Se inspeccionó el estado y se reanudó reutilizando ambas versiones 1; no se crearon duplicados. El error original se conserva localmente.
 
+## Elección de ciclo de vida: alias `champion`
+
+El alias `champion` identifica la versión seleccionada y permite cargarla por una referencia estable, `models:/<nombre>@champion`, sin acoplar el consumidor al número de versión. Si en una revisión futura se autoriza otra selección, el alias puede apuntar a esa versión conservando la misma referencia de carga. La versión numérica y el run fuente siguen siendo la evidencia inmutable para auditoría; el alias no reemplaza ese linaje. En esta entrega los tres aliases apuntan a la versión 1 del registro **local aislado**. Esta elección expresa selección verificada, no despliegue, disponibilidad de un servicio compartido ni operación real en producción.
+
 ## Decisión y comprobación
 
 - **P1:** HGB Poisson original, learning_rate 0.05, max_iter 300. MAE de validación 4.851352 y WAPE 0.178129; mejora sobre el promedio semanal.
