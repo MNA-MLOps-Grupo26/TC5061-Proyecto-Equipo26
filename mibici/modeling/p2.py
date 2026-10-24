@@ -40,6 +40,7 @@ from mibici.config import (
     P2_OCUPACION_INICIAL,
     P2_TOP_K,
     RANDOM_SEED,
+    P2_HIPERPARAMETROS,
 )
 from mibici.features import VARIABLES_P2, dataset_p2, umbrales_riesgo
 from mibici.tracking import iniciar_run, registrar_artefacto, registrar_metricas
@@ -171,10 +172,12 @@ def run_baseline(datos: pd.DataFrame) -> None:
         registrar_artefacto(guardar_distribucion(datos), "tablas")
 
 
-def run_logreg(datos: pd.DataFrame) -> None:
+def run_logreg(datos: pd.DataFrame,hiperparametros=None) -> None:
     """Candidato: regresión logística multiclase con imputación y escalamiento."""
     nombre = "p2-logreg-multiclase"
-    hiper = {"C": 1.0, "class_weight": "balanced", "max_iter": 2000, "solver": "lbfgs"}
+    hiper = P2_HIPERPARAMETROS.copy()
+    if hiperparametros is not None:
+        hiper.update(hiperparametros)
     modelo = make_pipeline(
         SimpleImputer(strategy="median"),
         StandardScaler(),
@@ -232,10 +235,24 @@ def run_logreg(datos: pd.DataFrame) -> None:
         registrar_artefacto(ruta, "tablas")
 
 
-def ejecutar(viajes: pd.DataFrame, estaciones: pd.DataFrame) -> None:
-    """Construye el conjunto de P2 y registra baseline y candidato."""
+def ejecutar(
+    viajes: pd.DataFrame,
+    estaciones: pd.DataFrame,
+    modelo: str = "default",
+    max_iter: int | None = None,
+) -> None:
+    """Construye el conjunto de P2 y ejecuta los modelos seleccionados."""
     datos = dataset_p2(viajes, estaciones)
     fin_dia = datos["fecha"] + pd.Timedelta(days=1, hours=P2_HORA_INICIO_DIA)
     datos = datos.loc[fin_dia <= pd.Timestamp(DATA_END_EXCLUSIVE)].copy()
-    run_baseline(datos)
-    run_logreg(datos)
+
+    if modelo == "default":
+        run_baseline(datos)
+        run_logreg(datos)
+    elif modelo == "logreg":
+        hiperparametros = {}
+        if max_iter is not None:
+            hiperparametros["max_iter"] = max_iter
+        run_logreg(datos, hiperparametros)
+    else:
+        raise ValueError(f"Modelo no disponible para P2: {modelo}")

@@ -10,6 +10,9 @@ Todos los runs del equipo pasan por ``iniciar_run`` para que registren lo mismo:
 Nunca se registran credenciales ni columnas de usuario.
 """
 
+import os
+import subprocess
+
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
@@ -62,7 +65,7 @@ def obtener_commit() -> tuple[str, bool]:
 
 def configurar_mlflow() -> str:
     """Apunta a la base local y crea el experimento único del equipo si no existe."""
-    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+    mlflow.set_tracking_uri(os.environ.get("MLFLOW_TRACKING_URI", MLFLOW_TRACKING_URI))
     experimento = mlflow.get_experiment_by_name(EXPERIMENT_NAME)
     if experimento is None:
         MLFLOW_ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -108,13 +111,27 @@ def iniciar_run(
         "team": f"equipo{TEAM_NUMBER:02d}",
         "question": pregunta,
         "model": modelo,
+        "model_family": modelo,
         "git_commit": commit,
         "git_dirty": str(sucio).lower(),
         "mlflow.source.git.commit": commit,
     }
+    # Conservar el identificador del proyecto durante toda la ejecución.
+    parent_run_id = os.environ.get("MLFLOW_PROJECT_PARENT_RUN_ID")
+    if not parent_run_id:
+        parent_run_id = os.environ.pop("MLFLOW_RUN_ID", None)
+        if parent_run_id:
+            os.environ["MLFLOW_PROJECT_PARENT_RUN_ID"] = parent_run_id
 
-    with mlflow.start_run(run_name=nombre, tags=etiquetas) as run:
-        mlflow.log_params({**parametros_comunes(), "model": modelo, **(parametros or {})})
+    with mlflow.start_run(
+        run_name=nombre,
+        tags=etiquetas,
+        nested=bool(parent_run_id or mlflow.active_run()),
+        parent_run_id=parent_run_id,
+    ) as run:
+        parametros_run = {**parametros_comunes(), **(parametros or {})}
+        mlflow.log_params(parametros_run)
+
         logger.info(f"Run iniciado: {nombre} ({run.info.run_id})")
         yield run
         logger.success(f"Run terminado: {nombre}")

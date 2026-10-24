@@ -5,20 +5,13 @@ import numpy as np
 from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
-from mibici.config import FIGURES_DIR, RANDOM_SEED, SEMANAS_BASELINE_P1
+from mibici.config import FIGURES_DIR, RANDOM_SEED, SEMANAS_BASELINE_P1,P1_HIPERPARAMETROS
 from mibici.features import VARIABLES_P1, dataset_p1
 from mibici.tracking import iniciar_run, registrar_artefacto, registrar_metricas
 
 # Candidato: pérdida Poisson porque el objetivo es un conteo no negativo con
 # muchos días en cero; acepta valores faltantes (estaciones sin capacidad).
-HIPERPARAMETROS_CANDIDATO = {
-    "loss": "poisson",
-    "learning_rate": 0.05,
-    "max_iter": 300,
-    "max_leaf_nodes": 31,
-    "min_samples_leaf": 50,
-    "early_stopping": False,
-}
+HIPERPARAMETROS_CANDIDATO = P1_HIPERPARAMETROS
 
 
 def calcular_metricas(datos, prediccion):
@@ -45,12 +38,24 @@ def evaluar_conjunto(datos, conjunto):
     prediccion = predecir_baseline(subconjunto)
     guardar_predicciones(subconjunto, prediccion, f"p1-baseline-{conjunto}")
     return calcular_metricas(subconjunto, prediccion)
-
-
-def ejecutar(viajes, estaciones):
+def ejecutar(viajes, estaciones, modelo="default", learning_rate=None, max_iter=None):
     datos = dataset_p1(viajes, estaciones)
-    run_baseline(datos)
-    run_candidato(datos)
+
+    if modelo == "default":
+        run_baseline(datos)
+        run_candidato(datos)
+    elif modelo == "hgb":
+        hiperparametros = P1_HIPERPARAMETROS.copy()
+
+        if learning_rate is not None:
+            hiperparametros["learning_rate"] = learning_rate
+
+        if max_iter is not None:
+            hiperparametros["max_iter"] = max_iter
+
+        run_candidato(datos, hiperparametros)
+    else:
+        raise ValueError(f"Modelo no disponible para P1: {modelo}")
 
 
 def run_baseline(datos):
@@ -85,19 +90,21 @@ def guardar_predicciones(datos, prediccion, nombre):
     registrar_artefacto(ruta_grafica, "figuras")
 
 
-def run_candidato(datos):
+def run_candidato(datos,hiperparametros=None):
     """Candidato: gradient boosting con pérdida Poisson sobre las variables de P1.
 
     Se ajusta solo con entrenamiento; validación y prueba se evalúan sin reajustar.
     """
-    modelo = HistGradientBoostingRegressor(random_state=RANDOM_SEED, **HIPERPARAMETROS_CANDIDATO)
+    if hiperparametros is None:
+        hiperparametros = P1_HIPERPARAMETROS.copy()
+    modelo = HistGradientBoostingRegressor(random_state=RANDOM_SEED, **hiperparametros)
     train = datos.loc[datos["conjunto"] == "train"]
     with iniciar_run(
         "P1",
         "p1-hgb-poisson",
         modelo="HistGradientBoostingRegressor",
         parametros={
-            **HIPERPARAMETROS_CANDIDATO,
+            **hiperparametros,
             "horizonte_dias": 1,
             "n_variables": len(VARIABLES_P1),
             "fit": "train_only",
