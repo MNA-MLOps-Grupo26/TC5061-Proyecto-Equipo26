@@ -232,6 +232,13 @@ El proyecto utiliza **MLflow Projects** para ejecutar la ingesta y el entrenamie
 
 Desde una copia del repositorio, seguir las instrucciones de instalación descritas anteriormente en este README. Activar el entorno virtual e instalar las dependencias antes de continuar.
 
+Los comandos con `--env-manager uv` requieren tener `uv` instalado y actualizado,
+incluso si las dependencias iniciales se instalaron con pip. La ejecución desde
+un clon limpio se verificó con **uv 0.13.5** y **Python 3.13.16**, la versión
+de Python fijada en `python_env.yaml`. Versiones antiguas de `uv` pueden no
+reconocer esa versión de Python para descargarla. Comprueben `uv --version` y,
+si es necesario, actualicen `uv` mediante el mismo método con el que lo instalaron.
+
 #### 2. Iniciar el servidor de MLflow
 
 En una terminal, desde la raíz del repositorio:
@@ -284,7 +291,16 @@ mlflow run . -e train --env-manager uv --experiment-name mibici-equipo26 -P ques
 
 Los hiperparámetros predeterminados se encuentran centralizados en `mibici/config.py`.
 
-Para P1 y P2, los parámetros opcionales `learning_rate` y `max_iter` permiten modificar determinados valores desde `MLproject`. Los valores realmente utilizados se registran en MLflow como `effective_learning_rate` y `effective_max_iter`, cuando corresponda.
+Los hiperparámetros opcionales requieren seleccionar un modelo específico:
+P1 con `model=hgb` admite `learning_rate` y `max_iter`; P2 con
+`model=logreg` admite únicamente `max_iter`. Con `model=default` no se
+aceptan estos hiperparámetros. P3 admite únicamente `model=default`,
+sin hiperparámetros adicionales.
+
+Al ejecutar mediante MLflow Projects, cada modelo se registra como un run
+hijo del run del proyecto. Los parámetros solicitados quedan en el padre
+y los valores utilizados se registran en cada hijo como `learning_rate`
+y `max_iter`, cuando corresponda.
 
 #### 6. Consultar resultados
 

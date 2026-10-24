@@ -10,11 +10,9 @@ Todos los runs del equipo pasan por ``iniciar_run`` para que registren lo mismo:
 Nunca se registran credenciales ni columnas de usuario.
 """
 
-import os
-import subprocess
-
 from collections.abc import Iterator
 from contextlib import contextmanager
+import os
 from pathlib import Path
 import subprocess
 
@@ -37,6 +35,14 @@ from mibici.dataset import obtener_data_version
 
 PREGUNTAS = {"P1", "P2", "P3"}
 CONJUNTOS = {"train", "val", "test"}
+# Familia de cada modelo para la etiqueta model_family; si falta, se usa el nombre.
+FAMILIAS_MODELO = {
+    "BaselinePromedioSemanal": "baseline",
+    "BaselineSemanaAnterior": "baseline",
+    "HistGradientBoostingRegressor": "gradient_boosting",
+    "LogisticRegression": "linear",
+    "KMeans": "clustering",
+}
 
 
 def _git(*args: str) -> str:
@@ -111,7 +117,7 @@ def iniciar_run(
         "team": f"equipo{TEAM_NUMBER:02d}",
         "question": pregunta,
         "model": modelo,
-        "model_family": modelo,
+        "model_family": FAMILIAS_MODELO.get(modelo, modelo),
         "git_commit": commit,
         "git_dirty": str(sucio).lower(),
         "mlflow.source.git.commit": commit,

@@ -82,8 +82,6 @@ P2_HIPERPARAMETROS = {
 }
 
 
-
-
 # P2: indicador de riesgo aproximado
 # Día operativo de 05:00 a 05:00 del día siguiente (el sistema reinicia a las 05:00).
 P2_HORA_INICIO_DIA = 5

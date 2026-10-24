@@ -36,11 +36,11 @@ from mibici.config import (
     DATA_END_EXCLUSIVE,
     FIGURES_DIR,
     P2_CLASES,
+    P2_HIPERPARAMETROS,
     P2_HORA_INICIO_DIA,
     P2_OCUPACION_INICIAL,
     P2_TOP_K,
     RANDOM_SEED,
-    P2_HIPERPARAMETROS,
 )
 from mibici.features import VARIABLES_P2, dataset_p2, umbrales_riesgo
 from mibici.tracking import iniciar_run, registrar_artefacto, registrar_metricas
@@ -172,7 +172,7 @@ def run_baseline(datos: pd.DataFrame) -> None:
         registrar_artefacto(guardar_distribucion(datos), "tablas")
 
 
-def run_logreg(datos: pd.DataFrame,hiperparametros=None) -> None:
+def run_logreg(datos: pd.DataFrame, hiperparametros=None) -> None:
     """Candidato: regresión logística multiclase con imputación y escalamiento."""
     nombre = "p2-logreg-multiclase"
     hiper = P2_HIPERPARAMETROS.copy()
