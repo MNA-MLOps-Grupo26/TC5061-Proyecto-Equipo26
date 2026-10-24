@@ -1,0 +1,251 @@
+[
+  {
+    "check": "all 35 runs finished",
+    "passed": true,
+    "details": {
+      "FINISHED": 35
+    }
+  },
+  {
+    "check": "19 baseline/candidate metric runs",
+    "passed": true,
+    "details": 19
+  },
+  {
+    "check": "same data version and split",
+    "passed": true,
+    "details": null
+  },
+  {
+    "check": "four nested search parents",
+    "passed": true,
+    "details": 4
+  },
+  {
+    "check": "search hierarchy p3-busqueda-kmeans",
+    "passed": true,
+    "details": [
+      "8d87fb53a1af4b2f8e08b232ad9d9de2",
+      "b28fa1077cd547108e2979949dee5c5b",
+      "62d0608983ac479a91e243cd6c2f5c2f"
+    ]
+  },
+  {
+    "check": "search hierarchy p2-busqueda-hgb",
+    "passed": true,
+    "details": [
+      "394c9aafc6c742a2a3baf23dc61d1cf5",
+      "f1c29165f8dc4cbc90257d81a3c919d0",
+      "46a8229bd7df43b4bff60d1be6a0cd2e"
+    ]
+  },
+  {
+    "check": "search hierarchy p2-busqueda-logreg",
+    "passed": true,
+    "details": [
+      "95ee60e9ac5e4dcab7f5e59cb6d29ef5",
+      "11e3586aaeee4c83b15e8007db0577e5",
+      "976b217a432343ccbdb462d750c9a7eb"
+    ]
+  },
+  {
+    "check": "search hierarchy p1-busqueda-hgb",
+    "passed": true,
+    "details": [
+      "022c86a1f2a94e29b5f1c7d3e9f5f5c4",
+      "c98c5ea5c6e2475e80275d82a6f33001",
+      "02d5bb2d62274f87b18ba0c5054b768e"
+    ]
+  },
+  {
+    "check": "17 READY logged models",
+    "passed": true,
+    "details": 17
+  },
+  {
+    "check": "candidate evidence p3-kmeans-k5-historia180",
+    "passed": true,
+    "details": {
+      "missing_artifact_directories": [],
+      "dataset_input_present": true,
+      "fit_time_present": true
+    }
+  },
+  {
+    "check": "candidate evidence p3-kmeans-k4-historia180",
+    "passed": true,
+    "details": {
+      "missing_artifact_directories": [],
+      "dataset_input_present": true,
+      "fit_time_present": true
+    }
+  },
+  {
+    "check": "candidate evidence p3-kmeans-k2-historia180",
+    "passed": true,
+    "details": {
+      "missing_artifact_directories": [],
+      "dataset_input_present": true,
+      "fit_time_present": true
+    }
+  },
+  {
+    "check": "candidate evidence p2-hgb-lr0.1-leaf31",
+    "passed": false,
+    "details": {
+      "missing_artifact_directories": [
+        "tables"
+      ],
+      "dataset_input_present": true,
+      "fit_time_present": true
+    }
+  },
+  {
+    "check": "candidate evidence p2-hgb-lr0.05-leaf63",
+    "passed": false,
+    "details": {
+      "missing_artifact_directories": [
+        "tables"
+      ],
+      "dataset_input_present": true,
+      "fit_time_present": true
+    }
+  },
+  {
+    "check": "candidate evidence p2-hgb-lr0.03-leaf15",
+    "passed": false,
+    "details": {
+      "missing_artifact_directories": [
+        "tables"
+      ],
+      "dataset_input_present": true,
+      "fit_time_present": true
+    }
+  },
+  {
+    "check": "candidate evidence p2-logreg-C5.0",
+    "passed": true,
+    "details": {
+      "missing_artifact_directories": [],
+      "dataset_input_present": true,
+      "fit_time_present": true
+    }
+  },
+  {
+    "check": "candidate evidence p2-logreg-C0.5",
+    "passed": true,
+    "details": {
+      "missing_artifact_directories": [],
+      "dataset_input_present": true,
+      "fit_time_present": true
+    }
+  },
+  {
+    "check": "candidate evidence p2-logreg-C0.1",
+    "passed": true,
+    "details": {
+      "missing_artifact_directories": [],
+      "dataset_input_present": true,
+      "fit_time_present": true
+    }
+  },
+  {
+    "check": "candidate evidence p1-hgb-lr0.1-it200",
+    "passed": true,
+    "details": {
+      "missing_artifact_directories": [],
+      "dataset_input_present": true,
+      "fit_time_present": true
+    }
+  },
+  {
+    "check": "candidate evidence p1-hgb-lr0.07-it350",
+    "passed": true,
+    "details": {
+      "missing_artifact_directories": [],
+      "dataset_input_present": true,
+      "fit_time_present": true
+    }
+  },
+  {
+    "check": "candidate evidence p1-hgb-lr0.03-it400",
+    "passed": true,
+    "details": {
+      "missing_artifact_directories": [],
+      "dataset_input_present": true,
+      "fit_time_present": true
+    }
+  },
+  {
+    "check": "candidate evidence p3-kmeans-k3-historia180",
+    "passed": true,
+    "details": {
+      "missing_artifact_directories": [],
+      "dataset_input_present": true,
+      "fit_time_present": true
+    }
+  },
+  {
+    "check": "candidate evidence p2-hgb-lr0.05-leaf31",
+    "passed": false,
+    "details": {
+      "missing_artifact_directories": [
+        "tables"
+      ],
+      "dataset_input_present": true,
+      "fit_time_present": true
+    }
+  },
+  {
+    "check": "candidate evidence p2-logreg-C1.0",
+    "passed": true,
+    "details": {
+      "missing_artifact_directories": [],
+      "dataset_input_present": true,
+      "fit_time_present": true
+    }
+  },
+  {
+    "check": "candidate evidence p1-glm-alpha1.0",
+    "passed": true,
+    "details": {
+      "missing_artifact_directories": [],
+      "dataset_input_present": true,
+      "fit_time_present": true
+    }
+  },
+  {
+    "check": "candidate evidence p1-hgb-lr0.05-it300",
+    "passed": true,
+    "details": {
+      "missing_artifact_directories": [],
+      "dataset_input_present": true,
+      "fit_time_present": true
+    }
+  },
+  {
+    "check": "one training dataset digest per question",
+    "passed": true,
+    "details": {
+      "P3": [
+        "f65fe6ff"
+      ],
+      "P2": [
+        "35fc657c"
+      ],
+      "P1": [
+        "10f3651e"
+      ]
+    }
+  },
+  {
+    "check": "17 models reload/signature/example/predict",
+    "passed": true,
+    "details": 17
+  },
+  {
+    "check": "registry confirmed empty (remaining requirement)",
+    "passed": true,
+    "details": []
+  }
+]

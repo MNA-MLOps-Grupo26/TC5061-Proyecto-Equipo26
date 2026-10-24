@@ -1,0 +1,15 @@
+{
+  "contributor": "ruizkimberlymba",
+  "contribution": "Final integrated verification and compact evidence publication; model authorship remains with original contributors",
+  "shared_mlflow": "No shared endpoint found in documented setup, tracked configuration or current MLflow-related environment configuration; README uses loopback and config defaults to local SQLite. This does not prove no undisclosed team service exists.",
+  "omissions": [
+    "raw datasets",
+    "station/trip rows and input examples",
+    "model binaries",
+    "SQLite databases",
+    "credentials",
+    "machine paths/user tags",
+    "optional exploratory improvement trials"
+  ],
+  "registry_completed": false
+}

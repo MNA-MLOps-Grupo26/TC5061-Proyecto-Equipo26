@@ -1,0 +1,13 @@
+{
+  "python": "3.13.16 (main, Oct  9 2026, 15:21:05) [MSC v.1944 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+    "mlflow": "3.17.1",
+    "scikit-learn": "1.9.1",
+    "pandas": "3.0.6",
+    "numpy": "2.5.4",
+    "pyarrow": "25.0.1",
+    "typer": "0.27.3",
+    "pytest": "9.1.1"
+  }
+}

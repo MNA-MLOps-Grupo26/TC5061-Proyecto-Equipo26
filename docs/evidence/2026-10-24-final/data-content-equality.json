@@ -1,0 +1,39 @@
+{
+  "all14_trip_parquet_byte_hashes_match_committed": [
+    "datos_abiertos_2025_08.parquet",
+    "datos_abiertos_2025_09.parquet",
+    "datos_abiertos_2025_10.parquet",
+    "datos_abiertos_2025_11.parquet",
+    "datos_abiertos_2025_12.parquet",
+    "datos_abiertos_2026_01.parquet",
+    "datos_abiertos_2026_02.parquet",
+    "datos_abiertos_2026_03.parquet",
+    "datos_abiertos_2026_04.parquet",
+    "datos_abiertos_2026_05.parquet",
+    "datos_abiertos_2026_06.parquet",
+    "datos_abiertos_2026_07.parquet",
+    "datos_abiertos_2026_08.parquet",
+    "datos_abiertos_2026_09.parquet"
+  ],
+  "station_rows": 484,
+  "station_columns": [
+    "estacion_id",
+    "nombre",
+    "latitud",
+    "longitud",
+    "capacidad"
+  ],
+  "station_dtypes": {
+    "estacion_id": "int64",
+    "nombre": "string",
+    "latitud": "float64",
+    "longitud": "float64",
+    "capacidad": "float64"
+  },
+  "station_decoded_frame_exactly_matches_prior_independently_tested_windows_frame": true,
+  "station_decoded_frame_exactly_matches_normalization_of_hash_verified_raw_csv": true,
+  "current_manifest_catalog_integrity_check": "passed",
+  "committed_old_catalog_hash_check_would_fail_without_regenerating_manifest": "SHA-256 de estaciones.parquet no coincide con el manifiesto. Vuelvan a correr: python -m mibici.dataset",
+  "real_manifest_restored_or_hidden": false,
+  "limitation": "The original Parquet bytes with committed80ef17...hash are not present here; decoded equality is verified against the raw normalization and prior tested Windows frame, not that unavailable original file."
+}

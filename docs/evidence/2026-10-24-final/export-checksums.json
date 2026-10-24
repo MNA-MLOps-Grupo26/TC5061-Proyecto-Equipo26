@@ -1,0 +1,77 @@
+[
+  {
+    "file": "commands-end.jsonl",
+    "bytes": 1111,
+    "sha256": "d9002fa5b02a06593a03f6c39e3777a68890b1737c7ec30eef7118c22c04ac37"
+  },
+  {
+    "file": "commands-start.jsonl",
+    "bytes": 3549,
+    "sha256": "c6523b29c94c134cefbde02504f16a174b4cd0966622083915b75aff7624f8b2"
+  },
+  {
+    "file": "comparison.md",
+    "bytes": 4140,
+    "sha256": "8743711324f994e157d215fc331433222d6d50e7a20390756146e98a1fa58ea2"
+  },
+  {
+    "file": "data-content-equality.json",
+    "bytes": 1608,
+    "sha256": "2dcf98252d1afb2f623e05b8cd46094acbec4f017647772f83aadb3022d7b9ba"
+  },
+  {
+    "file": "environment.json",
+    "bytes": 329,
+    "sha256": "c722662f44cdf1d9466e7ec7424c7ea0f495fe6b50841315f2248303fe76f290"
+  },
+  {
+    "file": "final-lineage-audit.json",
+    "bytes": 720,
+    "sha256": "ce4172cdc55fb2b8bd79150c2ce29afdaae51b7a6e5480dea2de019d3613f875"
+  },
+  {
+    "file": "final-model-reloads.json",
+    "bytes": 5835,
+    "sha256": "67d60be1f98ffbd5608e5102eb748932d4ee6a85ae8cd56a82d5dd37dea4f79f"
+  },
+  {
+    "file": "ingest-manifest.diff",
+    "bytes": 547,
+    "sha256": "8b37df19ef8cde25bfd538eb8b7d6abecb882bcfb62e9d3c5705eff5f5058d0e"
+  },
+  {
+    "file": "integrated-audit.json",
+    "bytes": 5876,
+    "sha256": "512b75f76839e372d5824a245a110723d2f4073a45286152a093e753ac0fac31"
+  },
+  {
+    "file": "model-run-index.json",
+    "bytes": 34836,
+    "sha256": "36b3f09d75c4cf36eba1ddd259f9adb4166b3bbef292920212e8026fe040cf17"
+  },
+  {
+    "file": "publication-scope.json",
+    "bytes": 707,
+    "sha256": "93239955ec21cca15317ee27225dc218c0da94b46c7e340be3e78a59e165cd5c"
+  },
+  {
+    "file": "README.md",
+    "bytes": 7532,
+    "sha256": "f1419f1ba00a1e74fe03057c90ed0af50adbcd96bf52be2bf4e2fd9ca23622c8"
+  },
+  {
+    "file": "reproduction-comparison.json",
+    "bytes": 8907,
+    "sha256": "f1fc48237e20a2315d438288ffdd69def34986eaf5ab9136c328f31603de8e13"
+  },
+  {
+    "file": "run-index.csv",
+    "bytes": 9859,
+    "sha256": "1a8c489bfbcf4188eb41f466ae6534254038f7d06052aae99eb56c6a43c9a969"
+  },
+  {
+    "file": "runs.json",
+    "bytes": 57320,
+    "sha256": "33f0509656f2fb326be4c97ba2dda18642667045e89a947abf2a538b82d6a9c7"
+  }
+]

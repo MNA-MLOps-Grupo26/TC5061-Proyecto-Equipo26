@@ -367,3 +367,7 @@ Integrantes del equipo 26:
 | Eduardo Daniel Sauza Machado | Datos y exploración | Notebook de exploración, descarga y normalización inicial, manifiesto procesado, partición temporal y utilidades de features |
 | Dan Michael García Rios | Ingesta, tracking y P2 | Ingesta en un comando con nomenclatura, helper común de MLflow, panel estación-día sin fuga, indicador de riesgo y modelos de P2 |
 | Kimberly Ruiz | P1 y P3 | Baseline de P1 con evidencias, integración de P1 y P2, perfiles de estaciones, agrupación, mapa y reproducibilidad de P3 |
+
+## Evidencia integrada publicada
+
+[Verificación final del 24 de octubre de 2026](docs/evidence/2026-10-24-final/README.md): exportación compacta de corridas locales, métricas, linaje y reproducción. No constituye un servidor MLflow compartido ni completa el Model Registry.
