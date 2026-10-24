@@ -85,7 +85,9 @@ def test_entrada_p3_no_carga_viajes_globales_ni_ejecuta_p1_p2(monkeypatch):
 
     monkeypatch.setattr(train, "cargar_viajes", fail)
     monkeypatch.setattr(train, "cargar_estaciones", lambda: pd.DataFrame({"estacion_id": [1]}))
-    monkeypatch.setattr(train, "EJECUTORES", {"P3": lambda v, e: called.append((v, len(e)))})
+    monkeypatch.setattr(
+        train, "EJECUTORES", {"P3": lambda v, e, modelo: called.append((v, len(e)))}
+    )
     train.main(pregunta="P3")
     assert called == [(None, 1)]
 
