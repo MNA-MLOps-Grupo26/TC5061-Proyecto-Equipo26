@@ -116,14 +116,20 @@ def iniciar_run(
         "git_dirty": str(sucio).lower(),
         "mlflow.source.git.commit": commit,
     }
+    # Conservar el identificador del proyecto durante toda la ejecución.
+    parent_run_id = os.environ.get("MLFLOW_PROJECT_PARENT_RUN_ID")
+    if not parent_run_id:
+        parent_run_id = os.environ.pop("MLFLOW_RUN_ID", None)
+        if parent_run_id:
+            os.environ["MLFLOW_PROJECT_PARENT_RUN_ID"] = parent_run_id
 
-    with mlflow.start_run(run_name=nombre, tags=etiquetas) as run:
+    with mlflow.start_run(
+        run_name=nombre,
+        tags=etiquetas,
+        nested=bool(parent_run_id or mlflow.active_run()),
+        parent_run_id=parent_run_id,
+    ) as run:
         parametros_run = {**parametros_comunes(), **(parametros or {})}
-        if "max_iter" in parametros_run:
-            parametros_run["effective_max_iter"] = parametros_run.pop("max_iter")
-        if "learning_rate" in parametros_run:
-            parametros_run["effective_learning_rate"] = parametros_run.pop("learning_rate")
-
         mlflow.log_params(parametros_run)
 
         logger.info(f"Run iniciado: {nombre} ({run.info.run_id})")
