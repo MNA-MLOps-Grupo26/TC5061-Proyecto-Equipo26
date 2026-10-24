@@ -1,0 +1,110 @@
+[
+  {
+    "name": "mibici-equipo26-p1-demand",
+    "description": "HGB Poisson lr=.05, 300 iterations. Validation MAE 4.851352 and WAPE .178129; selected on validation, not September test. Source commit 8c7c709feb1a118f1a87a931e4a362492fa3f744; data_version cd917f9aa025; experiment 1; run 9d55326449364961b1cbc585ac28cefe. Local verification registry; not production. Station manifest hash caveat retained.",
+    "tags": {
+      "source_sha": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "data_version": "cd917f9aa025",
+      "question": "P1",
+      "source_run_id": "9d55326449364961b1cbc585ac28cefe",
+      "source_logged_model_id": "m-a1ba41ed76654e6fa8eb2fd611b2bd88",
+      "experiment_id": "1",
+      "git_dirty": "true",
+      "selection_scope": "validation; no September tuning"
+    },
+    "aliases": {
+      "champion": "1"
+    },
+    "versions": [
+      {
+        "version": "1",
+        "run_id": "9d55326449364961b1cbc585ac28cefe",
+        "source": "models:/m-a1ba41ed76654e6fa8eb2fd611b2bd88",
+        "description": "HGB Poisson lr=.05, 300 iterations. Validation MAE 4.851352 and WAPE .178129; selected on validation, not September test. Source commit 8c7c709feb1a118f1a87a931e4a362492fa3f744; data_version cd917f9aa025; experiment 1; run 9d55326449364961b1cbc585ac28cefe. Local verification registry; not production. Station manifest hash caveat retained.",
+        "tags": {
+          "source_sha": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+          "data_version": "cd917f9aa025",
+          "question": "P1",
+          "source_run_id": "9d55326449364961b1cbc585ac28cefe",
+          "source_logged_model_id": "m-a1ba41ed76654e6fa8eb2fd611b2bd88",
+          "experiment_id": "1",
+          "git_dirty": "true",
+          "selection_scope": "validation; no September tuning"
+        },
+        "status": "READY"
+      }
+    ]
+  },
+  {
+    "name": "mibici-equipo26-p2-risk",
+    "description": "HGB lr=.10, 31 leaves, 300 iterations. Selected by declared validation Recall@30 .22167667783739053; macro F1 .7205824428770148. Not selected by best F1. Source commit 8c7c709feb1a118f1a87a931e4a362492fa3f744; data_version cd917f9aa025; experiment 1; run 394c9aafc6c742a2a3baf23dc61d1cf5. Local verification registry; not production. Station manifest hash caveat retained.",
+    "tags": {
+      "source_sha": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "data_version": "cd917f9aa025",
+      "question": "P2",
+      "source_run_id": "394c9aafc6c742a2a3baf23dc61d1cf5",
+      "source_logged_model_id": "m-dcd9fae6d6304b38a79686638305f17d",
+      "experiment_id": "1",
+      "git_dirty": "true",
+      "selection_scope": "validation; no September tuning"
+    },
+    "aliases": {
+      "champion": "1"
+    },
+    "versions": [
+      {
+        "version": "1",
+        "run_id": "394c9aafc6c742a2a3baf23dc61d1cf5",
+        "source": "models:/m-dcd9fae6d6304b38a79686638305f17d",
+        "description": "HGB lr=.10, 31 leaves, 300 iterations. Selected by declared validation Recall@30 .22167667783739053; macro F1 .7205824428770148. Not selected by best F1. Source commit 8c7c709feb1a118f1a87a931e4a362492fa3f744; data_version cd917f9aa025; experiment 1; run 394c9aafc6c742a2a3baf23dc61d1cf5. Local verification registry; not production. Station manifest hash caveat retained.",
+        "tags": {
+          "source_sha": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+          "data_version": "cd917f9aa025",
+          "question": "P2",
+          "source_run_id": "394c9aafc6c742a2a3baf23dc61d1cf5",
+          "source_logged_model_id": "m-dcd9fae6d6304b38a79686638305f17d",
+          "experiment_id": "1",
+          "git_dirty": "true",
+          "selection_scope": "validation; no September tuning"
+        },
+        "status": "READY"
+      }
+    ]
+  },
+  {
+    "name": "mibici-equipo26-p3-profiles",
+    "description": "Original-representation KMeans k=3, not PCA. Retains the distinct Sunday-use group of 23 training stations. Small stability sacrifice versus k=2; weak separation and overlapping groups remain. Descriptive profiles, no causal land-use labels. Source commit 8c7c709feb1a118f1a87a931e4a362492fa3f744; data_version cd917f9aa025; experiment 1; run b42dcd8af94e4f1bb6571f16318ad427. Local verification registry; not production. Station manifest hash caveat retained.",
+    "tags": {
+      "source_sha": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "data_version": "cd917f9aa025",
+      "question": "P3",
+      "source_run_id": "b42dcd8af94e4f1bb6571f16318ad427",
+      "source_logged_model_id": "m-18e118b7751f4bc3b23256378d20f312",
+      "experiment_id": "1",
+      "git_dirty": "true",
+      "selection_scope": "validation; no September tuning"
+    },
+    "aliases": {
+      "champion": "1"
+    },
+    "versions": [
+      {
+        "version": "1",
+        "run_id": "b42dcd8af94e4f1bb6571f16318ad427",
+        "source": "models:/m-18e118b7751f4bc3b23256378d20f312",
+        "description": "Original-representation KMeans k=3, not PCA. Retains the distinct Sunday-use group of 23 training stations. Small stability sacrifice versus k=2; weak separation and overlapping groups remain. Descriptive profiles, no causal land-use labels. Source commit 8c7c709feb1a118f1a87a931e4a362492fa3f744; data_version cd917f9aa025; experiment 1; run b42dcd8af94e4f1bb6571f16318ad427. Local verification registry; not production. Station manifest hash caveat retained.",
+        "tags": {
+          "source_sha": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+          "data_version": "cd917f9aa025",
+          "question": "P3",
+          "source_run_id": "b42dcd8af94e4f1bb6571f16318ad427",
+          "source_logged_model_id": "m-18e118b7751f4bc3b23256378d20f312",
+          "experiment_id": "1",
+          "git_dirty": "true",
+          "selection_scope": "validation; no September tuning"
+        },
+        "status": "READY"
+      }
+    ]
+  }
+]

@@ -1,5 +1,15 @@
 [
   {
+    "file": "README.md",
+    "bytes": 7822,
+    "sha256": "366e872b34c5007545c739257d273fd7b9eefbfeef368d9d284bd38662aa6acb"
+  },
+  {
+    "file": "REGISTRATION.md",
+    "bytes": 4137,
+    "sha256": "1480b0fb8cdac9f1c86fefaaa58744cab3116522b0248a934083a7b159a2736a"
+  },
+  {
     "file": "commands-end.jsonl",
     "bytes": 1098,
     "sha256": "eaf7da05e69b5530fec506ebe4fac3e5c4375f1e2a0706368fa5a6fe7fd2e5d9"
@@ -55,9 +65,14 @@
     "sha256": "fe2533f9ae591f29c0e9fa6f12297d34c4afe4b610482bd65b3640e40e11bec6"
   },
   {
-    "file": "README.md",
-    "bytes": 7532,
-    "sha256": "f1419f1ba00a1e74fe03057c90ed0af50adbcd96bf52be2bf4e2fd9ca23622c8"
+    "file": "registration-evidence.json",
+    "bytes": 7555,
+    "sha256": "4b48f65cd4f0d769f2858533cebea31ca94fddbc45ccb1042c860f2caf6c1741"
+  },
+  {
+    "file": "registry-final-snapshot.json",
+    "bytes": 5868,
+    "sha256": "df093c2ccbcf9666ad43e1df5f93ef0893ad9115eea5822b63947a43c54230f9"
   },
   {
     "file": "reproduction-comparison.json",

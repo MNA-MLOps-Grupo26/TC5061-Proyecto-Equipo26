@@ -370,4 +370,4 @@ Integrantes del equipo 26:
 
 ## Evidencia integrada publicada
 
-[Verificación final del 24 de octubre de 2026](docs/evidence/2026-10-24-final/README.md): exportación compacta de corridas locales, métricas, linaje y reproducción. No constituye un servidor MLflow compartido ni completa el Model Registry.
+[Verificación final del 24 de octubre de 2026](docs/evidence/2026-10-24-final/README.md): exportación compacta de corridas locales, métricas, linaje y reproducción. Incluye el registro local verificado de los tres modelos seleccionados; no constituye un servidor MLflow ni un Model Registry compartido.

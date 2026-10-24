@@ -1,0 +1,198 @@
+{
+  "scope": "Local isolated final-run store only; not hosted/shared or deployed",
+  "checked_at_utc": "2026-10-24T19:50:17.930302+00:00",
+  "models": [
+    {
+      "question": "P1",
+      "registered_name": "mibici-equipo26-p1-demand",
+      "version": "1",
+      "alias": "champion",
+      "alias_uri": "models:/mibici-equipo26-p1-demand@champion",
+      "source_run_id": "9d55326449364961b1cbc585ac28cefe",
+      "source_logged_model_id": "m-a1ba41ed76654e6fa8eb2fd611b2bd88",
+      "experiment_id": "1",
+      "source_sha": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "data_version": "cd917f9aa025",
+      "status": "READY",
+      "selection_description": "HGB Poisson lr=.05, 300 iterations. Validation MAE 4.851352 and WAPE .178129; selected on validation, not September test.",
+      "params": {
+        "train_start": "2025-08-01",
+        "validation_start": "2026-08-01",
+        "test_start": "2026-09-01",
+        "data_end_exclusive": "2026-10-01",
+        "data_version": "cd917f9aa025",
+        "random_seed": "42",
+        "loss": "poisson",
+        "learning_rate": "0.05",
+        "max_iter": "300",
+        "max_leaf_nodes": "31",
+        "min_samples_leaf": "50",
+        "early_stopping": "False",
+        "horizonte_dias": "1",
+        "n_variables": "18",
+        "fit": "train_only",
+        "selection_metric": "val_wape"
+      },
+      "validation_metrics": {
+        "val_mae": 4.851352276716691,
+        "val_rmse": 8.171478370762053,
+        "val_wape": 0.17812945580458703
+      },
+      "verification": {
+        "alias_resolves_expected_version_and_run": true,
+        "loaded_by_name_and_alias": true,
+        "sample_source": "original saved MLflow input example; rows not exported",
+        "prediction_shape": [
+          5
+        ],
+        "prediction_dtype": "float64",
+        "predictions_exactly_equal_saved_model": true,
+        "valid_outputs": true,
+        "numeric_outputs_finite": true
+      }
+    },
+    {
+      "question": "P2",
+      "registered_name": "mibici-equipo26-p2-risk",
+      "version": "1",
+      "alias": "champion",
+      "alias_uri": "models:/mibici-equipo26-p2-risk@champion",
+      "source_run_id": "394c9aafc6c742a2a3baf23dc61d1cf5",
+      "source_logged_model_id": "m-dcd9fae6d6304b38a79686638305f17d",
+      "experiment_id": "1",
+      "source_sha": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "data_version": "cd917f9aa025",
+      "status": "READY",
+      "selection_description": "HGB lr=.10, 31 leaves, 300 iterations. Selected by declared validation Recall@30 .22167667783739053; macro F1 .7205824428770148. Not selected by best F1.",
+      "params": {
+        "train_start": "2025-08-01",
+        "validation_start": "2026-08-01",
+        "test_start": "2026-09-01",
+        "data_end_exclusive": "2026-10-01",
+        "data_version": "cd917f9aa025",
+        "random_seed": "42",
+        "dia_operativo_inicio_hora": "5",
+        "ocupacion_inicial": "0.5",
+        "umbral_sin_bicis": "0.5",
+        "umbral_sin_anclajes": "-0.5",
+        "top_k": "30",
+        "granularidad": "estacion-dia",
+        "horizonte": "dia_siguiente",
+        "n_train": "137188",
+        "n_validation": "14386",
+        "n_test": "13590",
+        "n_estaciones": "469",
+        "learning_rate": "0.1",
+        "max_iter": "300",
+        "max_leaf_nodes": "31",
+        "min_samples_leaf": "50",
+        "class_weight": "balanced",
+        "early_stopping": "False",
+        "imputacion": "nativa_hgb",
+        "n_variables": "22",
+        "selection_metric": "val_recall_at_30"
+      },
+      "validation_metrics": {
+        "val_f1_macro": 0.7205824428770148,
+        "val_balanced_accuracy": 0.7482295907944344,
+        "val_recall_sin_bicis": 0.6414058209774849,
+        "val_recall_sin_anclajes": 0.7523809523809524,
+        "val_recall_at_30": 0.22167667783739053,
+        "val_precision_at_30": 0.9107526881720429,
+        "val_recall_at_30_max_posible": 0.252424839386674,
+        "val_estaciones_riesgo_por_dia": 133.25806451612902
+      },
+      "verification": {
+        "alias_resolves_expected_version_and_run": true,
+        "loaded_by_name_and_alias": true,
+        "sample_source": "original saved MLflow input example; rows not exported",
+        "prediction_shape": [
+          5
+        ],
+        "prediction_dtype": "object",
+        "predictions_exactly_equal_saved_model": true,
+        "valid_outputs": true,
+        "numeric_outputs_finite": null
+      }
+    },
+    {
+      "question": "P3",
+      "registered_name": "mibici-equipo26-p3-profiles",
+      "version": "1",
+      "alias": "champion",
+      "alias_uri": "models:/mibici-equipo26-p3-profiles@champion",
+      "source_run_id": "b42dcd8af94e4f1bb6571f16318ad427",
+      "source_logged_model_id": "m-18e118b7751f4bc3b23256378d20f312",
+      "experiment_id": "1",
+      "source_sha": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "data_version": "cd917f9aa025",
+      "status": "READY",
+      "selection_description": "Original-representation KMeans k=3, not PCA. Retains the distinct Sunday-use group of 23 training stations. Small stability sacrifice versus k=2; weak separation and overlapping groups remain. Descriptive profiles, no causal land-use labels.",
+      "params": {
+        "train_start": "2025-08-01",
+        "validation_start": "2026-08-01",
+        "test_start": "2026-09-01",
+        "data_end_exclusive": "2026-10-01",
+        "data_version": "cd917f9aa025",
+        "random_seed": "42",
+        "k": "3",
+        "cohorte_min_dias_activos_train": "180",
+        "n_init": "20",
+        "max_iter": "300",
+        "algorithm": "lloyd",
+        "n_variables": "336",
+        "transformacion": "sqrt(p)/sqrt(2)",
+        "distancia": "euclidean",
+        "min_dias_mes": "14",
+        "min_movimientos_mes": "100",
+        "fit": "train_only",
+        "catalogo_coordenadas": "nomenclatura_2026_09.csv",
+        "selection_metric": "val_ari_vs_train"
+      },
+      "validation_metrics": {
+        "val_n_evaluables": 367.0,
+        "val_n_excluidas": 2.0,
+        "val_fraccion_evaluable": 0.994579945799458,
+        "val_fraccion_estable": 0.896457765667575,
+        "val_ari_vs_train": 0.684891103084184,
+        "val_distancia_mediana": 0.3371796003951961,
+        "val_distancia_p95": 0.6850374327709993,
+        "val_cambio_perfil_mediana": 0.30194089790276174,
+        "val_cambio_perfil_p95": 0.6451581321447986,
+        "val_fraccion_sobre_p95_train": 0.5858310626702997,
+        "val_silhouette_asignacion_fija": 0.048934970420373126,
+        "val_n_grupo_0": 165.0,
+        "val_n_grupo_1": 168.0,
+        "val_n_grupo_2": 34.0
+      },
+      "verification": {
+        "alias_resolves_expected_version_and_run": true,
+        "loaded_by_name_and_alias": true,
+        "sample_source": "original saved MLflow input example; rows not exported",
+        "prediction_shape": [
+          5
+        ],
+        "prediction_dtype": "int32",
+        "predictions_exactly_equal_saved_model": true,
+        "valid_outputs": true,
+        "numeric_outputs_finite": true
+      }
+    }
+  ],
+  "initial_registry_before_first_attempt": [],
+  "registry_before_resume": [
+    {
+      "name": "mibici-equipo26-p1-demand",
+      "aliases": {
+        "champion": "1"
+      }
+    },
+    {
+      "name": "mibici-equipo26-p2-risk",
+      "aliases": {
+        "champion": "1"
+      }
+    }
+  ],
+  "harness_note": "Initial numeric isfinite check failed on P2 string labels after registration. State inspected; resumed reusing versions 1. No duplicate versions. Original log retained locally."
+}

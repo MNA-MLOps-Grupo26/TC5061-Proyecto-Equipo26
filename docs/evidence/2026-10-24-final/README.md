@@ -4,6 +4,10 @@ Contribución de Kimberly Ruiz: ejecución independiente del flujo integrado y p
 
 Este directorio es una **exportación de corridas locales**, no un servidor MLflow compartido ni una importación ejecutada en otro servidor. El README del proyecto documenta `127.0.0.1:5000`; `mibici/config.py` usa SQLite local por defecto. No se encontró un destino compartido configurado y autorizado. Los identificadores de runs/modelos conservados aquí son referencias al almacén local original: no son enlaces descargables ni versiones de un registro compartido.
 
+## Registro posterior
+
+Los tres modelos seleccionados ya tienen versión 1 y alias `champion` en el registro **local aislado**, ver [registro y comprobaciones](REGISTRATION.md). No es un registry compartido. Las auditorías siguientes describen el snapshot anterior a esta actualización.
+
 ## Resultado y alcance
 
 - Fuente ejecutada: `8c7c709feb1a118f1a87a931e4a362492fa3f744`, árbol `56c84ae92f4aba9f20580ff3a5f7e3e5af912ccf`.
