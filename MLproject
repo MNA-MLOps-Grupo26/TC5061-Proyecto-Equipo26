@@ -5,10 +5,21 @@ python_env: python_env.yaml
 entry_points:
   ingest:
     command: "python -m mibici.dataset"
+
+  # Un modelo (o baseline) por comando. Hiperparámetros por defecto en mibici/config.py.
+  # P1: default, baseline, hgb, glm | P2: default, baseline, logreg, hgb | P3: default
   train:
     parameters:
-      question: {type: str, default: "P1"}
-      model: {type: str, default: "default"}
-      learning_rate: {type: str, default: "None"}
-      max_iter: {type: str, default: "None"}
+      question: {type: string, default: "P1"}
+      model: {type: string, default: "default"}
+      learning_rate: {type: string, default: "None"}
+      max_iter: {type: string, default: "None"}
     command: "python -m mibici.modeling.train --pregunta {question} --modelo {model} --learning-rate {learning_rate} --max-iter {max_iter}"
+
+  # Búsqueda con nested runs: un padre y un hijo por combinación de config.BUSQUEDAS.
+  # P1: hgb | P2: logreg, hgb | P3: kmeans. model=default usa el primero.
+  search:
+    parameters:
+      question: {type: string, default: "P1"}
+      model: {type: string, default: "default"}
+    command: "python -m mibici.modeling.search --pregunta {question} --modelo {model}"

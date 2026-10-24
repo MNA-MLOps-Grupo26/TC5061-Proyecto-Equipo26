@@ -14,7 +14,7 @@ import pandas as pd
 from mibici.config import P3_K_EXPLORACION
 from mibici.features import columnas_perfil_p3
 
-COLORES = ("#2166ac", "#d6604d", "#1b7837")
+COLORES = ("#2166ac", "#d6604d", "#1b7837", "#762a83", "#e08214", "#4d4d4d")
 
 
 def guardar_grafica(perfiles, labels, nombre, destino, contexto="solo entrenamiento"):
@@ -76,7 +76,7 @@ def guardar_mapa(train, labels, estaciones, destino):
     datos.to_csv(destino / "estaciones_mapa.csv", index=False)
     datos.loc[~valid].to_csv(destino / "estaciones_sin_ubicacion.csv", index=False)
     fig, ax = plt.subplots(figsize=(10, 8))
-    for g in range(3):
+    for g in range(int(np.max(labels)) + 1):
         z = datos.loc[valid & datos.grupo_train.eq(g)]
         ax.scatter(
             z.longitud,
@@ -101,7 +101,7 @@ def guardar_mapa(train, labels, estaciones, destino):
     if valid.any():
         ax.set_aspect(1 / np.cos(np.deg2rad(datos.loc[valid, "latitud"].mean())))
     ax.set(
-        title=f"P3 · grupos de entrenamiento congelados\nCatalogo septiembre2026 · {int(valid.sum())}/{len(datos)} con ubicacion",
+        title=f"P3 · grupos de entrenamiento (k={int(np.max(labels)) + 1})\nCatalogo septiembre2026 · {int(valid.sum())}/{len(datos)} con ubicacion",
         xlabel="Longitud (grados)",
         ylabel="Latitud (grados)",
     )

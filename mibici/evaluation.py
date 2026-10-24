@@ -55,6 +55,7 @@ def asignar_fijo(modelo, perfiles):
 
 
 def resumir_fijo(modelo, train, periodo):
+    """Asigna el periodo a centroides fijos y resume estabilidad; válido para cualquier k."""
     q = periodo.loc[periodo.evaluable].sort_values("estacion_id").reset_index(drop=True)
     if len(q) < 2:
         raise ValueError("Muy pocas estaciones evaluables")
@@ -65,7 +66,8 @@ def resumir_fijo(modelo, train, periodo):
     fullx = matriz_forma(train)
     full_labels = modelo.predict(fullx)
     dtrain = modelo.transform(fullx)[np.arange(len(fullx)), full_labels]
-    p95 = np.array([np.quantile(dtrain[full_labels == g], 0.95) for g in range(3)])
+    k = modelo.n_clusters
+    p95 = np.array([np.quantile(dtrain[full_labels == g], 0.95) for g in range(k)])
     shift = np.linalg.norm(x - xt, axis=1)
     a = q[["estacion_id", "nombre", "dias_con_eventos", "total_movimientos"]].copy()
     a["grupo_train"] = lt
@@ -89,7 +91,7 @@ def resumir_fijo(modelo, train, periodo):
     if 2 <= len(np.unique(labels)) < len(labels):
         metrics["silhouette_asignacion_fija"] = float(silhouette_score(x, labels))
     groups = []
-    for g in range(3):
+    for g in range(k):
         original = lt == g
         assigned = labels == g
         metrics[f"n_grupo_{g}"] = int(assigned.sum())

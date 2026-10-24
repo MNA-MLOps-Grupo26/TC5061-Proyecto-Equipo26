@@ -4,14 +4,23 @@ Uso, desde la raíz del repositorio con el entorno activo y después de la inges
 
     python -m mibici.modeling.train              # todas las preguntas disponibles
     python -m mibici.modeling.train --pregunta P2
+    python -m mibici.modeling.train --pregunta P1 --modelo hgb --max-iter 500
+
+Para la entrega se lanza con ``mlflow run . -e train`` (ver README). Modelos por
+pregunta: P1 default, baseline, hgb, glm; P2 default, baseline, logreg, hgb;
+P3 default o kmeans.
 
 Cada pregunta vive en su módulo (p1.py, p2.py, p3.py) y expone
-``ejecutar(viajes, estaciones)``. Para agregar una, regístrenla en EJECUTORES.
+``ejecutar(viajes, estaciones)``; P1 y P2 aceptan además el modelo y sus
+hiperparámetros. Para agregar una, regístrenla en EJECUTORES y en
+``modelos_permitidos``.
 """
+
+from typing import Annotated
 
 from loguru import logger
 import typer
-from typing import Annotated
+
 from mibici.dataset import cargar_estaciones, cargar_viajes
 from mibici.modeling import p1, p2, p3
 
@@ -42,20 +51,34 @@ def main(
             f"{pregunta} no está disponible. Opciones: {', '.join(EJECUTORES)} o todas."
         )
 
+    modelos_permitidos = {
+        "P1": set(p1.MODELOS),
+        "P2": set(p2.MODELOS),
+        "P3": {"default", "kmeans"},
+    }
+
+    for clave in seleccion:
+        if modelo not in modelos_permitidos[clave]:
+            opciones = ", ".join(sorted(modelos_permitidos[clave]))
+            raise typer.BadParameter(
+                f"El modelo '{modelo}' no está disponible para {clave}. Opciones: {opciones}.",
+                param_hint="--modelo",
+            )
+
     # Convertir los parámetros opcionales
     learning_rate = None if learning_rate in (None, "None") else float(learning_rate)
     max_iter = None if max_iter in (None, "None") else int(max_iter)
 
-    # Evitar ignorar hiperparámetros cuando se usa el modelo predeterminado
-    if modelo == "default" and (learning_rate is not None or max_iter is not None):
+    # Evitar ignorar hiperparámetros cuando el modelo no los usa
+    if modelo in ("default", "baseline") and (learning_rate is not None or max_iter is not None):
         raise typer.BadParameter(
-            "Con modelo='default' no se permiten learning_rate ni max_iter. "
+            f"Con modelo='{modelo}' no se permiten learning_rate ni max_iter. "
             "Selecciona un modelo específico para configurar sus hiperparámetros."
         )
-    # P2 utiliza max_iter, pero no learning_rate
-    if "P2" in seleccion and learning_rate is not None:
+    # learning_rate solo existe en los modelos de gradient boosting
+    if learning_rate is not None and modelo != "hgb":
         raise typer.BadParameter(
-            "P2 no admite learning_rate. Utiliza únicamente max_iter con modelo='logreg'."
+            "learning_rate solo aplica a model=hgb (P1 o P2); los demás modelos usan max_iter."
         )
 
     # P3 no admite los hiperparámetros de P1 y P2
@@ -82,13 +105,15 @@ def main(
                 viajes,
                 estaciones,
                 modelo=modelo,
+                learning_rate=learning_rate,
                 max_iter=max_iter,
             )
         else:
-            EJECUTORES[clave](viajes, estaciones)
+            EJECUTORES[clave](viajes, estaciones, modelo=modelo)
 
     logger.success(
-        "Experimento base terminado. Consulten: mlflow ui --backend-store-uri sqlite:///mlflow.db"
+        "Experimento terminado. Consulten el servidor de MLflow (MLFLOW_TRACKING_URI), "
+        "por ejemplo http://127.0.0.1:5000"
     )
 
 

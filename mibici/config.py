@@ -80,8 +80,36 @@ P2_HIPERPARAMETROS = {
     "max_iter": 2000,
     "solver": "lbfgs",
 }
+# P1: GLM Poisson (otra familia de modelo, lineal en log-escala) con imputación y escalamiento.
+P1_GLM_HIPERPARAMETROS = {"alpha": 1.0, "max_iter": 1000}
+# P2: gradient boosting multiclase con pesos balanceados.
+P2_HGB_HIPERPARAMETROS = {
+    "learning_rate": 0.05,
+    "max_iter": 300,
+    "max_leaf_nodes": 31,
+    "min_samples_leaf": 50,
+    "class_weight": "balanced",
+    "early_stopping": False,
+}
 
-
+# Búsquedas de hiperparámetros (punto de entrada `search` del MLproject).
+# Cada combinación se registra como run hijo del run padre de la búsqueda y solo
+# sobrescribe los valores por defecto de su modelo. La selección usa validación;
+# prueba se registra para el reporte, nunca para elegir.
+BUSQUEDAS = {
+    ("P1", "hgb"): [
+        {"learning_rate": 0.03, "max_iter": 400},
+        {"learning_rate": 0.07, "max_iter": 350},
+        {"learning_rate": 0.10, "max_iter": 200},
+    ],
+    ("P2", "logreg"): [{"C": 0.1}, {"C": 0.5}, {"C": 5.0}],
+    ("P2", "hgb"): [
+        {"learning_rate": 0.03, "max_leaf_nodes": 15},
+        {"learning_rate": 0.05, "max_leaf_nodes": 63},
+        {"learning_rate": 0.10, "max_leaf_nodes": 31},
+    ],
+    ("P3", "kmeans"): [{"n_clusters": 2}, {"n_clusters": 4}, {"n_clusters": 5}],
+}
 
 
 # P2: indicador de riesgo aproximado
@@ -129,3 +157,6 @@ P3_VALIDACION_DIR = REPORTS_DIR / "p3-validacion-agosto-tentativa-20261018"
 P3_SENSIBILIDAD_DIR = REPORTS_DIR / "p3-sensibilidad-historia-20261018"
 P3_EVALUACION_CONGELADA_DIR = REPORTS_DIR / "p3-evaluacion-congelada-20261018"
 P3_REPRODUCCION_DIR = REPORTS_DIR / "p3-reproduccion-limpia-20261018"
+
+# P3: hiperparámetros por defecto (configuración congelada, baseline de P3).
+P3_HIPERPARAMETROS = {"n_clusters": P3_K, "n_init": P3_N_INIT, "max_iter": P3_MAX_ITER}
