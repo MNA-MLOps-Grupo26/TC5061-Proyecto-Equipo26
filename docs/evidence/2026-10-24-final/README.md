@@ -14,7 +14,7 @@ Los tres modelos seleccionados ya tienen versión 1 y alias `champion` en el reg
 - Datos: `cd917f9aa025`; entrenamiento agosto 2025–julio 2026, validación agosto 2026, evaluación septiembre 2026. La comparación y las recomendaciones usan validación; septiembre no se utilizó para ajustar alternativas.
 - 12 comandos MLflow Projects (ingest, siete train y cuatro search), más comparación, terminaron con código 0. Los 35 runs terminaron `FINISHED`; las cuatro búsquedas tienen tres candidatos cada una.
 - Los 19 runs con métricas reprodujeron la ejecución integrada anterior, con tolerancias `rtol=1e-10`, `atol=1e-12`, y los mismos digests de entrenamiento.
-- 17 modelos registrados como **logged models** locales estaban `READY`: se comprobaron firma, ejemplo, carga y predicción. **No se completó el Model Registry**, selección definitiva ni promoción. Esta publicación tampoco los completa.
+- 17 modelos registrados como **logged models** locales estaban `READY`: se comprobaron firma, ejemplo, carga y predicción. En este snapshot previo todavía no se había completado el Model Registry ni la selección. El registro local y la selección posteriores están documentados en [REGISTRATION.md](REGISTRATION.md); no hay despliegue ni registry compartido.
 - La auditoría conserva cuatro fallos de artefactos: faltan las carpetas `tables/` prometidas para la referencia y los tres candidatos HGB de P2. Los otros artefactos comprobados están presentes. No se corrigió código para ocultar este resultado.
 - Windows 11, Python 3.13.16, MLflow 3.17.1, scikit-learn 1.9.1; versiones restantes en `environment.json`. Servidor local aislado, ya detenido.
 
@@ -29,7 +29,7 @@ Los tres modelos seleccionados ya tienen versión 1 y alias `champion` en el reg
 | P3 KMeans k=3 | ARI 0.684891; estabilidad 0.896458; silhouette 0.048935 | `b42dcd8af94e4f1bb6571f16318ad427` |
 | P3 KMeans k=2 | ARI 0.689818; estabilidad 0.915531; silhouette 0.050108 | `62d0608983ac479a91e243cd6c2f5c2f` |
 
-La métrica declarada de P1 es WAPE (MAE también se muestra); P2 prioriza Recall@30 y no solo F1. P3 exige interpretar estabilidad y utilidad además de separación; esta tabla no finaliza la selección.
+La métrica declarada de P1 es WAPE (MAE también se muestra); P2 prioriza Recall@30 y no solo F1. P3 exige interpretar estabilidad y utilidad además de separación; esta tabla conserva la comparación previa; la selección posterior se explica en [REGISTRATION.md](REGISTRATION.md).
 
 - [Índice de 35 runs](run-index.csv): jerarquía, parámetros principales y métricas de validación.
 - [Exportación completa de métricas y parámetros](runs.json): todos los runs, sin rutas personales ni datos de entrada.
