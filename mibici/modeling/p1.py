@@ -5,7 +5,7 @@ import numpy as np
 from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
-from mibici.config import FIGURES_DIR, RANDOM_SEED, SEMANAS_BASELINE_P1,P1_HIPERPARAMETROS
+from mibici.config import FIGURES_DIR, P1_HIPERPARAMETROS, RANDOM_SEED, SEMANAS_BASELINE_P1
 from mibici.features import VARIABLES_P1, dataset_p1
 from mibici.tracking import iniciar_run, registrar_artefacto, registrar_metricas
 
@@ -38,6 +38,8 @@ def evaluar_conjunto(datos, conjunto):
     prediccion = predecir_baseline(subconjunto)
     guardar_predicciones(subconjunto, prediccion, f"p1-baseline-{conjunto}")
     return calcular_metricas(subconjunto, prediccion)
+
+
 def ejecutar(viajes, estaciones, modelo="default", learning_rate=None, max_iter=None):
     datos = dataset_p1(viajes, estaciones)
 
@@ -90,7 +92,7 @@ def guardar_predicciones(datos, prediccion, nombre):
     registrar_artefacto(ruta_grafica, "figuras")
 
 
-def run_candidato(datos,hiperparametros=None):
+def run_candidato(datos, hiperparametros=None):
     """Candidato: gradient boosting con pérdida Poisson sobre las variables de P1.
 
     Se ajusta solo con entrenamiento; validación y prueba se evalúan sin reajustar.

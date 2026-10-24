@@ -284,7 +284,16 @@ mlflow run . -e train --env-manager uv --experiment-name mibici-equipo26 -P ques
 
 Los hiperparámetros predeterminados se encuentran centralizados en `mibici/config.py`.
 
-Para P1 y P2, los parámetros opcionales `learning_rate` y `max_iter` permiten modificar determinados valores desde `MLproject`. Los valores realmente utilizados se registran en MLflow como `effective_learning_rate` y `effective_max_iter`, cuando corresponda.
+Los hiperparámetros opcionales requieren seleccionar un modelo específico:
+P1 con `model=hgb` admite `learning_rate` y `max_iter`; P2 con
+`model=logreg` admite únicamente `max_iter`. Con `model=default` no se
+aceptan estos hiperparámetros. P3 admite únicamente `model=default`,
+sin hiperparámetros adicionales.
+
+Al ejecutar mediante MLflow Projects, cada modelo se registra como un run
+hijo del run del proyecto. Los parámetros solicitados quedan en el padre
+y los valores utilizados se registran en cada hijo como `learning_rate`
+y `max_iter`, cuando corresponda.
 
 #### 6. Consultar resultados
 
