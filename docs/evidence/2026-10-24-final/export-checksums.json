@@ -1,0 +1,92 @@
+[
+  {
+    "file": "README.md",
+    "bytes": 8026,
+    "sha256": "e24a7791231d31498411a033860ab61ce0285a747e80d78131b0488f81842d58"
+  },
+  {
+    "file": "REGISTRATION.md",
+    "bytes": 4857,
+    "sha256": "e78b9b501baec9992d3c2213e319ff9b248c3cb7d37e4083f4cd0077304f3d32"
+  },
+  {
+    "file": "commands-end.jsonl",
+    "bytes": 1098,
+    "sha256": "eaf7da05e69b5530fec506ebe4fac3e5c4375f1e2a0706368fa5a6fe7fd2e5d9"
+  },
+  {
+    "file": "commands-start.jsonl",
+    "bytes": 3537,
+    "sha256": "e74d017c7155ddd3b165b73769b9278f8758478b6342bf03d619341f469db180"
+  },
+  {
+    "file": "comparison.md",
+    "bytes": 4107,
+    "sha256": "d9b2d8a3a68556d7e44d9454a52b7330e6478f2a44066c39fb93fe29ddcbbcc4"
+  },
+  {
+    "file": "data-content-equality.json",
+    "bytes": 1570,
+    "sha256": "f5001f15f40de8689d4681ef2bbe4f835bed428dafdc7029d1ad5d583dda9f73"
+  },
+  {
+    "file": "environment.json",
+    "bytes": 316,
+    "sha256": "8f1bd6db9b35901bccc4fc04fe657e1c7243d936fdc4c5cc094347dbda508207"
+  },
+  {
+    "file": "final-lineage-audit.json",
+    "bytes": 704,
+    "sha256": "fb3aaee962705c54fb490fde6bfeb037388ee3bc18374338aa1d05dba78628d6"
+  },
+  {
+    "file": "final-model-reloads.json",
+    "bytes": 5613,
+    "sha256": "9bfa5695120ea8d05f36c27b69725147fc4576f1dab8e38b76c36bdb311e3c66"
+  },
+  {
+    "file": "ingest-manifest.diff",
+    "bytes": 534,
+    "sha256": "e04562afebbf54c9d465e3df9a9a9e3f396e3812af34d3ad22355341f892f04e"
+  },
+  {
+    "file": "integrated-audit.json",
+    "bytes": 5626,
+    "sha256": "c0846672378351e62857bbe6318e0aa933db682594db7bb7b7662ea6c204e0be"
+  },
+  {
+    "file": "model-run-index.json",
+    "bytes": 33903,
+    "sha256": "4a43d9f1d7a93e284e2fb988679f49226c137dbb316e908bc89401bb11b6d21e"
+  },
+  {
+    "file": "publication-scope.json",
+    "bytes": 692,
+    "sha256": "fe2533f9ae591f29c0e9fa6f12297d34c4afe4b610482bd65b3640e40e11bec6"
+  },
+  {
+    "file": "registration-evidence.json",
+    "bytes": 7555,
+    "sha256": "4b48f65cd4f0d769f2858533cebea31ca94fddbc45ccb1042c860f2caf6c1741"
+  },
+  {
+    "file": "registry-final-snapshot.json",
+    "bytes": 5868,
+    "sha256": "df093c2ccbcf9666ad43e1df5f93ef0893ad9115eea5822b63947a43c54230f9"
+  },
+  {
+    "file": "reproduction-comparison.json",
+    "bytes": 8656,
+    "sha256": "a70c35b2c6f2bd11330dc4856e3a2b2cf4b79838cdc6ae3c074c5ca7f30003a2"
+  },
+  {
+    "file": "run-index.csv",
+    "bytes": 9823,
+    "sha256": "8db019f5467f39ceb2922e617fba8135535be9ec5dcc499db7749ce5bd3da68a"
+  },
+  {
+    "file": "runs.json",
+    "bytes": 55844,
+    "sha256": "d312e7e0e3e2418e962d98ccf73d8e6495b5bd1a8b4da7c7edc930f89039b238"
+  }
+]

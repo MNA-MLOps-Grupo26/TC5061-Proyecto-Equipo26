@@ -273,7 +273,7 @@ Pruebas y estilo: `python -m pytest tests`, `ruff check` y `ruff format --check`
   | `data/` | Manifiestos de la ingesta; el entrenamiento se registra como input del run (`log_input`: esquema, perfil y digest, sin filas) |
   | `config/` | `run_config.json` (hiperparámetros efectivos, partición, variables) y `config.py` |
   | `plots/` | P1: real vs. predicho, residuales y serie diaria; P2: matriz de confusión y curva precisión-recall; P3: mapa y perfiles de grupos |
-  | `tables/` | Predicciones o asignaciones agregadas por estación, sin datos personales |
+  | `tables/` | P1: predicciones por estación-día; P2 logística: coeficientes; P3: asignaciones, perfiles y resultados agregados. Los candidatos HGB de P2 no generan esta carpeta en la implementación actual. Sin datos personales. |
 
 - Selección (validación elige, prueba solo se reporta):
 
@@ -367,3 +367,13 @@ Integrantes del equipo 26:
 | Eduardo Daniel Sauza Machado | Datos y exploración | Notebook de exploración, descarga y normalización inicial, manifiesto procesado, partición temporal y utilidades de features |
 | Dan Michael García Rios | Ingesta, tracking y P2 | Ingesta en un comando con nomenclatura, helper común de MLflow, panel estación-día sin fuga, indicador de riesgo y modelos de P2 |
 | Kimberly Ruiz | P1 y P3 | Baseline de P1 con evidencias, integración de P1 y P2, perfiles de estaciones, agrupación, mapa y reproducibilidad de P3 |
+
+## Evidencia integrada publicada
+
+[Verificación final del 24 de octubre de 2026](docs/evidence/2026-10-24-final/README.md): exportación compacta de corridas locales, métricas, linaje y reproducción. Incluye el registro local verificado de los tres modelos seleccionados; no constituye un servidor MLflow ni un Model Registry compartido.
+
+El alias `champion` identifica cada versión seleccionada y permite cargarla con
+`models:/<nombre>@champion` sin fijar el número de versión en el consumidor.
+Los tres aliases actuales apuntan a la versión 1 del registro local; no implican
+un despliegue ni un servicio compartido. La versión y el run conservan el linaje
+auditable. Véase la [justificación del ciclo de vida](docs/evidence/2026-10-24-final/REGISTRATION.md).

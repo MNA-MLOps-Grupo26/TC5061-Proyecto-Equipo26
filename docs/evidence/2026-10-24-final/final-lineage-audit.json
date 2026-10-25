@@ -1,0 +1,17 @@
+{
+  "all35_finished_with_final_commit": true,
+  "target_sha": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+  "tested_tree": "56c84ae92f4aba9f20580ff3a5f7e3e5af912ccf",
+  "worktree_source_code_unchanged": true,
+  "tracked_changes": [
+    "manifests/mibici_processed.json"
+  ],
+  "only_changed_manifest_field": "stations.sha256",
+  "committed_station_sha256": "80ef17e6566e9a1821896e9739a19fc765c8590f27660488267606ed5a56afce",
+  "windows_station_sha256": "bcfd7d47b881edd6159cec56c68325a805d4354417f46ab600f54eec77014eaa",
+  "data_version": "cd917f9aa025",
+  "raw_files_hash_verified": 15,
+  "model_runs_git_dirty_true_recorded_honestly": true,
+  "registry_entries": [],
+  "registered_or_promoted": false
+}

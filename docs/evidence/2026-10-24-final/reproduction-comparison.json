@@ -1,0 +1,252 @@
+{
+  "all19_reproduced": true,
+  "tolerance": {
+    "rtol": 1e-10,
+    "atol": 1e-12
+  },
+  "runs": [
+    {
+      "run_name": "p3-kmeans-k5-historia180",
+      "final_run_id": "8d87fb53a1af4b2f8e08b232ad9d9de2",
+      "previous_run_id": "da257fa7b6204fddac7506f5fa7a8afc",
+      "git_commit": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "git_dirty": "true",
+      "data_version": "cd917f9aa025",
+      "training_dataset_digests_match_previous": true,
+      "training_dataset_digests": [
+        "f65fe6ff"
+      ],
+      "metric_differences": {}
+    },
+    {
+      "run_name": "p3-kmeans-k4-historia180",
+      "final_run_id": "b28fa1077cd547108e2979949dee5c5b",
+      "previous_run_id": "27ff47e8d9d042598714aebccc8e217f",
+      "git_commit": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "git_dirty": "true",
+      "data_version": "cd917f9aa025",
+      "training_dataset_digests_match_previous": true,
+      "training_dataset_digests": [
+        "f65fe6ff"
+      ],
+      "metric_differences": {}
+    },
+    {
+      "run_name": "p3-kmeans-k2-historia180",
+      "final_run_id": "62d0608983ac479a91e243cd6c2f5c2f",
+      "previous_run_id": "3987ef658c534cadb65ee43b898a7170",
+      "git_commit": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "git_dirty": "true",
+      "data_version": "cd917f9aa025",
+      "training_dataset_digests_match_previous": true,
+      "training_dataset_digests": [
+        "f65fe6ff"
+      ],
+      "metric_differences": {}
+    },
+    {
+      "run_name": "p2-hgb-lr0.1-leaf31",
+      "final_run_id": "394c9aafc6c742a2a3baf23dc61d1cf5",
+      "previous_run_id": "f058cb03a0734821bdea4e7f0e32a27f",
+      "git_commit": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "git_dirty": "true",
+      "data_version": "cd917f9aa025",
+      "training_dataset_digests_match_previous": true,
+      "training_dataset_digests": [
+        "35fc657c"
+      ],
+      "metric_differences": {}
+    },
+    {
+      "run_name": "p2-hgb-lr0.05-leaf63",
+      "final_run_id": "f1c29165f8dc4cbc90257d81a3c919d0",
+      "previous_run_id": "1bdd4cc83892493f93cf1336fe644943",
+      "git_commit": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "git_dirty": "true",
+      "data_version": "cd917f9aa025",
+      "training_dataset_digests_match_previous": true,
+      "training_dataset_digests": [
+        "35fc657c"
+      ],
+      "metric_differences": {}
+    },
+    {
+      "run_name": "p2-hgb-lr0.03-leaf15",
+      "final_run_id": "46a8229bd7df43b4bff60d1be6a0cd2e",
+      "previous_run_id": "7f13a9a32dd84260acf5ee4a27fe6d95",
+      "git_commit": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "git_dirty": "true",
+      "data_version": "cd917f9aa025",
+      "training_dataset_digests_match_previous": true,
+      "training_dataset_digests": [
+        "35fc657c"
+      ],
+      "metric_differences": {}
+    },
+    {
+      "run_name": "p2-logreg-C5.0",
+      "final_run_id": "95ee60e9ac5e4dcab7f5e59cb6d29ef5",
+      "previous_run_id": "eed9a3bd27594ebf9536ee2d1468a1db",
+      "git_commit": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "git_dirty": "true",
+      "data_version": "cd917f9aa025",
+      "training_dataset_digests_match_previous": true,
+      "training_dataset_digests": [
+        "35fc657c"
+      ],
+      "metric_differences": {}
+    },
+    {
+      "run_name": "p2-logreg-C0.5",
+      "final_run_id": "11e3586aaeee4c83b15e8007db0577e5",
+      "previous_run_id": "c6030f6f733c4818a1651e0ee73c1a3f",
+      "git_commit": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "git_dirty": "true",
+      "data_version": "cd917f9aa025",
+      "training_dataset_digests_match_previous": true,
+      "training_dataset_digests": [
+        "35fc657c"
+      ],
+      "metric_differences": {}
+    },
+    {
+      "run_name": "p2-logreg-C0.1",
+      "final_run_id": "976b217a432343ccbdb462d750c9a7eb",
+      "previous_run_id": "371188726a424b8d9a55c56bc1d96855",
+      "git_commit": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "git_dirty": "true",
+      "data_version": "cd917f9aa025",
+      "training_dataset_digests_match_previous": true,
+      "training_dataset_digests": [
+        "35fc657c"
+      ],
+      "metric_differences": {}
+    },
+    {
+      "run_name": "p1-hgb-lr0.1-it200",
+      "final_run_id": "022c86a1f2a94e29b5f1c7d3e9f5f5c4",
+      "previous_run_id": "cfdb5ebce8a746df8eebd34b057d9f99",
+      "git_commit": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "git_dirty": "true",
+      "data_version": "cd917f9aa025",
+      "training_dataset_digests_match_previous": true,
+      "training_dataset_digests": [
+        "10f3651e"
+      ],
+      "metric_differences": {}
+    },
+    {
+      "run_name": "p1-hgb-lr0.07-it350",
+      "final_run_id": "c98c5ea5c6e2475e80275d82a6f33001",
+      "previous_run_id": "4d06b08eacbe485486823883d9242aa1",
+      "git_commit": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "git_dirty": "true",
+      "data_version": "cd917f9aa025",
+      "training_dataset_digests_match_previous": true,
+      "training_dataset_digests": [
+        "10f3651e"
+      ],
+      "metric_differences": {}
+    },
+    {
+      "run_name": "p1-hgb-lr0.03-it400",
+      "final_run_id": "02d5bb2d62274f87b18ba0c5054b768e",
+      "previous_run_id": "3771a106c0fb4013a980963d07b8486b",
+      "git_commit": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "git_dirty": "true",
+      "data_version": "cd917f9aa025",
+      "training_dataset_digests_match_previous": true,
+      "training_dataset_digests": [
+        "10f3651e"
+      ],
+      "metric_differences": {}
+    },
+    {
+      "run_name": "p3-kmeans-k3-historia180",
+      "final_run_id": "b42dcd8af94e4f1bb6571f16318ad427",
+      "previous_run_id": "3e5a999c74224296b589779639880e15",
+      "git_commit": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "git_dirty": "true",
+      "data_version": "cd917f9aa025",
+      "training_dataset_digests_match_previous": true,
+      "training_dataset_digests": [
+        "f65fe6ff"
+      ],
+      "metric_differences": {}
+    },
+    {
+      "run_name": "p2-hgb-lr0.05-leaf31",
+      "final_run_id": "31975bce4c4e40879a61495faed47555",
+      "previous_run_id": "4c4a42f9336545d48216b160b51973cf",
+      "git_commit": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "git_dirty": "true",
+      "data_version": "cd917f9aa025",
+      "training_dataset_digests_match_previous": true,
+      "training_dataset_digests": [
+        "35fc657c"
+      ],
+      "metric_differences": {}
+    },
+    {
+      "run_name": "p2-logreg-C1.0",
+      "final_run_id": "9e43f4dfa262410592640dad56ad6e0f",
+      "previous_run_id": "70d3ffbde5864f9987d021b74f72c996",
+      "git_commit": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "git_dirty": "true",
+      "data_version": "cd917f9aa025",
+      "training_dataset_digests_match_previous": true,
+      "training_dataset_digests": [
+        "35fc657c"
+      ],
+      "metric_differences": {}
+    },
+    {
+      "run_name": "p2-baseline-semana-anterior",
+      "final_run_id": "e2a45dce3b794124927338da8aacefc6",
+      "previous_run_id": "c6e277bc687447bc9ba245fc797ce5ec",
+      "git_commit": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "git_dirty": "true",
+      "data_version": "cd917f9aa025",
+      "training_dataset_digests_match_previous": true,
+      "training_dataset_digests": [],
+      "metric_differences": {}
+    },
+    {
+      "run_name": "p1-glm-alpha1.0",
+      "final_run_id": "b5673f488c0a4e4ba815e39699e50926",
+      "previous_run_id": "88f83785e0694697b58da5b8939ed814",
+      "git_commit": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "git_dirty": "true",
+      "data_version": "cd917f9aa025",
+      "training_dataset_digests_match_previous": true,
+      "training_dataset_digests": [
+        "10f3651e"
+      ],
+      "metric_differences": {}
+    },
+    {
+      "run_name": "p1-hgb-lr0.05-it300",
+      "final_run_id": "9d55326449364961b1cbc585ac28cefe",
+      "previous_run_id": "45cf369158cc4c1aa763265ff8ebaa45",
+      "git_commit": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "git_dirty": "true",
+      "data_version": "cd917f9aa025",
+      "training_dataset_digests_match_previous": true,
+      "training_dataset_digests": [
+        "10f3651e"
+      ],
+      "metric_differences": {}
+    },
+    {
+      "run_name": "p1-baseline-promedio-semanal",
+      "final_run_id": "94f375bb2f4f44d7b7772e9b2d90acfc",
+      "previous_run_id": "efaef8d236e84f31beba947a4569e7b5",
+      "git_commit": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+      "git_dirty": "true",
+      "data_version": "cd917f9aa025",
+      "training_dataset_digests_match_previous": true,
+      "training_dataset_digests": [],
+      "metric_differences": {}
+    }
+  ]
+}
