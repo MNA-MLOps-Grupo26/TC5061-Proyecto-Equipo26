@@ -1,4 +1,4 @@
-## P1 (selecci├│n: val_wape, menor es mejor)
+## P1 (selección: val_wape, menor es mejor)
 
 | run | etapa | modelo | learning_rate | max_iter | max_leaf_nodes | alpha | val_wape | test_wape | val_mae | test_mae | val_rmse | test_rmse | fit_time_s | mejora_vs_baseline_% | brecha_val_test |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -9,7 +9,7 @@
 | p1-baseline-promedio-semanal | baseline | BaselinePromedioSemanal |  |  |  |  | 0.2047 | 0.2493 | 5.5741 | 8.6392 | 10.1199 | 15.4204 |  | -0.0000 | 0.0446 |
 | p1-glm-alpha1.0 | candidate | PoissonRegressor |  | 1000 |  | 1.0 | 0.4911 | 0.4933 | 13.3739 | 17.0955 | 30.2068 | 53.4765 | 0.7550 | -139.9271 | 0.0022 |
 
-## P2 (selecci├│n: val_recall_at_30, mayor es mejor)
+## P2 (selección: val_recall_at_30, mayor es mejor)
 
 | run | etapa | modelo | learning_rate | max_iter | max_leaf_nodes | C | val_recall_at_30 | test_recall_at_30 | val_precision_at_30 | test_precision_at_30 | val_f1_macro | test_f1_macro | fit_time_s | mejora_vs_baseline_% | brecha_val_test |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -23,7 +23,7 @@
 | p2-logreg-C1.0 | candidate | LogisticRegression |  | 2000 |  | 1.0 | 0.2145 | 0.1920 | 0.8882 | 0.8989 | 0.7226 | 0.7132 | 1.6382 | 2.1605 | -0.0226 |
 | p2-baseline-semana-anterior | baseline | BaselineSemanaAnterior |  |  |  |  | 0.2100 | 0.1891 | 0.8753 | 0.8885 | 0.6542 | 0.6390 |  | 0.0000 | -0.0209 |
 
-## P3 (selecci├│n: val_ari_vs_train, mayor es mejor)
+## P3 (selección: val_ari_vs_train, mayor es mejor)
 
 | run | etapa | modelo | max_iter | k | val_ari_vs_train | test_ari_vs_train | val_fraccion_estable | test_fraccion_estable | val_silhouette_asignacion_fija | test_silhouette_asignacion_fija | train_silhouette | fit_time_s | mejora_vs_baseline_% | brecha_val_test |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
