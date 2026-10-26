@@ -1,0 +1,4 @@
+All checks passed!
+EXIT_CODE=0
+1 file already formatted
+EXIT_CODE=0

@@ -1,0 +1,12 @@
+<PROJECT_ROOT>\.venv\Scripts\python.exe
+3.13.16 (main, Oct  9 2026, 15:21:05) [MSC v.1944 64 bit (AMD64)]
+pytest==9.1.1
+numpy==2.5.4
+pandas==3.0.6
+scikit-learn==1.9.1
+scipy==1.18.1
+mlflow==3.17.1
+pyarrow==25.0.1
+ruff==0.17.1
+anyio==4.15.1
+platformdirs==4.13.4

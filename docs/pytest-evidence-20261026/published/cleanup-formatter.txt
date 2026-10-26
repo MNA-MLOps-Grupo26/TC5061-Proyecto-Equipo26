@@ -1,0 +1,2 @@
+2 files reformatted
+EXIT_CODE=0

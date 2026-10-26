@@ -1,0 +1,131 @@
+unformatted: File would be reformatted
+   --> mibici\dataset.py:160:30
+    |
+159 |         if missing:
+    -             raise ValueError(
+    -                 f"{path.name}: faltan columnas {sorted(missing)}"
+    -             )
+160 +             raise ValueError(f"{path.name}: faltan columnas {sorted(missing)}")
+161 |
+162 |         records = sum(1 for _ in reader)
+163 |
+164 |     if records == 0:
+    -         raise ValueError(
+    -             f"{path.name}: CSV sin registros"
+    -         )
+165 +         raise ValueError(f"{path.name}: CSV sin registros")
+166 |
+--------------------------------------------------------------------------------
+175 |
+176 +
+177 | def generate_monthly_report(manifest: list[dict]) -> None:
+--------------------------------------------------------------------------------
+196 |
+    -         stations = (
+    -             set(df["Origen_Id"].dropna())
+    -             | set(df["Destino_Id"].dropna())
+    -         )
+197 +         stations = set(df["Origen_Id"].dropna()) | set(df["Destino_Id"].dropna())
+198 |
+--------------------------------------------------------------------------------
+202 |             {
+    -                 "mes": info["filename"]
+    -                 .replace("datos_abiertos_", "")
+    -                 .replace(".csv", ""),
+203 +                 "mes": info["filename"].replace("datos_abiertos_", "").replace(".csv", ""),
+204 |                 "viajes": info["records"],
+--------------------------------------------------------------------------------
+222 |     """Archivos que requiere el periodo de config.py, m├ís la nomenclatura."""
+    -     return [f"datos_abiertos_{month}.csv" for month in expected_months()] + [
+    -         NOMENCLATURA_FILENAME
+    -     ]
+223 +     return [f"datos_abiertos_{month}.csv" for month in expected_months()] + [NOMENCLATURA_FILENAME]
+224 |
+    |
+
+unformatted: File would be reformatted
+   --> mibici\features.py:1:1
+    |
+    -
+1   | """
+--------------------------------------------------------------------------------
+61  |
+    -
+62  | from loguru import logger
+--------------------------------------------------------------------------------
+104 |     if faltantes:
+    -         raise ValueError(
+    -             f"Faltan columnas requeridas: {sorted(faltantes)}"
+    -         )
+105 +         raise ValueError(f"Faltan columnas requeridas: {sorted(faltantes)}")
+106 |
+--------------------------------------------------------------------------------
+123 |     if columna_fecha not in df.columns:
+    -         raise ValueError(
+    -             f"No existe la columna temporal: {columna_fecha}"
+    -         )
+124 +         raise ValueError(f"No existe la columna temporal: {columna_fecha}")
+125 |
+--------------------------------------------------------------------------------
+136 |     resultado["anio"] = fechas.dt.year
+    -     resultado["es_fin_semana"] = (
+    -         fechas.dt.dayofweek >= 5
+    -     ).astype("int8")
+137 +     resultado["es_fin_semana"] = (fechas.dt.dayofweek >= 5).astype("int8")
+138 |
+--------------------------------------------------------------------------------
+155 |     return {
+    -         "train": df.loc[
+    -             (fechas >= inicio) & (fechas < validacion)
+    -         ].copy(),
+    -         "validation": df.loc[
+    -             (fechas >= validacion) & (fechas < prueba)
+    -         ].copy(),
+    -         "test": df.loc[
+    -             (fechas >= prueba) & (fechas < fin)
+    -         ].copy(),
+156 +         "train": df.loc[(fechas >= inicio) & (fechas < validacion)].copy(),
+157 +         "validation": df.loc[(fechas >= validacion) & (fechas < prueba)].copy(),
+158 +         "test": df.loc[(fechas >= prueba) & (fechas < fin)].copy(),
+159 |     }
+--------------------------------------------------------------------------------
+261 |     semanas = [grupo["salidas"].shift(7 * k) for k in range(1, SEMANAS_BASELINE_P1 + 1)]
+    -     resultado[f"salidas_mismo_dia_media{SEMANAS_BASELINE_P1}"] = pd.concat(
+    -         semanas, axis=1
+    -     ).mean(axis=1)
+262 +     resultado[f"salidas_mismo_dia_media{SEMANAS_BASELINE_P1}"] = pd.concat(semanas, axis=1).mean(
+263 +         axis=1
+264 +     )
+265 |
+--------------------------------------------------------------------------------
+460 |     panel["categoria_lag7"] = grupo["categoria"].shift(7)
+    -     for clase, nombre in [(P2_CLASES[1], "frac_sin_bicis_28"), (P2_CLASES[2], "frac_sin_anclajes_28")]:
+461 +     for clase, nombre in [
+462 +         (P2_CLASES[1], "frac_sin_bicis_28"),
+463 +         (P2_CLASES[2], "frac_sin_anclajes_28"),
+464 +     ]:
+465 |         panel[nombre] = (
+--------------------------------------------------------------------------------
+483 |
+    -     archivos = sorted(
+    -         PROCESSED_DATA_DIR.glob("datos_abiertos_*.parquet")
+    -     )
+484 +     archivos = sorted(PROCESSED_DATA_DIR.glob("datos_abiertos_*.parquet"))
+485 |
+486 |     if not archivos:
+    -         raise FileNotFoundError(
+    -             f"No se encontraron archivos Parquet en {PROCESSED_DATA_DIR}"
+    -         )
+487 +         raise FileNotFoundError(f"No se encontraron archivos Parquet en {PROCESSED_DATA_DIR}")
+488 |
+--------------------------------------------------------------------------------
+524 |     if fuera_periodo:
+    -         logger.warning(
+    -             f"Registros fuera del periodo configurado: {fuera_periodo:,}"
+    -         )
+525 +         logger.warning(f"Registros fuera del periodo configurado: {fuera_periodo:,}")
+526 |
+    |
+
+2 files would be reformatted, 14 files already formatted
+EXIT_CODE=1
