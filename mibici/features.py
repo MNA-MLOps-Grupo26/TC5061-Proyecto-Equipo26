@@ -1,4 +1,3 @@
-
 """
 Módulo de funciones reutilizables para la ingeniería de variables de MiBici.
 
@@ -60,7 +59,6 @@ Consideraciones
 - Este módulo prepara y particiona los datos; no entrena modelos.
 """
 
-
 from loguru import logger
 import numpy as np
 import pandas as pd
@@ -104,9 +102,7 @@ def validar_columnas_viajes(df: pd.DataFrame) -> None:
     faltantes = COLUMNAS_VIAJES - set(df.columns)
 
     if faltantes:
-        raise ValueError(
-            f"Faltan columnas requeridas: {sorted(faltantes)}"
-        )
+        raise ValueError(f"Faltan columnas requeridas: {sorted(faltantes)}")
 
 
 def agregar_variables_temporales(
@@ -125,9 +121,7 @@ def agregar_variables_temporales(
         Copia del DataFrame con las variables temporales agregadas.
     """
     if columna_fecha not in df.columns:
-        raise ValueError(
-            f"No existe la columna temporal: {columna_fecha}"
-        )
+        raise ValueError(f"No existe la columna temporal: {columna_fecha}")
 
     resultado = df.copy()
     fechas = pd.to_datetime(
@@ -140,9 +134,7 @@ def agregar_variables_temporales(
     resultado["dia_semana"] = fechas.dt.dayofweek
     resultado["mes"] = fechas.dt.month
     resultado["anio"] = fechas.dt.year
-    resultado["es_fin_semana"] = (
-        fechas.dt.dayofweek >= 5
-    ).astype("int8")
+    resultado["es_fin_semana"] = (fechas.dt.dayofweek >= 5).astype("int8")
 
     return resultado
 
@@ -161,15 +153,9 @@ def particionar_dataframe(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     fin = pd.Timestamp(DATA_END_EXCLUSIVE)
 
     return {
-        "train": df.loc[
-            (fechas >= inicio) & (fechas < validacion)
-        ].copy(),
-        "validation": df.loc[
-            (fechas >= validacion) & (fechas < prueba)
-        ].copy(),
-        "test": df.loc[
-            (fechas >= prueba) & (fechas < fin)
-        ].copy(),
+        "train": df.loc[(fechas >= inicio) & (fechas < validacion)].copy(),
+        "validation": df.loc[(fechas >= validacion) & (fechas < prueba)].copy(),
+        "test": df.loc[(fechas >= prueba) & (fechas < fin)].copy(),
     }
 
 
@@ -273,9 +259,9 @@ def agregar_rezagos(panel: pd.DataFrame) -> pd.DataFrame:
             )
 
     semanas = [grupo["salidas"].shift(7 * k) for k in range(1, SEMANAS_BASELINE_P1 + 1)]
-    resultado[f"salidas_mismo_dia_media{SEMANAS_BASELINE_P1}"] = pd.concat(
-        semanas, axis=1
-    ).mean(axis=1)
+    resultado[f"salidas_mismo_dia_media{SEMANAS_BASELINE_P1}"] = pd.concat(semanas, axis=1).mean(
+        axis=1
+    )
 
     primer_dia = grupo["fecha"].transform("min")
     resultado["dias_historia"] = (resultado["fecha"] - primer_dia).dt.days
@@ -472,7 +458,10 @@ def dataset_p2(viajes: pd.DataFrame, estaciones: pd.DataFrame) -> pd.DataFrame:
     panel["indicador_max_lag1"] = grupo["indicador_max"].shift(1)
     panel["indicador_min_lag1"] = grupo["indicador_min"].shift(1)
     panel["categoria_lag7"] = grupo["categoria"].shift(7)
-    for clase, nombre in [(P2_CLASES[1], "frac_sin_bicis_28"), (P2_CLASES[2], "frac_sin_anclajes_28")]:
+    for clase, nombre in [
+        (P2_CLASES[1], "frac_sin_bicis_28"),
+        (P2_CLASES[2], "frac_sin_anclajes_28"),
+    ]:
         panel[nombre] = (
             panel["categoria"]
             .eq(clase)
@@ -492,14 +481,10 @@ def dataset_p2(viajes: pd.DataFrame, estaciones: pd.DataFrame) -> pd.DataFrame:
 def main() -> None:
     """Genera las particiones temporales a partir de los Parquet mensuales."""
 
-    archivos = sorted(
-        PROCESSED_DATA_DIR.glob("datos_abiertos_*.parquet")
-    )
+    archivos = sorted(PROCESSED_DATA_DIR.glob("datos_abiertos_*.parquet"))
 
     if not archivos:
-        raise FileNotFoundError(
-            f"No se encontraron archivos Parquet en {PROCESSED_DATA_DIR}"
-        )
+        raise FileNotFoundError(f"No se encontraron archivos Parquet en {PROCESSED_DATA_DIR}")
 
     SPLITS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -537,9 +522,7 @@ def main() -> None:
     )
 
     if fuera_periodo:
-        logger.warning(
-            f"Registros fuera del periodo configurado: {fuera_periodo:,}"
-        )
+        logger.warning(f"Registros fuera del periodo configurado: {fuera_periodo:,}")
 
     logger.success(f"Particiones guardadas en: {SPLITS_DIR}")
 
