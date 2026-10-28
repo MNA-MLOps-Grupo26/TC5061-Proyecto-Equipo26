@@ -21,6 +21,7 @@ mlflow.db
 /reports/figures/*
 !/reports/figures/.gitkeep
 /reports/p3-*/
+/reports/deepchecks/reporte.html
 
 # Credenciales
 .env
