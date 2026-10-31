@@ -71,7 +71,8 @@ de MLflow; si MiBici modifica un archivo, cambia la versión.
 ├── references         <- ML Canvas, arquitectura y opciones de ccds
 ├── reports
 │   └── figures        <- Gráficas y mapas
-├── tests              <- Pruebas con pytest
+├── tests              <- Pruebas con pytest (tests/deepchecks: chequeos con datos sintéticos)
+├── validacion_datos   <- Chequeos de DeepChecks y su entorno aislado (requirements.txt)
 └── mibici                 <- Código del proyecto
     ├── config.py          <- Rutas, fechas, semilla, umbrales y MLflow en un solo lugar
     ├── dataset.py         <- Ingesta, versionado y lectura verificada contra el manifiesto
@@ -80,6 +81,7 @@ de MLflow; si MiBici modifica un archivo, cambia la versión.
     ├── evaluation.py      <- Comparación y evaluación de P3 (selección de k, validación, reproducción)
     ├── plots.py           <- Gráficas y mapa de P3
     ├── tracking.py        <- Registro común de runs y artefactos de candidatos en MLflow
+    ├── validacion.py      <- Exporta viajes y panel de P1 para DeepChecks
     ├── modeling
     │   ├── train.py       <- Punto de entrada `train`: un modelo de una pregunta
     │   ├── search.py      <- Punto de entrada `search`: búsqueda con nested runs
@@ -249,7 +251,58 @@ portal si falta alguno (~600 MB en una computadora nueva). Si cambian los
 manifiestos, súbanlos en un commit antes de entrenar: cada run registra el
 commit y marca `git_dirty=true` si había cambios de código sin commit.
 
-Pruebas y estilo: `python -m pytest tests`, `ruff check` y `ruff format --check`.
+Pruebas y estilo: `make test`, `ruff check` y `ruff format --check`. La
+validación de datos con DeepChecks se describe en la siguiente sección.
+
+## Pruebas y validación de datos
+
+| Comando | Qué corre | Requiere datos |
+|---|---|---|
+| `make test` | Toda la suite de pytest del proyecto | No |
+| `make test-deepchecks` | Pruebas de los chequeos de DeepChecks con datos sintéticos | No |
+| `make validar-datos` | Lo anterior + DeepChecks sobre los datos reales | Sí (`mlflow run . -e ingest`) |
+| `make calidad` | `make test` y `make validar-datos` en un solo comando | Sí |
+
+**Pruebas unitarias (`tests/`).** Cubren ingesta, variables de P1/P2/P3,
+métricas, baselines, partición temporal y casos límite (`test_casos_limite.py`).
+`test_reproducibilidad.py` arma paneles con viajes sintéticos, entrena cada
+candidato de P1 (HGB, GLM) y P2 (regresión logística, HGB) dos veces con la
+semilla de `config.py` y verifica que predicciones, probabilidades y métricas
+sean idénticas, incluso si se altera el estado global de numpy entre corridas.
+
+**Validación de datos con DeepChecks.** `deepchecks` 0.19.1 (la última versión)
+no es compatible con numpy 2 ni con scikit-learn >= 1.6, que usa el proyecto.
+Por eso corre en un entorno aislado de Python 3.11 que `uv` crea y reutiliza
+(`validacion_datos/requirements.txt`). El flujo es:
+
+1. `python -m mibici.validacion` (entorno del proyecto) exporta a
+   `data/interim/deepchecks/` una muestra de viajes por partición, el panel de
+   P1 completo y `esquema.json` con las columnas.
+2. `validacion_datos/run_validacion.py` (entorno de DeepChecks) corre los
+   chequeos, guarda `reports/deepchecks/reporte.html` y `resumen.json`, y
+   termina con error si falla un chequeo bloqueante.
+
+| Chequeo | Datos | Tipo |
+|---|---|---|
+| Duplicados de llave (`viaje_id`; `estacion_id` + `fecha`) | viajes, P1 | Bloqueante |
+| Nulos en objetivo y calendario (P1); en cualquier columna (viajes) | P1, viajes | Bloqueante |
+| Nulos mezclados y tipos de dato mezclados | P1, viajes | Bloqueante |
+| Fechas de validación o prueba dentro de entrenamiento | P1, viajes | Bloqueante |
+| Nulos en rezagos y catálogo de estaciones (<= 10%) | P1 | Informativo |
+| Columnas con un solo valor | P1 | Informativo |
+| Correlación variable-objetivo (PPS < 0.9, posible fuga) | P1 | Informativo |
+| Drift de variables y del objetivo (train vs validación y prueba) | P1, viajes | Informativo |
+| Estaciones nuevas en prueba | viajes | Informativo |
+
+El drift es informativo porque entrenamiento (ago 2025 - jul 2026) y prueba
+(sep 2026) cubren temporadas distintas. `mes`, `dia_mes` y `dias_historia` se
+excluyen del drift: cambian por construcción entre particiones.
+
+### Evidencia de ejecución
+
+<!-- Reemplazar con las capturas al correr los comandos -->
+![make test](docs/evidencia-calidad/make-test.png)
+![make validar-datos](docs/evidencia-calidad/validar-datos.png)
 
 ## Experimentos en MLflow
 

@@ -45,6 +45,25 @@ format:
 test:
 	python -m pytest tests
 
+# DeepChecks 0.19.1 no soporta numpy 2 ni scikit-learn >= 1.6: corre en un
+# entorno aislado que uv crea y cachea la primera vez.
+DEEPCHECKS = uv run --no-project --python 3.11 --with-requirements validacion_datos/requirements.txt
+
+## Pruebas de los chequeos de DeepChecks con datos sintéticos (no requiere datos)
+.PHONY: test-deepchecks
+test-deepchecks:
+	$(DEEPCHECKS) python -m pytest tests/deepchecks -p no:cacheprovider -W ignore::FutureWarning
+
+## Validar los datos reales con DeepChecks (requiere data/processed)
+.PHONY: validar-datos
+validar-datos: test-deepchecks
+	$(PYTHON_INTERPRETER) -m mibici.validacion
+	$(DEEPCHECKS) python -W ignore -m validacion_datos.run_validacion
+
+## Pruebas y validación de datos en un solo comando
+.PHONY: calidad
+calidad: test validar-datos
+
 
 ## Set up Python interpreter environment
 .PHONY: create_environment

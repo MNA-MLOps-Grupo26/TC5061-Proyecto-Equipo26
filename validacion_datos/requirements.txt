@@ -1,0 +1,13 @@
+# Entorno aislado para DeepChecks (Python 3.11).
+# deepchecks 0.19.1 (última versión) no es compatible con numpy 2 ni con
+# scikit-learn >= 1.6, que usa el proyecto. Por eso corre en su propio entorno
+# y solo lee los Parquet que exporta `python -m mibici.validacion`.
+deepchecks==0.19.1
+numpy==1.26.4
+pandas==2.2.3
+scikit-learn==1.5.2
+scipy==1.13.1
+plotly==5.24.1
+pyarrow==17.0.0
+setuptools==75.8.0
+pytest==8.3.5
