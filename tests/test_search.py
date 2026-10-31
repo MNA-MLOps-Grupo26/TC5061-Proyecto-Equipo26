@@ -29,7 +29,9 @@ def test_busqueda_p3_no_carga_viajes_globales(monkeypatch):
     llamado = []
     monkeypatch.setattr(search, "cargar_viajes", Mock(side_effect=AssertionError))
     monkeypatch.setattr(
-        search, "BUSCADORES", {**search.BUSCADORES, "P3": lambda v, e, modelo: llamado.append(modelo)}
+        search,
+        "BUSCADORES",
+        {**search.BUSCADORES, "P3": lambda v, e, modelo: llamado.append(modelo)},
     )
     search.main(pregunta="P3")
     assert llamado == ["kmeans"]

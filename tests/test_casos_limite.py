@@ -1,23 +1,31 @@
-"""Casos de borde con datos sinteticos; no descargan datos ni registran runs."""
+"""Casos de borde con datos sintéticos; no descargan datos ni registran runs."""
 
 import numpy as np
 import pandas as pd
 import pytest
 
 from mibici.config import SEMANAS_BASELINE_P1
+from mibici.evaluation import comparar
 from mibici.features import (
+    VARIABLES_P1,
+    VARIABLES_P2,
     agregar_rezagos,
     calcular_indicador_riesgo,
+    dataset_p1,
+    dataset_p2,
     particionar_dataframe,
 )
 from mibici.modeling.p1 import calcular_metricas, predecir_baseline
+from mibici.modeling.p2 import calcular_metricas as metricas_p2
 from mibici.modeling.p2 import metricas_top_k
+
+BASELINE_SEMANAL = f"salidas_mismo_dia_media{SEMANAS_BASELINE_P1}"
 
 
 def test_baseline_respeta_prioridad_y_ceros_sin_cambiar_entrada():
     datos = pd.DataFrame(
         {
-            f"salidas_mismo_dia_media{SEMANAS_BASELINE_P1}": [8, np.nan, np.nan, 0],
+            BASELINE_SEMANAL: [8, np.nan, np.nan, 0],
             "salidas_media7": [99, 3, np.nan, 99],
         },
         index=[10, 20, 30, 40],
@@ -76,7 +84,7 @@ def test_rezagos_aislan_estaciones_y_no_usan_presente_ni_futuro():
         assert np.isnan(grupo.iloc[0].salidas_media7)
         assert grupo.iloc[7].salidas_lag7 == salidas
         assert grupo.iloc[7].salidas_media7 == salidas
-        assert grupo.iloc[7].salidas_mismo_dia_media4 == salidas
+        assert grupo.iloc[7][BASELINE_SEMANAL] == salidas
 
     corte = pd.Timestamp("2026-08-01")
     cambiado = panel.copy(deep=True)
@@ -177,8 +185,6 @@ def test_riesgo_excluye_estacion_sin_capacidad_conocida():
 
 
 def test_constructores_p1_p2_separan_objetivo_de_historia():
-    from mibici.features import VARIABLES_P1, VARIABLES_P2, dataset_p1, dataset_p2
-
     estaciones = pd.DataFrame(
         {
             "estacion_id": [1, 2],
@@ -196,7 +202,7 @@ def test_constructores_p1_p2_separan_objetivo_de_historia():
             "destino_id": [2, 2],
         }
     )
-    # El viaje extra cambia el objetivo del 1 de agosto, pero aun no es historia.
+    # El viaje extra cambia el objetivo del 1 de agosto, pero aún no es historia.
     extra = viajes.iloc[[1]].copy().assign(viaje_id=3)
     mas_viajes = pd.concat([viajes, extra], ignore_index=True)
     for construir, variables in [(dataset_p1, VARIABLES_P1), (dataset_p2, VARIABLES_P2)]:
@@ -219,16 +225,12 @@ def test_constructores_p1_p2_separan_objetivo_de_historia():
 
 
 def test_comparacion_p3_rechaza_muestra_insuficiente():
-    from mibici.evaluation import comparar
-
-    # El contrato exige mas estaciones que el mayor k (6).
+    # El contrato exige más estaciones que el mayor k (6).
     with pytest.raises(ValueError, match="mas de seis"):
         comparar(pd.DataFrame(index=range(6)))
 
 
 def test_metricas_p2_predicciones_perfectas_en_tres_clases():
-    from mibici.modeling.p2 import calcular_metricas as metricas_p2
-
     datos = pd.DataFrame(
         {
             "fecha": ["2026-08-01"] * 3,
@@ -243,7 +245,7 @@ def test_metricas_p2_predicciones_perfectas_en_tres_clases():
 
 
 def test_riesgo_conserva_primer_cruce_aunque_despues_cruce_el_opuesto():
-    # Estacion 1 primero pierde dos bicicletas y despues recibe cuatro.
+    # Estación 1 primero pierde dos bicicletas y después recibe cuatro.
     viajes = pd.DataFrame(
         {
             "viaje_id": range(6),
