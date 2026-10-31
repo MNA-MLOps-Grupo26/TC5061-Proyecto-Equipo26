@@ -1,0 +1,27 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.16, pytest-9.1.1, pluggy-1.7.0 -- <PROJECT_ROOT>\.venv\Scripts\python.exe
+rootdir: <PROJECT_ROOT>
+configfile: pyproject.toml
+plugins: anyio-4.15.1, platformdirs-4.13.4
+collecting ... collected 16 items
+
+tests/test_casos_limite.py::test_baseline_respeta_prioridad_y_ceros_sin_cambiar_entrada PASSED [  6%]
+tests/test_casos_limite.py::test_wape_sin_volumen_es_indefinido[predicciones0-0] PASSED [ 12%]
+tests/test_casos_limite.py::test_wape_sin_volumen_es_indefinido[predicciones1-2] PASSED [ 18%]
+tests/test_casos_limite.py::test_particion_vacia_conserva_columnas PASSED [ 25%]
+tests/test_casos_limite.py::test_particion_rechaza_columna_ausente PASSED [ 31%]
+tests/test_casos_limite.py::test_particion_rechaza_fecha_invalida PASSED [ 37%]
+tests/test_casos_limite.py::test_rezagos_aislan_estaciones_y_no_usan_presente_ni_futuro PASSED [ 43%]
+tests/test_casos_limite.py::test_top_k_promedia_por_dia_y_respeta_capacidad PASSED [ 50%]
+tests/test_casos_limite.py::test_top_k_empates_siguen_orden_de_entrada PASSED [ 56%]
+tests/test_casos_limite.py::test_top_k_mayor_que_estaciones_revisa_solo_las_disponibles PASSED [ 62%]
+tests/test_casos_limite.py::test_top_k_sin_riesgo_no_inventa_recall PASSED [ 68%]
+tests/test_casos_limite.py::test_riesgo_debajo_y_exactamente_en_umbral[1-sin_riesgo-sin_riesgo] PASSED [ 75%]
+tests/test_casos_limite.py::test_riesgo_debajo_y_exactamente_en_umbral[2-sin_bicis-sin_anclajes] PASSED [ 81%]
+tests/test_casos_limite.py::test_riesgo_excluye_estacion_sin_capacidad_conocida PASSED [ 87%]
+tests/test_casos_limite.py::test_constructores_p1_p2_separan_objetivo_de_historia PASSED [ 93%]
+tests/test_casos_limite.py::test_comparacion_p3_rechaza_muestra_insuficiente PASSED [100%]
+
+============================= 16 passed in 19.24s =============================
+EXIT_CODE=0
+ELAPSED_SECONDS=22.5306738

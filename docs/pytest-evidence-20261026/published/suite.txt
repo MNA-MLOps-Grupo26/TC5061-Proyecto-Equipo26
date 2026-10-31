@@ -1,0 +1,105 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.16, pytest-9.1.1, pluggy-1.7.0 -- <PROJECT_ROOT>\.venv\Scripts\python.exe
+rootdir: <PROJECT_ROOT>
+configfile: pyproject.toml
+plugins: anyio-4.15.1, platformdirs-4.13.4
+collecting ... collected 83 items
+
+tests/test_casos_limite.py::test_baseline_respeta_prioridad_y_ceros_sin_cambiar_entrada PASSED [  1%]
+tests/test_casos_limite.py::test_wape_sin_volumen_es_indefinido[predicciones0-0] PASSED [  2%]
+tests/test_casos_limite.py::test_wape_sin_volumen_es_indefinido[predicciones1-2] PASSED [  3%]
+tests/test_casos_limite.py::test_particion_vacia_conserva_columnas PASSED [  4%]
+tests/test_casos_limite.py::test_particion_rechaza_columna_ausente PASSED [  6%]
+tests/test_casos_limite.py::test_particion_rechaza_fecha_invalida PASSED [  7%]
+tests/test_casos_limite.py::test_rezagos_aislan_estaciones_y_no_usan_presente_ni_futuro PASSED [  8%]
+tests/test_casos_limite.py::test_top_k_promedia_por_dia_y_respeta_capacidad PASSED [  9%]
+tests/test_casos_limite.py::test_top_k_empates_siguen_orden_de_entrada PASSED [ 10%]
+tests/test_casos_limite.py::test_top_k_mayor_que_estaciones_revisa_solo_las_disponibles PASSED [ 12%]
+tests/test_casos_limite.py::test_top_k_sin_riesgo_no_inventa_recall PASSED [ 13%]
+tests/test_casos_limite.py::test_riesgo_debajo_y_exactamente_en_umbral[1-sin_riesgo-sin_riesgo] PASSED [ 14%]
+tests/test_casos_limite.py::test_riesgo_debajo_y_exactamente_en_umbral[2-sin_bicis-sin_anclajes] PASSED [ 15%]
+tests/test_casos_limite.py::test_riesgo_excluye_estacion_sin_capacidad_conocida PASSED [ 16%]
+tests/test_casos_limite.py::test_constructores_p1_p2_separan_objetivo_de_historia PASSED [ 18%]
+tests/test_casos_limite.py::test_comparacion_p3_rechaza_muestra_insuficiente PASSED [ 19%]
+tests/test_casos_limite.py::test_metricas_p2_predicciones_perfectas_en_tres_clases PASSED [ 20%]
+tests/test_casos_limite.py::test_riesgo_conserva_primer_cruce_aunque_despues_cruce_el_opuesto PASSED [ 21%]
+tests/test_compare_p3.py::test_geometria_y_metadatos_no_afectan PASSED   [ 22%]
+tests/test_compare_p3.py::test_rechaza_probabilidades_invalidas[nan] PASSED [ 24%]
+tests/test_compare_p3.py::test_rechaza_probabilidades_invalidas[-1] PASSED [ 25%]
+tests/test_compare_p3.py::test_rechaza_probabilidades_invalidas[inf] PASSED [ 26%]
+tests/test_compare_p3.py::test_rechaza_bloques_sin_normalizar PASSED     [ 27%]
+tests/test_compare_p3.py::test_comparacion_acotada_y_representantes_miembros PASSED [ 28%]
+tests/test_data.py::test_particion_temporal_en_orden PASSED              [ 30%]
+tests/test_data.py::test_meses_de_descarga_cubren_la_particion PASSED    [ 31%]
+tests/test_data.py::test_nombre_del_experimento_incluye_equipo PASSED    [ 32%]
+tests/test_data.py::test_particion_temporal_sin_traslapes PASSED         [ 33%]
+tests/test_data.py::test_particion_excluye_fecha_final PASSED            [ 34%]
+tests/test_data.py::test_validar_columnas_viajes PASSED                  [ 36%]
+tests/test_data.py::test_agregar_variables_temporales PASSED             [ 37%]
+tests/test_data.py::test_agregar_variables_temporales_rechaza_columna_inexistente PASSED [ 38%]
+tests/test_evaluacion_p3.py::test_resumir_fijo_multicluster[2] PASSED    [ 39%]
+tests/test_evaluacion_p3.py::test_resumir_fijo_multicluster[3] PASSED    [ 40%]
+tests/test_evaluacion_p3.py::test_resumir_fijo_multicluster[4] PASSED    [ 42%]
+tests/test_evaluacion_p3.py::test_resumir_fijo_multicluster[5] PASSED    [ 43%]
+tests/test_features.py::test_dia_operativo_empieza_a_las_cinco PASSED    [ 44%]
+tests/test_features.py::test_panel_rellena_ceros_y_rezagos_no_ven_el_futuro PASSED [ 45%]
+tests/test_features.py::test_indicador_toma_el_primer_umbral_alcanzado PASSED [ 46%]
+tests/test_features_p3.py::test_corte_independiente_y_eventos_futuros_no_cambian_perfil PASSED [ 48%]
+tests/test_features_p3.py::test_criterios_historia_normalizacion_y_metadatos PASSED [ 49%]
+tests/test_features_p3.py::test_intervalo_largo_no_equivale_dias_observados PASSED [ 50%]
+tests/test_features_p3.py::test_solo_una_direccion_y_catalogo_incompleto PASSED [ 51%]
+tests/test_features_p3.py::test_faltan_weekdays_aunque_haya_volumen PASSED [ 53%]
+tests/test_features_p3.py::test_rechaza_periodo_de_prueba_y_catalogo_duplicado PASSED [ 54%]
+tests/test_features_p3.py::test_entrada_no_se_modifica_y_vacio_es_valido PASSED [ 55%]
+tests/test_history_p3.py::test_cohortes_preservan_salvaguardas_y_limites PASSED [ 56%]
+tests/test_history_p3.py::test_asociacion_historia_es_invariante_a_etiquetas_y_no_causal PASSED [ 57%]
+tests/test_modeling_p3.py::test_train_usa_p3_autocontenido PASSED        [ 59%]
+tests/test_modeling_p3.py::test_llegadas_desde_conserva_viajes_que_cruzan_el_corte PASSED [ 60%]
+tests/test_modeling_p3.py::test_comparar_con_congelado_detecta_diferencias PASSED [ 61%]
+tests/test_modeling_p3.py::test_catalogo_verificado_se_lee PASSED        [ 62%]
+tests/test_modeling_p3.py::test_catalogo_alterado_se_rechaza PASSED      [ 63%]
+tests/test_modeling_p3.py::test_catalogo_con_conteo_incorrecto_se_rechaza PASSED [ 65%]
+tests/test_p1.py::test_predicciones_perfectas PASSED                     [ 66%]
+tests/test_p1.py::test_error_conocido PASSED                             [ 67%]
+tests/test_p1.py::test_wape_pondera_por_volumen PASSED                   [ 68%]
+tests/test_p3.py::test_septiembre_mismos_umbrales_y_primer_dia_completo PASSED [ 69%]
+tests/test_p3.py::test_metricas_fijas_no_ajustan_centroides_y_reportan_exclusiones PASSED [ 71%]
+tests/test_p3.py::test_entrada_p3_no_carga_viajes_globales_ni_ejecuta_p1_p2 PASSED [ 72%]
+tests/test_p3.py::test_mapa_identifica_estaciones_sin_coordenadas PASSED [ 73%]
+tests/test_p3.py::test_reproduccion_rechaza_metricas_distintas_sin_tuning PASSED [ 74%]
+tests/test_p3.py::test_reproduccion_rechaza_asignaciones_distintas PASSED [ 75%]
+tests/test_search.py::test_cada_busqueda_tiene_al_menos_tres_combinaciones PASSED [ 77%]
+tests/test_search.py::test_busqueda_invalida_no_carga_datos[argumentos0] PASSED [ 78%]
+tests/test_search.py::test_busqueda_invalida_no_carga_datos[argumentos1] PASSED [ 79%]
+tests/test_search.py::test_busqueda_invalida_no_carga_datos[argumentos2] PASSED [ 80%]
+tests/test_search.py::test_busqueda_p3_no_carga_viajes_globales PASSED   [ 81%]
+tests/test_train.py::test_argumentos_invalidos_no_cargan_datos[argumentos0] PASSED [ 83%]
+tests/test_train.py::test_argumentos_invalidos_no_cargan_datos[argumentos1] PASSED [ 84%]
+tests/test_train.py::test_argumentos_invalidos_no_cargan_datos[argumentos2] PASSED [ 85%]
+tests/test_train.py::test_argumentos_invalidos_no_cargan_datos[argumentos3] PASSED [ 86%]
+tests/test_train.py::test_argumentos_invalidos_no_cargan_datos[argumentos4] PASSED [ 87%]
+tests/test_train.py::test_argumentos_invalidos_no_cargan_datos[argumentos5] PASSED [ 89%]
+tests/test_train.py::test_argumentos_invalidos_no_cargan_datos[argumentos6] PASSED [ 90%]
+tests/test_train.py::test_argumentos_invalidos_no_cargan_datos[argumentos7] PASSED [ 91%]
+tests/test_train.py::test_argumentos_invalidos_no_cargan_datos[argumentos8] PASSED [ 92%]
+tests/test_train.py::test_argumentos_invalidos_no_cargan_datos[argumentos9] PASSED [ 93%]
+tests/test_train.py::test_argumentos_invalidos_no_cargan_datos[argumentos10] PASSED [ 95%]
+tests/test_validate_p3.py::test_agosto_preserva_dia1_y_normaliza_por_calendario PASSED [ 96%]
+tests/test_validate_p3.py::test_eventos_limites_son_independientes_y_sin_septiembre PASSED [ 97%]
+tests/test_validate_p3.py::test_historia_previa_requerida PASSED         [ 98%]
+tests/test_validate_p3.py::test_asignacion_no_refit_y_excluye_metadatos PASSED [100%]
+
+============================ slowest 10 durations =============================
+1.29s call     tests/test_compare_p3.py::test_comparacion_acotada_y_representantes_miembros
+1.09s call     tests/test_p3.py::test_mapa_identifica_estaciones_sin_coordenadas
+0.89s call     tests/test_modeling_p3.py::test_catalogo_verificado_se_lee
+0.70s call     tests/test_casos_limite.py::test_constructores_p1_p2_separan_objetivo_de_historia
+0.48s call     tests/test_features_p3.py::test_corte_independiente_y_eventos_futuros_no_cambian_perfil
+0.15s call     tests/test_casos_limite.py::test_rezagos_aislan_estaciones_y_no_usan_presente_ni_futuro
+0.15s call     tests/test_casos_limite.py::test_wape_sin_volumen_es_indefinido[predicciones0-0]
+0.13s call     tests/test_features_p3.py::test_solo_una_direccion_y_catalogo_incompleto
+0.13s call     tests/test_features_p3.py::test_criterios_historia_normalizacion_y_metadatos
+0.11s call     tests/test_validate_p3.py::test_agosto_preserva_dia1_y_normaliza_por_calendario
+============================= 83 passed in 20.81s =============================
+EXIT_CODE=0
+ELAPSED_SECONDS=23.9710252

@@ -157,16 +157,12 @@ def verify_csv(path: Path, required: set[str] = REQUIRED_COLUMNS) -> dict:
         missing = required - set(columns)
 
         if missing:
-            raise ValueError(
-                f"{path.name}: faltan columnas {sorted(missing)}"
-            )
+            raise ValueError(f"{path.name}: faltan columnas {sorted(missing)}")
 
         records = sum(1 for _ in reader)
 
     if records == 0:
-        raise ValueError(
-            f"{path.name}: CSV sin registros"
-        )
+        raise ValueError(f"{path.name}: CSV sin registros")
 
     return {
         "filename": path.name,
@@ -176,6 +172,7 @@ def verify_csv(path: Path, required: set[str] = REQUIRED_COLUMNS) -> dict:
         "encoding": encoding,
         "columns": columns,
     }
+
 
 def generate_monthly_report(manifest: list[dict]) -> None:
     """Genera un reporte mensual de viajes y estaciones distintas."""
@@ -197,18 +194,13 @@ def generate_monthly_report(manifest: list[dict]) -> None:
             encoding=info["encoding"],
         )
 
-        stations = (
-            set(df["Origen_Id"].dropna())
-            | set(df["Destino_Id"].dropna())
-        )
+        stations = set(df["Origen_Id"].dropna()) | set(df["Destino_Id"].dropna())
 
         all_stations.update(stations)
 
         results.append(
             {
-                "mes": info["filename"]
-                .replace("datos_abiertos_", "")
-                .replace(".csv", ""),
+                "mes": info["filename"].replace("datos_abiertos_", "").replace(".csv", ""),
                 "viajes": info["records"],
                 "estaciones_distintas": len(stations),
             }
@@ -228,9 +220,7 @@ def generate_monthly_report(manifest: list[dict]) -> None:
 
 def expected_files() -> list[str]:
     """Archivos que requiere el periodo de config.py, más la nomenclatura."""
-    return [f"datos_abiertos_{month}.csv" for month in expected_months()] + [
-        NOMENCLATURA_FILENAME
-    ]
+    return [f"datos_abiertos_{month}.csv" for month in expected_months()] + [NOMENCLATURA_FILENAME]
 
 
 def previous_urls() -> dict[str, str]:
