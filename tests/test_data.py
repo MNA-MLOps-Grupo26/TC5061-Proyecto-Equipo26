@@ -23,18 +23,23 @@ def test_meses_de_descarga_cubren_la_particion():
 def test_nombre_del_experimento_incluye_equipo():
     assert config.EXPERIMENT_NAME == "mibici-equipo26"
 
+
 def test_particion_temporal_sin_traslapes():
     """Cada viaje debe pertenecer a un solo conjunto temporal."""
-    df = pd.DataFrame({
-        "viaje_id": [1, 2, 3, 4, 5],
-        "inicio_viaje": pd.to_datetime([
-            "2025-07-31 23:59:59",
-            "2025-08-01 00:00:00",
-            "2026-07-31 23:59:59",
-            "2026-08-01 00:00:00",
-            "2026-09-01 00:00:00",
-        ]),
-    })
+    df = pd.DataFrame(
+        {
+            "viaje_id": [1, 2, 3, 4, 5],
+            "inicio_viaje": pd.to_datetime(
+                [
+                    "2025-07-31 23:59:59",
+                    "2025-08-01 00:00:00",
+                    "2026-07-31 23:59:59",
+                    "2026-08-01 00:00:00",
+                    "2026-09-01 00:00:00",
+                ]
+            ),
+        }
+    )
 
     particiones = particionar_dataframe(df)
 
@@ -48,10 +53,12 @@ def test_particion_temporal_sin_traslapes():
 
 def test_particion_excluye_fecha_final():
     """La fecha final es exclusiva y no debe entrar en ningún conjunto."""
-    df = pd.DataFrame({
-        "viaje_id": [1],
-        "inicio_viaje": pd.to_datetime(["2026-10-01 00:00:00"]),
-    })
+    df = pd.DataFrame(
+        {
+            "viaje_id": [1],
+            "inicio_viaje": pd.to_datetime(["2026-10-01 00:00:00"]),
+        }
+    )
 
     particiones = particionar_dataframe(df)
 
@@ -60,30 +67,34 @@ def test_particion_excluye_fecha_final():
 
 def test_validar_columnas_viajes():
     """Acepta las columnas requeridas y rechaza las incompletas."""
-    df = pd.DataFrame(columns=[
-        "viaje_id",
-        "inicio_viaje",
-        "fin_viaje",
-        "origen_id",
-        "destino_id",
-    ])
+    df = pd.DataFrame(
+        columns=[
+            "viaje_id",
+            "inicio_viaje",
+            "fin_viaje",
+            "origen_id",
+            "destino_id",
+        ]
+    )
 
     validar_columnas_viajes(df)
 
     with pytest.raises(ValueError, match="Faltan columnas"):
-        validar_columnas_viajes(
-            pd.DataFrame(columns=["viaje_id"])
-        )
+        validar_columnas_viajes(pd.DataFrame(columns=["viaje_id"]))
 
 
 def test_agregar_variables_temporales():
     """Genera correctamente las variables de calendario."""
-    df = pd.DataFrame({
-        "inicio_viaje": pd.to_datetime([
-            "2026-08-03 09:30:00",  # Lunes
-            "2026-08-08 18:15:00",  # Sábado
-        ])
-    })
+    df = pd.DataFrame(
+        {
+            "inicio_viaje": pd.to_datetime(
+                [
+                    "2026-08-03 09:30:00",  # Lunes
+                    "2026-08-08 18:15:00",  # Sábado
+                ]
+            )
+        }
+    )
 
     resultado = agregar_variables_temporales(
         df,
@@ -106,4 +117,3 @@ def test_agregar_variables_temporales_rechaza_columna_inexistente():
 
     with pytest.raises(ValueError, match="No existe la columna"):
         agregar_variables_temporales(df, "fecha_inexistente")
-

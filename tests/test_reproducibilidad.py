@@ -45,7 +45,7 @@ def _estaciones_sinteticas(n_estaciones: int = 6) -> pd.DataFrame:
     return pd.DataFrame(
         {
             "estacion_id": range(1, n_estaciones + 1),
-            "capacidad": [10, 12, 15, 15, 20, 24][:n_estaciones],
+            "capacidad": 10 + 2 * np.arange(n_estaciones),
             "latitud": np.linspace(20.65, 20.70, n_estaciones),
             "longitud": np.linspace(-103.40, -103.35, n_estaciones),
         }
@@ -130,6 +130,9 @@ def test_estimadores_fijan_la_semilla_del_proyecto(modulo, modelo):
 def test_test_nunca_se_usa_para_entrenar(paneles):
     for panel in paneles.values():
         train = panel.loc[panel["conjunto"] == "train", "fecha"]
+        val = panel.loc[panel["conjunto"] == "validation", "fecha"]
         test = panel.loc[panel["conjunto"] == "test", "fecha"]
-        assert train.max() < pd.Timestamp(VALIDATION_START) <= pd.Timestamp(TEST_START)
+        assert train.max() < val.min()
+        assert val.max() < test.min()
+        assert val.min() >= pd.Timestamp(VALIDATION_START)
         assert test.min() >= pd.Timestamp(TEST_START)

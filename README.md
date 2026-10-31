@@ -251,8 +251,9 @@ portal si falta alguno (~600 MB en una computadora nueva). Si cambian los
 manifiestos, súbanlos en un commit antes de entrenar: cada run registra el
 commit y marca `git_dirty=true` si había cambios de código sin commit.
 
-Pruebas y estilo: `make test`, `ruff check` y `ruff format --check`. La
-validación de datos con DeepChecks se describe en la siguiente sección.
+Pruebas y estilo: `make test` y `make lint` (`ruff check` y `ruff format
+--check` sobre `mibici/`, `tests/` y `validacion_datos/`). La validación de
+datos y los chequeos de seguridad se describen en la siguiente sección.
 
 ## Pruebas y validación de datos
 
@@ -261,7 +262,8 @@ validación de datos con DeepChecks se describe en la siguiente sección.
 | `make test` | Toda la suite de pytest del proyecto | No |
 | `make test-deepchecks` | Pruebas de los chequeos de DeepChecks con datos sintéticos | No |
 | `make validar-datos` | Lo anterior + DeepChecks sobre los datos reales | Sí (`mlflow run . -e ingest`) |
-| `make calidad` | `make test` y `make validar-datos` en un solo comando | Sí |
+| `make seguridad` | bandit, pip-audit y búsqueda de secretos versionados | No |
+| `make calidad` | `make test`, `make validar-datos` y `make seguridad` en un solo comando | Sí |
 
 **Pruebas unitarias (`tests/`).** Cubren ingesta, variables de P1/P2/P3,
 métricas, baselines, partición temporal y casos límite (`test_casos_limite.py`).
@@ -276,33 +278,101 @@ Por eso corre en un entorno aislado de Python 3.11 que `uv` crea y reutiliza
 (`validacion_datos/requirements.txt`). El flujo es:
 
 1. `python -m mibici.validacion` (entorno del proyecto) exporta a
-   `data/interim/deepchecks/` una muestra de viajes por partición, el panel de
-   P1 completo y `esquema.json` con las columnas.
+   `data/interim/deepchecks/` los viajes y el panel de P1 de cada partición
+   (completos, sin muestreo), `viajes_todos.parquet` (`viaje_id` e inicio de
+   todos los viajes, antes de filtrar por periodo y de particionar) y
+   `esquema.json` con las columnas.
 2. `validacion_datos/run_validacion.py` (entorno de DeepChecks) corre los
    chequeos, guarda `reports/deepchecks/reporte.html` y `resumen.json`, y
    termina con error si falla un chequeo bloqueante.
 
+Los chequeos bloqueantes revisan todas las filas (`n_samples=None`): por
+defecto DeepChecks toma una muestra (100 000 filas en `PercentOfNulls`) y un
+duplicado o un nulo fuera de ella pasaría sin fallar. Los de drift sí muestrean.
+
 | Chequeo | Datos | Tipo |
 |---|---|---|
+| Tipo esperado por columna: numérico o fecha (chequeo propio, `TiposEsperados`) | P1, viajes | Bloqueante |
+| Inicio nulo y `viaje_id` repetido entre particiones | viajes sin particionar | Bloqueante |
 | Duplicados de llave (`viaje_id`; `estacion_id` + `fecha`) | viajes, P1 | Bloqueante |
-| Nulos en objetivo y calendario (P1); en cualquier columna (viajes) | P1, viajes | Bloqueante |
+| Nulos en llaves, fecha, objetivo y calendario (P1); en llaves, fecha y variables (viajes) | P1, viajes | Bloqueante |
 | Nulos mezclados y tipos de dato mezclados | P1, viajes | Bloqueante |
 | Fechas de validación o prueba dentro de entrenamiento | P1, viajes | Bloqueante |
 | Nulos en rezagos y catálogo de estaciones (<= 10%) | P1 | Informativo |
 | Columnas con un solo valor | P1 | Informativo |
 | Correlación variable-objetivo (PPS < 0.9, posible fuga) | P1 | Informativo |
 | Drift de variables y del objetivo (train vs validación y prueba) | P1, viajes | Informativo |
-| Estaciones nuevas en prueba | viajes | Informativo |
+| Estaciones nuevas en validación y prueba | viajes | Informativo |
+
+Dos controles cubren huecos de DeepChecks y del filtrado previo:
+
+- `MixedDataTypes` solo falla si el tipo minoritario ocupa entre 1 % y 10 % de
+  la columna; unos pocos textos en una columna numérica, o una columna entera de
+  texto, pasarían. `TiposEsperados` exige el tipo de cada columna.
+- `cargar_viajes()` filtra por periodo y un inicio nulo no cumple el filtro, así
+  que se descartaría sin aviso. Por eso los inicios nulos y los `viaje_id`
+  repetidos entre particiones se revisan en `viajes_todos.parquet`.
 
 El drift es informativo porque entrenamiento (ago 2025 - jul 2026) y prueba
 (sep 2026) cubren temporadas distintas. `mes`, `dia_mes` y `dias_historia` se
 excluyen del drift: cambian por construcción entre particiones.
+
+**Seguridad (`make seguridad`).** bandit y pip-audit corren en entornos
+efímeros de `uv` con versiones fijas (bandit 1.9.4, pip-audit 2.10.1), así que
+no se agregan a `requirements.txt`. El comando termina con error si:
+
+1. **bandit** (`-r mibici validacion_datos --severity-level medium`) encuentra
+   un problema de severidad media o alta en el código.
+2. **pip-audit** encuentra una vulnerabilidad conocida en `requirements.txt` o
+   en cualquier paquete instalado del entorno de DeepChecks (incluye las
+   dependencias transitivas, que `validacion_datos/requirements.txt` no fija).
+3. **`tests/test_seguridad.py`** detecta que `.gitignore` deja de excluir
+   `.env`, datos, `mlflow.db`, modelos o reportes, que se versiona un archivo de
+   credenciales (`.env`, `.pem`, `.key`, `id_rsa`) o que un archivo versionado
+   contiene un secreto (llaves privadas, llaves de AWS, tokens de GitHub o
+   Slack, URLs con contraseña o asignaciones como `api_key = "..."`).
+
+La configuración sensible se lee de variables de entorno: `mibici/config.py`
+carga `.env` con `python-dotenv` y `MLFLOW_TRACKING_URI` puede sobrescribir el
+servidor de MLflow. Copien `.env.example` como `.env`; `.env` y `.env.*` están
+en `.gitignore` y nunca se han versionado.
+
+Resultados de la revisión (31 de octubre de 2026):
+
+| Herramienta | Hallazgo | Acción |
+|---|---|---|
+| bandit | 0 de severidad media o alta. 5 de severidad baja: `subprocess` en `dataset.py` (`curl`) y `tracking.py` (`git`) | Revisados y aceptados: los comandos se pasan como lista, sin `shell=True`; `git` recibe argumentos fijos y `curl` solo la URL del portal y enlaces filtrados por una expresión regular |
+| pip-audit (proyecto) | 10 vulnerabilidades en certifi, mlflow, pyasn1 y tornado | Actualizados a certifi 2026.10.23, mlflow 3.17.2, pyasn1 0.6.5 y tornado 6.6; 0 pendientes |
+| pip-audit (DeepChecks) | pyarrow 17.0.0, pytest 8.3.5 y setuptools 75.8.0 | Actualizados a pyarrow 23.0.1, pytest 9.0.3 y setuptools 81.0.0 |
+| pip-audit (DeepChecks) | setuptools 81.0.0: PYSEC-2026-3447 y GHSA-xmj3-9gf7-h52w | **Riesgo aceptado** (ver abajo) |
+
+#### Riesgos aceptados
+
+`make seguridad` ignora estas dos vulnerabilidades (`IGNORAR_SETUPTOOLS` en el
+`Makefile`). No están corregidas: son una decisión del equipo con su
+justificación.
+
+| ID | Paquete y entorno | Qué afecta | Por qué se acepta |
+|---|---|---|---|
+| PYSEC-2026-3447 (corregida en 83.0.0) | setuptools 81.0.0, solo en el entorno de DeepChecks | Directivas `exclude` de `MANIFEST.in` al construir un sdist | El entorno no construye paquetes: setuptools solo aporta `pkg_resources`, que deepchecks importa al arrancar |
+| GHSA-xmj3-9gf7-h52w (corregida en 84.1.0) | setuptools 81.0.0, solo en el entorno de DeepChecks | Instalación legacy de wheels (eggs) en Windows | uv instala los paquetes del entorno; no se usa la ruta legacy de setuptools |
+
+No se pueden corregir porque setuptools 82 y posteriores quitan
+`pkg_resources` y deepchecks 0.19.1 (su última versión) deja de importar;
+`make test-deepchecks` falla en ese caso. El entorno del proyecto no está
+afectado: no fija setuptools y pip-audit no reporta nada en él. Hay que revisar
+esta decisión si deepchecks publica una versión sin `pkg_resources` o si
+aparece una vulnerabilidad de setuptools que sí afecte su uso en tiempo de
+ejecución.
+
+Después de actualizar dependencias corran `uv pip install -r requirements.txt`.
 
 ### Evidencia de ejecución
 
 <!-- Reemplazar con las capturas al correr los comandos -->
 ![make test](docs/evidencia-calidad/make-test.png)
 ![make validar-datos](docs/evidencia-calidad/validar-datos.png)
+![make seguridad](docs/evidencia-calidad/seguridad.png)
 
 ## Experimentos en MLflow
 

@@ -7,7 +7,7 @@ from sklearn.cluster import KMeans
 from mibici import evaluation, plots
 from mibici.dataset import sha256
 from mibici.features import columnas_perfil_p3, matriz_forma, perfiles_agosto
-from mibici.modeling import p3, train
+from mibici.modeling import train
 
 
 def test_septiembre_mismos_umbrales_y_primer_dia_completo():
