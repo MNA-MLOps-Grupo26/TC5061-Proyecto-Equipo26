@@ -250,11 +250,13 @@ def download(filename: str, url: str) -> Path:
 # ---------------------------------------------------------------------------
 
 
-def cargar_viajes(columnas: list[str] | None = None) -> pd.DataFrame:
+def cargar_viajes(columnas: list[str] | None = None, filtrar_periodo: bool = True) -> pd.DataFrame:
     """Lee los viajes normalizados del periodo de config.py.
 
     Filtra por inicio de viaje en [TRAIN_START, DATA_END_EXCLUSIVE). No incluye
-    columnas de usuario porque preprocess.py ya las descartó.
+    columnas de usuario porque preprocess.py ya las descartó. Con
+    ``filtrar_periodo=False`` devuelve todas las filas, incluidas las de inicio
+    nulo, que el filtro descartaría sin aviso (lo usa mibici.validacion).
     """
     archivos = sorted(PROCESSED_DATA_DIR.glob(VIAJES_PARQUET_GLOB))
     if not archivos:
@@ -262,7 +264,7 @@ def cargar_viajes(columnas: list[str] | None = None) -> pd.DataFrame:
             f"No hay Parquet en {PROCESSED_DATA_DIR}. Corran: python -m mibici.dataset"
         )
     df = pd.concat([pd.read_parquet(a, columns=columnas) for a in archivos], ignore_index=True)
-    if "inicio_viaje" in df.columns:
+    if filtrar_periodo and "inicio_viaje" in df.columns:
         inicio = pd.Timestamp(TRAIN_START)
         fin = pd.Timestamp(DATA_END_EXCLUSIVE)
         df = df.loc[(df["inicio_viaje"] >= inicio) & (df["inicio_viaje"] < fin)]

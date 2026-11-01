@@ -21,19 +21,28 @@ ENTRADA = RAIZ / "data" / "interim" / "deepchecks"
 SALIDA = RAIZ / "reports" / "deepchecks"
 
 
-def _leer(nombre: str) -> pd.DataFrame:
-    ruta = ENTRADA / f"{nombre}.parquet"
+CONJUNTOS = ("train", "validation", "test")
+
+
+def _ruta(nombre: str) -> Path:
+    ruta = ENTRADA / nombre
     if not ruta.exists():
         sys.exit(f"No existe {ruta}. Corran primero: python -m mibici.validacion")
-    return pd.read_parquet(ruta)
+    return ruta
+
+
+def _leer(nombre: str) -> pd.DataFrame:
+    return pd.read_parquet(_ruta(f"{nombre}.parquet"))
 
 
 def main() -> int:
-    esquema = json.loads((ENTRADA / "esquema.json").read_text(encoding="utf-8"))
-    p1 = {c: _leer(f"p1_{c}") for c in ("train", "validation", "test")}
-    viajes = {c: _leer(f"viajes_{c}") for c in ("train", "test")}
+    esquema = json.loads(_ruta("esquema.json").read_text(encoding="utf-8"))
+    p1 = {c: _leer(f"p1_{c}") for c in CONJUNTOS}
+    viajes = {c: _leer(f"viajes_{c}") for c in CONJUNTOS}
 
-    resultados = []
+    resultados = checks.integridad_viajes_todos(
+        _leer("viajes_todos"), esquema, "viajes sin particionar"
+    )
     for conjunto, df in p1.items():
         resultados += checks.integridad_panel(df, esquema, f"P1 {conjunto}")
     for conjunto in ("validation", "test"):
@@ -42,9 +51,10 @@ def main() -> int:
         )
     for conjunto, df in viajes.items():
         resultados += checks.integridad_viajes(df, esquema, f"viajes {conjunto}")
-    resultados += checks.train_test_viajes(
-        viajes["train"], viajes["test"], esquema, "viajes train vs test"
-    )
+    for conjunto in ("validation", "test"):
+        resultados += checks.train_test_viajes(
+            viajes["train"], viajes[conjunto], esquema, f"viajes train vs {conjunto}"
+        )
 
     SALIDA.mkdir(parents=True, exist_ok=True)
     resumen = []

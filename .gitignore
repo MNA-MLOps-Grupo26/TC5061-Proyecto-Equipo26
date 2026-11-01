@@ -26,6 +26,7 @@ mlflow.db
 # Credenciales
 .env
 .env.*
+!.env.example
 
 # Mac OS-specific storage files
 .DS_Store

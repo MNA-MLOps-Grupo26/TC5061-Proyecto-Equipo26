@@ -3,8 +3,12 @@
 Corre en el entorno del proyecto (``python -m mibici.validacion``). Escribe en
 ``data/interim/deepchecks/``:
 
-- ``viajes_{train,validation,test}.parquet``: muestra de viajes limpios por
-  partición, con duración, hora y día de la semana.
+- ``viajes_todos.parquet``: ``viaje_id`` e inicio de todos los viajes, antes de
+  filtrar por periodo y de particionar. Ahí se detectan inicios nulos (el
+  filtro los descartaría) y ``viaje_id`` repetidos entre particiones.
+- ``viajes_{train,validation,test}.parquet``: todos los viajes limpios por
+  partición, con duración, hora y día de la semana. No se muestrean: los
+  chequeos de integridad deben ver cada fila; el drift muestrea por su cuenta.
 - ``p1_{train,validation,test}.parquet``: panel estación-día de P1 completo.
 - ``esquema.json``: variables, objetivo y columnas categóricas, para que el
   entorno de DeepChecks no tenga que importar ``mibici``.
@@ -17,12 +21,11 @@ import json
 from loguru import logger
 import pandas as pd
 
-from mibici.config import INTERIM_DATA_DIR, RANDOM_SEED
+from mibici.config import INTERIM_DATA_DIR
 from mibici.dataset import cargar_estaciones, cargar_viajes
 from mibici.features import VARIABLES_P1, dataset_p1, particionar_dataframe
 
 DESTINO = INTERIM_DATA_DIR / "deepchecks"
-MUESTRA_VIAJES = 300_000  # por partición; DeepChecks no necesita los 5 M de viajes
 CONJUNTOS = ("train", "validation", "test")
 
 
@@ -55,14 +58,29 @@ def esquema() -> dict:
     }
 
 
-def exportar(destino=DESTINO, muestra=MUESTRA_VIAJES) -> None:
+def columnas_viajes_todos() -> list[str]:
+    """Llaves y fecha de inicio: lo que se valida antes de particionar."""
+    v = esquema()["viajes"]
+    return [*v["llaves"], v["datetime"]]
+
+
+def columnas_viajes() -> list[str]:
+    """Llaves, fecha y variables de viajes, en el orden en que se exportan."""
+    v = esquema()["viajes"]
+    return [*v["llaves"], v["datetime"], *v["features"]]
+
+
+def exportar(destino=DESTINO) -> None:
     destino.mkdir(parents=True, exist_ok=True)
+    todos = cargar_viajes(columnas_viajes_todos(), filtrar_periodo=False)
+    todos.to_parquet(destino / "viajes_todos.parquet", index=False)
+    logger.info(f"viajes_todos: {len(todos):,} filas")
+
     viajes = cargar_viajes()
     estaciones = cargar_estaciones()
 
     for nombre, parte in particionar_dataframe(preparar_viajes(viajes)).items():
-        if len(parte) > muestra:
-            parte = parte.sample(muestra, random_state=RANDOM_SEED)
+        parte = parte[columnas_viajes()]
         parte.to_parquet(destino / f"viajes_{nombre}.parquet", index=False)
         logger.info(f"viajes_{nombre}: {len(parte):,} filas")
 

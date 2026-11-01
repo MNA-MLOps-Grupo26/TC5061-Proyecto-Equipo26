@@ -51,7 +51,7 @@ cachetools==7.2.3
     # via
     #   mlflow-skinny
     #   mlflow-tracing
-certifi==2026.7.22
+certifi==2026.10.23
     # via
     #   httpcore
     #   httpx
@@ -253,11 +253,11 @@ mdurl==0.1.2
     # via markdown-it-py
 mistune==3.3.4
     # via nbconvert
-mlflow==3.17.1
+mlflow==3.17.2
     # via -r requirements.in
-mlflow-skinny==3.17.1
+mlflow-skinny==3.17.2
     # via mlflow
-mlflow-tracing==3.17.1
+mlflow-tracing==3.17.2
     # via mlflow
 multidict==7.1.0
     # via
@@ -366,7 +366,7 @@ pyarrow==25.0.1
     # via
     #   -r requirements.in
     #   mlflow
-pyasn1==0.6.4
+pyasn1==0.6.5
     # via pyasn1-modules
 pyasn1-modules==0.4.2
     # via google-auth
@@ -485,7 +485,7 @@ threadpoolctl==3.7.0
     # via scikit-learn
 tinycss2==1.5.1
     # via bleach
-tornado==6.5.10
+tornado==6.6
     # via
     #   ipykernel
     #   jupyter-client
