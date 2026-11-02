@@ -71,7 +71,7 @@ IGNORAR_SETUPTOOLS = --ignore-vuln PYSEC-2026-3447 --ignore-vuln GHSA-xmj3-9gf7-
 ## Seguridad: código (bandit), dependencias (pip-audit) y secretos versionados
 .PHONY: seguridad
 seguridad:
-	$(BANDIT) -r mibici validacion_datos --severity-level medium
+	$(BANDIT) -r mibici validacion_datos experiments --severity-level medium
 	$(PIP_AUDIT) -r requirements.txt --no-deps --disable-pip --progress-spinner off
 	$(DEEPCHECKS) --with pip-audit==2.10.1 pip-audit --progress-spinner off $(IGNORAR_SETUPTOOLS)
 	$(PYTHON_INTERPRETER) -m pytest tests/test_seguridad.py

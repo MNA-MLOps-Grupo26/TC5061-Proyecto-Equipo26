@@ -369,9 +369,10 @@ Después de actualizar dependencias corran `uv pip install -r requirements.txt`.
 
 ### Evidencia de ejecución
 
-<!-- Reemplazar con las capturas al correr los comandos -->
 ![make test](docs/evidencia-calidad/make-test.png)
-![make validar-datos](docs/evidencia-calidad/validar-datos.png)
+![make validar-datos - parte 1](docs/evidencia-calidad/validar-datos-1.png)
+![make validar-datos - parte 2](docs/evidencia-calidad/validar-datos-2.png)
+![make validar-datos - parte 3](docs/evidencia-calidad/validar-datos-3.png)
 ![make seguridad](docs/evidencia-calidad/seguridad.png)
 
 ## Experimentos en MLflow
