@@ -1,0 +1,25 @@
+{
+  "descripcion": "Predicciones del modelo exportado (models/p1) cargado directamente con mlflow.pyfunc, sin API. La API debe devolver exactamente estos valores para las mismas peticiones.",
+  "modelo": {
+    "nombre": "mibici-equipo26-p1-demand",
+    "version": "1",
+    "run_id": "51ef51ad5b534386a3c020692887c6bc",
+    "logged_model_id": "m-8917791035574d139539ba27ae896ad4",
+    "source_sha": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+    "data_version": "cd917f9aa025"
+  },
+  "registry_json_sha256": "0704026c5c6bb5bd736899333a21f71c2e4d8d15b3e7d4b0fe9365cef580efb2",
+  "mlflow": "3.17.2",
+  "peticion_predict": {
+    "archivo": "docs/evidencia-api/peticion-predict.json",
+    "viajes_esperados": 122.55957713166208
+  },
+  "peticion_batch": {
+    "archivo": "docs/evidencia-api/peticion-batch.json",
+    "viajes_esperados_en_orden": [
+      122.55957713166208,
+      4.092428571892937,
+      111.53998701033007
+    ]
+  }
+}
