@@ -62,7 +62,7 @@ de MLflow; si MiBici modifica un archivo, cambia la versión.
 ├── .python-version    <- Versión de Python del proyecto (3.13)
 ├── Containerfile      <- Imagen OCI del servicio P1 (Docker; compatible con Podman)
 ├── .dockerignore      <- Contexto de build mínimo (lo leen Docker y Podman)
-├── api                <- Servicio FastAPI de P1 (pendiente; ver docs/especificacion-api-p1.md)
+├── api                <- Servicio FastAPI de P1 (ver docs/especificacion-api-p1.md)
 ├── scripts            <- registrar_p1.py, exportar_modelo.py y probar_contenedor.sh
 ├── constraints        <- requirements.txt sin -e . para compilar api/requirements.txt
 ├── data               <- No se versiona
@@ -438,12 +438,10 @@ Actividad 8: el modelo de demanda P1 se sirve como API REST con FastAPI dentro d
 un contenedor OCI. El procedimiento principal usa Docker; el mismo `Containerfile`
 es compatible con Podman.
 
-**Estado:** el modelo está recuperado del Model Registry y exportado. La
-infraestructura del contenedor está **preparada, pendiente de integración** con la
-API. **La API (`api/`) está pendiente** y se
-implementa según la [especificación](docs/especificacion-api-p1.md). Hasta que exista,
-la imagen no se puede construir. La prueba dentro del contenedor y su captura
-también están pendientes.
+**Estado:** el modelo está recuperado del Model Registry y empaquetado en la imagen,
+la API (`api/`) está implementada según la [especificación](docs/especificacion-api-p1.md)
+y la prueba de aceptación dentro del contenedor pasa (`ACEPTACIÓN: OK`); la evidencia
+está en [docs/evidencia-api/](docs/evidencia-api/).
 
 ### Estrategia de despliegue
 
@@ -492,14 +490,73 @@ calculadas sin API para las peticiones de ejemplo.
 | `scripts/exportar_modelo.py` | Registry → directorio nuevo `models/p1` con `registry.json` (hashes y linaje) | Listo |
 | `scripts/registrar_p1.py` | Registro seguro de un run concreto en un almacén nuevo (solo para reproducir desde cero) | Listo |
 | `constraints/base.txt` | `requirements.txt` sin la línea `-e .`, para usarlo como restricción | Listo |
-| `Containerfile`, `.dockerignore` | Imagen con usuario no root; copia `api/` y el modelo exportado | Preparado, pendiente de integración |
-| `scripts/probar_contenedor.sh` | Build, ejecución y prueba de aceptación del contenedor con evidencia y captura | Preparado, pendiente de integración |
+| `Containerfile`, `.dockerignore` | Imagen con usuario no root; copia `api/` y el modelo exportado | Listo |
+| `scripts/probar_contenedor.sh` | Build, ejecución y prueba de aceptación del contenedor con evidencia y captura | Listo |
 | `docs/evidencia-api/peticion-*.json` | Peticiones de ejemplo (filas reales del panel de P1) | Listo |
-| `api/` | Servicio FastAPI | Pendiente ([especificación](docs/especificacion-api-p1.md)) |
+| `api/esquemas.py` | Contrato de entrada y salida (Pydantic): 18 variables, rangos, tipos estrictos y 7 reglas cruzadas | Listo |
+| `api/modelo.py` | Verificación de SHA-256 contra `registry.json`, carga con `mlflow.pyfunc` y verificación de la firma | Listo |
+| `api/main.py` | App FastAPI: `/health`, `/predict`, `/predict/batch`, `/docs`; 422 y 500 controlados | Listo |
+| `api/requirements.in`, `api/requirements.txt` | Dependencias del servicio, fijadas con `constraints/base.txt` | Listo |
+
+### Contrato de la API
+
+| Endpoint | Entrada | Salida |
+|---|---|---|
+| `GET /health` | - | `estado`, linaje del modelo (`registry.json`) y resultado de la verificación |
+| `POST /predict` | Un registro con las 18 variables de P1; `estacion_id` y `fecha` opcionales | `viajes_esperados`, `estacion_id`, `fecha`, `modelo` |
+| `POST /predict/batch` | `{"registros": [...]}` con 1 a 500 registros | `n` y `predicciones` en el orden de entrada (`indice`) |
+| `GET /docs` | - | Documentación interactiva (Swagger) con un ejemplo válido |
+
+Validación de entrada (`api/esquemas.py`): las 18 claves son requeridas (algunas
+aceptan `null`), se rechazan campos desconocidos, textos, booleanos, NaN, infinitos y
+decimales en campos enteros, se validan rangos y siete reglas cruzadas (por ejemplo,
+`es_fin_semana` coherente con `dia_semana` y `saldo_lag1 = salidas_lag1 - llegadas_lag1`).
+Cualquier violación responde **422** con el campo y el motivo. La salida también se
+valida: si el modelo devuelve valores negativos, NaN, infinitos o una longitud distinta,
+la API responde **500** con un mensaje controlado.
+
+Al arrancar, el servicio verifica que los archivos del modelo coincidan con los SHA-256
+de `registry.json` y que la firma del modelo sean las 18 variables en orden. Si algo
+falla, el contenedor no arranca.
+
+**Ejemplo de petición y respuesta** (obtenido del contenedor en ejecución):
+
+```bash
+curl -s -X POST http://127.0.0.1:8000/predict \
+  -H "Content-Type: application/json" -d @docs/evidencia-api/peticion-predict.json
+```
+
+```json
+{
+  "viajes_esperados": 122.55957713166208,
+  "estacion_id": 21,
+  "fecha": "2026-09-15",
+  "modelo": {
+    "nombre": "mibici-equipo26-p1-demand",
+    "version": "1",
+    "run_id": "51ef51ad5b534386a3c020692887c6bc"
+  }
+}
+```
+
+Una petición incoherente (martes marcado como fin de semana) responde 422:
+
+```json
+{"detail": [{"loc": ["body"], "msg": "Value error, es_fin_semana no coincide con dia_semana (1 solo si dia_semana >= 5)", "type": "value_error", "input": {"...": "..."}}]}
+```
+
+![API respondiendo desde el contenedor](docs/evidencia-api/captura-contenedor.png)
+
+### Pruebas de la API
+
+```bash
+python -m pytest tests/test_api_esquemas.py tests/test_api_servicio.py   # modelo falso
+MIBICI_MODELO_EXPORTADO=models/p1 python -m pytest tests/test_api_modelo_real.py
+```
 
 ### Construir y ejecutar con Docker (almacén entregado)
 
-Requiere que `api/` ya exista. Desde la raíz del repositorio, con el entorno del
+Desde la raíz del repositorio, con el entorno del
 proyecto activo y Docker en ejecución (`docker info` debe responder sin error).
 
 **Atajo para los pasos 3 a 6:** `bash scripts/probar_contenedor.sh`. En macOS abre
