@@ -1,4 +1,4 @@
-"""Aceptación del script con comandos dobles, sin Docker ni modelos reales."""
+"""Aceptaci�n del script con comandos dobles, sin Docker ni modelos reales."""
 
 import os
 from pathlib import Path
@@ -11,6 +11,7 @@ import pytest
 REPO = Path(__file__).resolve().parents[1]
 DOBLE = r"""
 import json
+import math
 import os
 from pathlib import Path
 import sys
@@ -40,7 +41,7 @@ elif nombre == "docker":
             if caso == "exec_error":
                 print("Error simulado de docker exec", file=sys.stderr)
                 sys.exit(125)
-            # Ejecuta la comprobación real de permisos sobre el árbol temporal.
+            # Ejecuta la comprobaci�n real de permisos sobre el �rbol temporal.
             codigo = args[4].replace("/app/", str(raiz / "app") + "/")
             exec(compile(codigo, "<permisos-del-script>", "exec"))
         else:
@@ -54,13 +55,23 @@ elif nombre == "curl":
     estado = 200
     if url.endswith("/health"):
         cuerpo = {"estado": "error" if caso == "salud" else "ok"}
-        # Las sondas de arranque pasan; se prueba la respuesta de aceptación.
+        # Las sondas de arranque pasan; se prueba la respuesta de aceptaci�n.
         if "-w" in args and caso in ("health500", "health201"):
             estado = int(caso[-3:])
     elif url.endswith("/predict/batch"):
         valores = referencia["peticion_batch"]["viajes_esperados_en_orden"][:]
         if caso == "lote":
             valores[0] += 1
+        if caso == "redondeo":
+            valores = [math.nextafter(v, -math.inf) for v in valores]
+        if caso == "lote_corto":
+            valores.pop()
+        if caso == "lote_largo":
+            valores.append(valores[0])
+        if caso == "lote_nan":
+            valores[0] = math.nan
+        if caso == "lote_infinito":
+            valores[0] = math.inf
         indices = list(range(len(valores)))
         if caso == "orden":
             indices.reverse()
@@ -76,6 +87,12 @@ elif nombre == "curl":
         valor = referencia["peticion_predict"]["viajes_esperados"]
         if caso == "individual" or (caso == "captura_distinta" and numero == 2):
             valor += 1
+        if caso == "redondeo" or (caso == "captura_redondeo" and numero == 2):
+            valor = math.nextafter(valor, -math.inf)
+        if caso == "individual_nan" or (caso == "captura_nan" and numero == 2):
+            valor = math.nan
+        if caso == "individual_infinito":
+            valor = math.inf
         cuerpo = {"viajes_esperados": valor}
         if caso in ("predict500", "predict201"):
             estado = int(caso[-3:])
@@ -102,6 +119,15 @@ elif nombre == "screencapture":
     "caso",
     [
         "ok",
+        "redondeo",
+        "captura_redondeo",
+        "lote_corto",
+        "lote_largo",
+        "lote_nan",
+        "lote_infinito",
+        "individual_nan",
+        "individual_infinito",
+        "captura_nan",
         "health500",
         "health201",
         "predict500",
@@ -123,10 +149,10 @@ elif nombre == "screencapture":
         "transporte",
     ],
 )
-@pytest.mark.skipif(os.name == "nt", reason="El script de aceptación requiere Bash")
+@pytest.mark.skipif(os.name == "nt", reason="El script de aceptaci�n requiere Bash")
 @pytest.mark.skipif(
     os.name != "nt" and os.geteuid() == 0,
-    reason="Todos los escenarios requieren un árbol de solo lectura para un usuario no root",
+    reason="Todos los escenarios requieren un �rbol de solo lectura para un usuario no root",
 )
 def test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan(tmp_path, caso):
     binarios = tmp_path / "bin"
@@ -187,9 +213,10 @@ def test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan(tmp_path, cas
     finally:
         for directorio in directorios:
             directorio.chmod(0o755)
-    assert resultado.returncode == (0 if caso == "ok" else 1), resultado.stdout + resultado.stderr
-    assert (evidencia / "captura-contenedor.png").exists() == (caso == "ok")
-    assert ("ACEPTACIÓN: OK" in resultado.stdout) == (caso == "ok")
+    correcto = caso in ("ok", "redondeo", "captura_redondeo")
+    assert resultado.returncode == (0 if correcto else 1), resultado.stdout + resultado.stderr
+    assert (evidencia / "captura-contenedor.png").exists() == correcto
+    assert ("ACEPTACION: OK" in resultado.stdout) == correcto
     if caso.startswith("captura"):
         assert "==================== CAPTURA:" in resultado.stdout
     elif caso in ("modelo_archivo", "modelo_directorio", "api_archivo", "api_directorio"):
