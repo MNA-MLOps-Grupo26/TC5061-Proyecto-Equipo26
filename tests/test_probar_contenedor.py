@@ -1,4 +1,4 @@
-"""Aceptaci�n del script con comandos dobles, sin Docker ni modelos reales."""
+"""Aceptación del script con comandos dobles, sin Docker ni modelos reales."""
 
 import os
 from pathlib import Path
@@ -41,7 +41,7 @@ elif nombre == "docker":
             if caso == "exec_error":
                 print("Error simulado de docker exec", file=sys.stderr)
                 sys.exit(125)
-            # Ejecuta la comprobaci�n real de permisos sobre el �rbol temporal.
+            # Ejecuta la comprobación real de permisos sobre el árbol temporal.
             codigo = args[4].replace("/app/", str(raiz / "app") + "/")
             exec(compile(codigo, "<permisos-del-script>", "exec"))
         else:
@@ -55,7 +55,7 @@ elif nombre == "curl":
     estado = 200
     if url.endswith("/health"):
         cuerpo = {"estado": "error" if caso == "salud" else "ok"}
-        # Las sondas de arranque pasan; se prueba la respuesta de aceptaci�n.
+        # Las sondas de arranque pasan; se prueba la respuesta de aceptación.
         if "-w" in args and caso in ("health500", "health201"):
             estado = int(caso[-3:])
     elif url.endswith("/predict/batch"):
@@ -149,10 +149,10 @@ elif nombre == "screencapture":
         "transporte",
     ],
 )
-@pytest.mark.skipif(os.name == "nt", reason="El script de aceptaci�n requiere Bash")
+@pytest.mark.skipif(os.name == "nt", reason="El script de aceptación requiere Bash")
 @pytest.mark.skipif(
     os.name != "nt" and os.geteuid() == 0,
-    reason="Todos los escenarios requieren un �rbol de solo lectura para un usuario no root",
+    reason="Todos los escenarios requieren un árbol de solo lectura para un usuario no root",
 )
 def test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan(tmp_path, caso):
     binarios = tmp_path / "bin"
@@ -216,7 +216,7 @@ def test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan(tmp_path, cas
     correcto = caso in ("ok", "redondeo", "captura_redondeo")
     assert resultado.returncode == (0 if correcto else 1), resultado.stdout + resultado.stderr
     assert (evidencia / "captura-contenedor.png").exists() == correcto
-    assert ("ACEPTACION: OK" in resultado.stdout) == correcto
+    assert ("ACEPTACIÓN: OK" in resultado.stdout) == correcto
     if caso.startswith("captura"):
         assert "==================== CAPTURA:" in resultado.stdout
     elif caso in ("modelo_archivo", "modelo_directorio", "api_archivo", "api_directorio"):
