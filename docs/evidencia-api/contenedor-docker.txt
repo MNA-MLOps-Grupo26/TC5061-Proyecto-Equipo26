@@ -1,0 +1,131 @@
+# Prueba del servicio P1 dentro del contenedor (docker)
+# Fecha UTC: 2026-11-08T16:53:11Z
+# Commit: a67086cc2324ae00b0c1ffc9fdb1beee432bf6bd; archivos con cambios sin commit: 1
+# Host: Darwin arm64
+# Motor: Docker version 29.8.0, build 88096ef
+# Modelo: models/p1 (registry.json sha256 0704026c5c6bb5bd736899333a21f71c2e4d8d15b3e7d4b0fe9365cef580efb2)
+
+$ docker build -f Containerfile -t mibici-p1-api:1 --build-arg MODEL_DIR=models/p1 .   (log completo en docs/evidencia-api/contenedor-docker-build.log)
+#13 unpacking to docker.io/library/mibici-p1-api:1
+#13 unpacking to docker.io/library/mibici-p1-api:1 3.6s done
+#13 DONE 18.4s
+Imagen: sha256:b9d74e6d6b1282f4dbc5dbb65fd83dac942eabe5f48372aca32dba93c904a391 usuario=app arquitectura=arm64
+
+$ docker run -d --name mibici-p1-api -p 127.0.0.1:8000:8000 mibici-p1-api:1
+54f727d5bb003598b0a86a66ef8eaa0d4e8f5b5fd8c87676840f096ae9dcacb9
+
+$ docker ps --filter name=mibici-p1-api
+CONTAINER ID   IMAGE             COMMAND                  CREATED         STATUS         PORTS                      NAMES
+54f727d5bb00   mibici-p1-api:1   "uvicorn api.main:ap…"   3 seconds ago   Up 2 seconds   127.0.0.1:8000->8000/tcp   mibici-p1-api
+
+$ docker exec mibici-p1-api id -u   (usuario no root)
+10001
+Verificación de archivos y directorios de solo lectura en /app/modelo y /app/api
+Modelo y API de solo lectura
+
+$ curl -s http://127.0.0.1:8000/health
+{
+    "estado": "ok",
+    "modelo": {
+        "nombre": "mibici-equipo26-p1-demand",
+        "version": "1",
+        "run_id": "51ef51ad5b534386a3c020692887c6bc",
+        "alias_consultado": "champion",
+        "logged_model_id": "m-8917791035574d139539ba27ae896ad4",
+        "source_sha": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+        "data_version": "cd917f9aa025"
+    },
+    "verificacion": {
+        "hashes": "ok",
+        "firma": "ok",
+        "archivos_verificados": 8
+    }
+}
+
+$ curl -s -X POST http://127.0.0.1:8000/predict -H 'Content-Type: application/json' -d @docs/evidencia-api/peticion-predict.json
+{
+    "viajes_esperados": 122.55957713166208,
+    "estacion_id": 21,
+    "fecha": "2026-09-15",
+    "modelo": {
+        "nombre": "mibici-equipo26-p1-demand",
+        "version": "1",
+        "run_id": "51ef51ad5b534386a3c020692887c6bc"
+    }
+}
+
+$ curl -s -X POST http://127.0.0.1:8000/predict/batch -H 'Content-Type: application/json' -d @docs/evidencia-api/peticion-batch.json
+{
+    "n": 3,
+    "predicciones": [
+        {
+            "indice": 0,
+            "viajes_esperados": 122.55957713166208,
+            "estacion_id": 21,
+            "fecha": "2026-09-15"
+        },
+        {
+            "indice": 1,
+            "viajes_esperados": 4.092428571892937,
+            "estacion_id": 180,
+            "fecha": "2026-09-12"
+        },
+        {
+            "indice": 2,
+            "viajes_esperados": 111.53998701033007,
+            "estacion_id": 999,
+            "fecha": "2026-09-15"
+        }
+    ],
+    "modelo": {
+        "nombre": "mibici-equipo26-p1-demand",
+        "version": "1",
+        "run_id": "51ef51ad5b534386a3c020692887c6bc"
+    }
+}
+
+$ curl (martes marcado como fin de semana; se espera 422)
+HTTP 422
+
+Comparación con docs/evidencia-api/prediccion-referencia.json
+/predict: 122.55957713166208; referencia: 122.55957713166208; idénticas: True
+/predict/batch: [122.55957713166208, 4.092428571892937, 111.53998701033007]; referencia: [122.55957713166208, 4.092428571892937, 111.53998701033007]; idénticas en orden: True
+
+$ docker logs mibici-p1-api
+INFO:     Waiting for application startup.
+2026/11/08 16:54:09 WARNING mlflow.utils.requirements_utils: Detected one or more mismatches between the model's dependencies and the current Python environment:
+ - mlflow (current: 3.17.2, required: mlflow==3.17.1)
+ - psutil (current: uninstalled, required: psutil==7.2.2)
+ - pytest (current: uninstalled, required: pytest==9.1.1)
+ - rich (current: uninstalled, required: rich==15.0.0)
+To fix the mismatches, call `mlflow.pyfunc.get_model_dependencies(model_uri)` to fetch the model's environment and install dependencies using the resulting environment file.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     172.17.0.1:59756 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.17.0.1:59766 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.17.0.1:59776 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.17.0.1:59792 - "POST /predict HTTP/1.1" 200 OK
+INFO:     172.17.0.1:59804 - "POST /predict/batch HTTP/1.1" 200 OK
+INFO:     172.17.0.1:59818 - "POST /predict HTTP/1.1" 422 Unprocessable Content
+
+Evidencia: docs/evidencia-api/contenedor-docker.txt y docs/evidencia-api/contenedor-docker-build.log
+Para detener: docker stop mibici-p1-api && docker rm mibici-p1-api
+
+==================== CAPTURA: contenedor en ejecución y respuesta ====================
+$ docker ps --filter name=mibici-p1-api --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}'
+NAMES           IMAGE             STATUS         PORTS
+mibici-p1-api   mibici-p1-api:1   Up 2 seconds   127.0.0.1:8000->8000/tcp
+$ curl -s -X POST http://127.0.0.1:8000/predict -H 'Content-Type: application/json' -d @docs/evidencia-api/peticion-predict.json
+{
+    "viajes_esperados": 122.55957713166208,
+    "estacion_id": 21,
+    "fecha": "2026-09-15",
+    "modelo": {
+        "nombre": "mibici-equipo26-p1-demand",
+        "version": "1",
+        "run_id": "51ef51ad5b534386a3c020692887c6bc"
+    }
+}
+ACEPTACIÓN: OK (todas las comprobaciones pasaron)
+No se pudo capturar la ventana (permiso de Grabación de pantalla para Terminal).
+Tomen la captura a mano con Cmd+Shift+4, barra espaciadora y clic en esta ventana.
