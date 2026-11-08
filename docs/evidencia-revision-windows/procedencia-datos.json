@@ -1,0 +1,58 @@
+[
+  {
+    "file": "datos_abiertos_2025_08.parquet",
+    "match": true
+  },
+  {
+    "file": "datos_abiertos_2025_09.parquet",
+    "match": true
+  },
+  {
+    "file": "datos_abiertos_2025_10.parquet",
+    "match": true
+  },
+  {
+    "file": "datos_abiertos_2025_11.parquet",
+    "match": true
+  },
+  {
+    "file": "datos_abiertos_2025_12.parquet",
+    "match": true
+  },
+  {
+    "file": "datos_abiertos_2026_01.parquet",
+    "match": true
+  },
+  {
+    "file": "datos_abiertos_2026_02.parquet",
+    "match": true
+  },
+  {
+    "file": "datos_abiertos_2026_03.parquet",
+    "match": true
+  },
+  {
+    "file": "datos_abiertos_2026_04.parquet",
+    "match": true
+  },
+  {
+    "file": "datos_abiertos_2026_05.parquet",
+    "match": true
+  },
+  {
+    "file": "datos_abiertos_2026_06.parquet",
+    "match": true
+  },
+  {
+    "file": "datos_abiertos_2026_07.parquet",
+    "match": true
+  },
+  {
+    "file": "datos_abiertos_2026_08.parquet",
+    "match": true
+  },
+  {
+    "file": "datos_abiertos_2026_09.parquet",
+    "match": true
+  }
+]

@@ -262,6 +262,10 @@ datos y los chequeos de seguridad se describen en la siguiente sección.
 
 ## Pruebas y validación de datos
 
+La [revisión de P1 en Windows del 8 de noviembre](docs/revision-windows-p1.md)
+reúne la nueva corrida de DeepChecks, la auditoría de seguridad y las pruebas
+del contenedor, con sus límites de procedencia y pendientes.
+
 | Comando | Qué corre | Requiere datos |
 |---|---|---|
 | `make test` | Toda la suite de pytest del proyecto | No |

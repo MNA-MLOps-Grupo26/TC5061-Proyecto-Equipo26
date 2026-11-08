@@ -1,0 +1,15 @@
+(484, 5) (484, 5)
+estacion_id      int64
+nombre          string
+latitud        float64
+longitud       float64
+capacidad      float64
+dtype: object
+estacion_id      int64
+nombre          string
+latitud        float64
+longitud       float64
+capacidad      float64
+dtype: object
+values_equal True
+nulls {'estacion_id': 0, 'nombre': 0, 'latitud': 0, 'longitud': 0, 'capacidad': 4}

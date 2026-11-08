@@ -1,0 +1,130 @@
+# Prueba del servicio P1 dentro del contenedor (docker)
+# Fecha UTC: 2026-11-08T20:25:31Z
+# Commit: fba69f199ba9ac46d917883254df35062aeab476; archivos con cambios sin commit: 5
+# Host: MINGW64_NT-10.0-26300 x86_64
+# Motor: Docker version 29.8.0, build 88096ef
+# Modelo: models/p1 (registry.json sha256 0704026c5c6bb5bd736899333a21f71c2e4d8d15b3e7d4b0fe9365cef580efb2)
+
+$ docker build -f Containerfile -t mibici-team-pr19:review --build-arg MODEL_DIR=models/p1 .   (log completo en docs/evidencia-api/contenedor-docker-build.log)
+#13 DONE 0.2s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/p4haf9xcnf6dp46prkgqfiic7
+Imagen: sha256:29626adc0f4e240e3c86a6f20bd7d39d7ad44aeec08ca3dfa3f92a532d0767e7 usuario=app arquitectura=amd64
+
+$ docker run -d --name mibici-pr19-tolerance -p 127.0.0.1:8020:8000 mibici-team-pr19:review
+6e9ebfd8bb25184203887af7148d669b399fec9d90bbae73ae338f9acf08a9ad
+
+$ docker ps --filter name=mibici-pr19-tolerance
+CONTAINER ID   IMAGE                     COMMAND                  CREATED          STATUS         PORTS                      NAMES
+6e9ebfd8bb25   mibici-team-pr19:review   "uvicorn api.main:ap…"   10 seconds ago   Up 9 seconds   127.0.0.1:8020->8000/tcp   mibici-pr19-tolerance
+
+$ docker exec mibici-pr19-tolerance id -u   (usuario no root)
+10001
+Verificación de archivos y directorios de solo lectura en /app/modelo y /app/api
+Modelo y API de solo lectura
+
+$ curl -s http://127.0.0.1:8020/health
+{
+    "estado": "ok",
+    "modelo": {
+        "nombre": "mibici-equipo26-p1-demand",
+        "version": "1",
+        "run_id": "51ef51ad5b534386a3c020692887c6bc",
+        "alias_consultado": "champion",
+        "logged_model_id": "m-8917791035574d139539ba27ae896ad4",
+        "source_sha": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+        "data_version": "cd917f9aa025"
+    },
+    "verificacion": {
+        "hashes": "ok",
+        "firma": "ok",
+        "archivos_verificados": 8
+    }
+}
+
+$ curl -s -X POST http://127.0.0.1:8020/predict -H 'Content-Type: application/json' -d @docs/evidencia-api/peticion-predict.json
+{
+    "viajes_esperados": 122.55957713166207,
+    "estacion_id": 21,
+    "fecha": "2026-09-15",
+    "modelo": {
+        "nombre": "mibici-equipo26-p1-demand",
+        "version": "1",
+        "run_id": "51ef51ad5b534386a3c020692887c6bc"
+    }
+}
+
+$ curl -s -X POST http://127.0.0.1:8020/predict/batch -H 'Content-Type: application/json' -d @docs/evidencia-api/peticion-batch.json
+{
+    "n": 3,
+    "predicciones": [
+        {
+            "indice": 0,
+            "viajes_esperados": 122.55957713166207,
+            "estacion_id": 21,
+            "fecha": "2026-09-15"
+        },
+        {
+            "indice": 1,
+            "viajes_esperados": 4.092428571892937,
+            "estacion_id": 180,
+            "fecha": "2026-09-12"
+        },
+        {
+            "indice": 2,
+            "viajes_esperados": 111.53998701033007,
+            "estacion_id": 999,
+            "fecha": "2026-09-15"
+        }
+    ],
+    "modelo": {
+        "nombre": "mibici-equipo26-p1-demand",
+        "version": "1",
+        "run_id": "51ef51ad5b534386a3c020692887c6bc"
+    }
+}
+
+$ curl (martes marcado como fin de semana; se espera 422)
+HTTP 422
+
+Comparación con docs/evidencia-api/prediccion-referencia.json
+/predict: 122.55957713166207; referencia: 122.55957713166208; coinciden (rel_tol=1e-12): True
+/predict/batch: [122.55957713166207, 4.092428571892937, 111.53998701033007]; referencia: [122.55957713166208, 4.092428571892937, 111.53998701033007]; coinciden en orden (rel_tol=1e-12): True
+
+$ docker logs mibici-pr19-tolerance
+INFO:     Waiting for application startup.
+2026/11/08 20:25:42 WARNING mlflow.utils.requirements_utils: Detected one or more mismatches between the model's dependencies and the current Python environment:
+ - mlflow (current: 3.17.2, required: mlflow==3.17.1)
+ - psutil (current: uninstalled, required: psutil==7.2.2)
+ - pytest (current: uninstalled, required: pytest==9.1.1)
+ - rich (current: uninstalled, required: rich==15.0.0)
+To fix the mismatches, call `mlflow.pyfunc.get_model_dependencies(model_uri)` to fetch the model's environment and install dependencies using the resulting environment file.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     172.17.0.1:47274 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.17.0.1:47280 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.17.0.1:47290 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.17.0.1:47292 - "POST /predict HTTP/1.1" 200 OK
+INFO:     172.17.0.1:47306 - "POST /predict/batch HTTP/1.1" 200 OK
+INFO:     172.17.0.1:47320 - "POST /predict HTTP/1.1" 422 Unprocessable Content
+
+Evidencia: docs/evidencia-api/contenedor-docker.txt y docs/evidencia-api/contenedor-docker-build.log
+Para detener: docker stop mibici-pr19-tolerance && docker rm mibici-pr19-tolerance
+
+==================== CAPTURA: contenedor en ejecución y respuesta ====================
+$ docker ps --filter name=mibici-pr19-tolerance --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}'
+NAMES                   IMAGE                     STATUS          PORTS
+mibici-pr19-tolerance   mibici-team-pr19:review   Up 14 seconds   127.0.0.1:8020->8000/tcp
+$ curl -s -X POST http://127.0.0.1:8020/predict -H 'Content-Type: application/json' -d @docs/evidencia-api/peticion-predict.json
+{
+    "viajes_esperados": 122.55957713166207,
+    "estacion_id": 21,
+    "fecha": "2026-09-15",
+    "modelo": {
+        "nombre": "mibici-equipo26-p1-demand",
+        "version": "1",
+        "run_id": "51ef51ad5b534386a3c020692887c6bc"
+    }
+}
+ACEPTACIÓN: OK (todas las comprobaciones pasaron)
+Tomen la captura de esta ventana (Cmd+Shift+4, barra espaciadora, clic) y guárdenla como docs/evidencia-api/captura-contenedor.png
