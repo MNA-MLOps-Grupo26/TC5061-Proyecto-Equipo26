@@ -1,0 +1,3 @@
+2026-11-08 12:26:38.747 | INFO     | mibici.config:<module>:19 - PROJ_ROOT path is: <usuario-local>\Documents\TC5061-team-pr19-review
+{'archivo': 'nomenclatura_2026_09.csv', 'estaciones': 484, 'sin_capacidad': 4}
+bcfd7d47b881edd6159cec56c68325a805d4354417f46ab600f54eec77014eaa 80ef17e6566e9a1821896e9739a19fc765c8590f27660488267606ed5a56afce False
