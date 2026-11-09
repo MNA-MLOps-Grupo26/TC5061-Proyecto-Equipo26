@@ -1,0 +1,12 @@
+# Dependencias directas del servicio P1. Generar api/requirements.txt con:
+#   uv pip compile api/requirements.in -c constraints/base.txt \
+#     -o api/requirements.txt --python-version 3.13 --universal
+fastapi
+uvicorn
+pydantic
+mlflow==3.17.2
+scikit-learn
+skops
+pandas
+numpy
+pyyaml
