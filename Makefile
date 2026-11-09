@@ -4,7 +4,7 @@
 
 PROJECT_NAME = TC5061-Proyecto-Equipo26
 PYTHON_VERSION = 3.13
-PYTHON_INTERPRETER = python
+PYTHON_INTERPRETER = uv run --no-project --python $(PYTHON_VERSION) --with-requirements requirements.txt python
 
 #################################################################################
 # COMMANDS                                                                      #
@@ -43,7 +43,7 @@ format:
 ## Run tests
 .PHONY: test
 test:
-	python -m pytest tests
+	$(PYTHON_INTERPRETER) -m pytest tests
 
 # DeepChecks 0.19.1 no soporta numpy 2 ni scikit-learn >= 1.6: corre en un
 # entorno aislado que uv crea y cachea la primera vez.

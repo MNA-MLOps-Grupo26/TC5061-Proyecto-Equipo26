@@ -763,6 +763,8 @@ Integrantes del equipo 26:
 
 ## Evidencia integrada publicada
 
+**Revisión independiente en Ubuntu/WSL:** [validación de P1, seguridad y corrección de portabilidad](docs/revision-ubuntu-p1.md). Incluye las pruebas automatizadas, la verificación del contenedor y la corrección de los comandos del Makefile.
+
 [Verificación final del 24 de octubre de 2026](docs/evidence/2026-10-24-final/README.md): exportación compacta de corridas locales, métricas, linaje y reproducción. Incluye el registro local verificado de los tres modelos seleccionados; no constituye un servidor MLflow ni un Model Registry compartido.
 
 El alias `champion` identifica cada versión seleccionada y permite cargarla con
