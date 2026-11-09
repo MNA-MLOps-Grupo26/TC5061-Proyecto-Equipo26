@@ -18,7 +18,7 @@
 #
 # Criterios de aceptación (el script termina con código distinto de 0 si alguno falla):
 # usuario no root, modelo y API de solo lectura, HTTP 200 y /health con estado ok, /predict y
-# /predict/batch idénticos a docs/evidencia-api/prediccion-referencia.json y 422 ante
+# /predict/batch equivalentes (tolerancia relativa 1e-12) a docs/evidencia-api/prediccion-referencia.json y 422 ante
 # una petición incoherente. Solo si todos pasan se toma la captura.
 set -euo pipefail
 
@@ -54,11 +54,11 @@ pedir_200() {
 
 validar_prediccion() {
   python3 -c '
-import json, sys
+import json, math, sys
 with open(sys.argv[1]) as archivo:
     esperado = json.load(archivo)["peticion_predict"]["viajes_esperados"]
 valor = json.load(sys.stdin)["viajes_esperados"]
-sys.exit(0 if valor == esperado else 1)
+sys.exit(0 if math.isfinite(valor) and math.isclose(valor, esperado, rel_tol=1e-12) else 1)
 ' "$REFERENCIA"
 }
 
@@ -167,17 +167,26 @@ echo
 
 echo "Comparación con $REFERENCIA"
 if ! RESP="$RESP" LOTE="$LOTE" python3 - "$REFERENCIA" <<'PY'
-import json, os, sys
+import json, math, os, sys
 ref = json.load(open(sys.argv[1]))
 uno = json.loads(os.environ["RESP"])["viajes_esperados"]
 lote = json.loads(os.environ["LOTE"])
 valores = [p["viajes_esperados"] for p in lote["predicciones"]]
 indices = [p["indice"] for p in lote["predicciones"]]
 esperado = ref["peticion_batch"]["viajes_esperados_en_orden"]
-ok_uno = uno == ref["peticion_predict"]["viajes_esperados"]
-ok_lote = valores == esperado and indices == list(range(len(esperado))) and lote["n"] == len(esperado)
-print(f"/predict: {uno!r}; referencia: {ref['peticion_predict']['viajes_esperados']!r}; idénticas: {ok_uno}")
-print(f"/predict/batch: {valores!r}; referencia: {esperado!r}; idénticas en orden: {ok_lote}")
+# Misma tolerancia que test_api_modelo_real.py: permite redondeo entre ARM y x86.
+def coincide(actual, referencia):
+    return math.isfinite(actual) and math.isclose(actual, referencia, rel_tol=1e-12)
+
+ok_uno = coincide(uno, ref["peticion_predict"]["viajes_esperados"])
+ok_lote = (
+    len(valores) == len(esperado)
+    and all(coincide(a, e) for a, e in zip(valores, esperado))
+    and indices == list(range(len(esperado)))
+    and lote["n"] == len(esperado)
+)
+print(f"/predict: {uno!r}; referencia: {ref['peticion_predict']['viajes_esperados']!r}; coinciden (rel_tol=1e-12): {ok_uno}")
+print(f"/predict/batch: {valores!r}; referencia: {esperado!r}; coinciden en orden (rel_tol=1e-12): {ok_lote}")
 sys.exit(0 if ok_uno and ok_lote else 1)
 PY
 then
