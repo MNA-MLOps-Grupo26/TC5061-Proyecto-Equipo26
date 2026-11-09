@@ -26,12 +26,22 @@ managed = false
 [tool.ruff]
 line-length = 99
 src = ["mibici"]
-include = ["pyproject.toml", "mibici/**/*.py", "tests/**/*.py", "validacion_datos/**/*.py"]
+include = [
+    "pyproject.toml",
+    "mibici/**/*.py",
+    "tests/**/*.py",
+    "validacion_datos/**/*.py",
+    "api/**/*.py",
+    "scripts/**/*.py",
+]
 
 [tool.ruff.lint]
 extend-select = ["I"]  # Add import sorting
 
 [tool.ruff.lint.isort]
-known-first-party = ["mibici", "validacion_datos"]
+known-first-party = ["mibici", "validacion_datos", "api", "scripts"]
 force-sort-within-sections = true
 
+[tool.pytest.ini_options]
+# La raíz del repo en sys.path para importar api/ y scripts/ en las pruebas.
+pythonpath = ["."]

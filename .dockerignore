@@ -1,0 +1,32 @@
+# Contexto de build del Containerfile (Docker y Podman leen .dockerignore).
+# La imagen solo copia api/ y el modelo exportado (models/p1 por defecto); todo lo
+# demás se excluye para no enviar datos, almacenes de MLflow ni credenciales.
+.git
+.gitignore
+.venv
+venv
+.env
+.env.*
+data
+mlartifacts
+mlruns
+mlflow.db
+notebooks
+docs
+reports
+references
+manifests
+tests
+validacion_datos
+mibici
+scripts
+constraints
+**/__pycache__
+**/*.py[cod]
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.DS_Store
+*.csv
+*.parquet
+*.ipynb

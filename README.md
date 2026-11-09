@@ -60,6 +60,11 @@ de MLflow; si MiBici modifica un archivo, cambia la versión.
 ├── requirements.in    <- Dependencias directas (se editan aquí)
 ├── requirements.txt   <- Versiones exactas de todas las dependencias
 ├── .python-version    <- Versión de Python del proyecto (3.13)
+├── Containerfile      <- Imagen OCI del servicio P1 (Docker; compatible con Podman)
+├── .dockerignore      <- Contexto de build mínimo (lo leen Docker y Podman)
+├── api                <- Servicio FastAPI de P1 (pendiente; ver docs/especificacion-api-p1.md)
+├── scripts            <- registrar_p1.py, exportar_modelo.py y probar_contenedor.sh
+├── constraints        <- requirements.txt sin -e . para compilar api/requirements.txt
 ├── data               <- No se versiona
 │   ├── external       <- Datos de terceros
 │   ├── interim        <- Datos intermedios
@@ -426,6 +431,209 @@ variar entre sistemas operativos aunque el contenido sea el mismo. Si la ingesta
 modifica ese valor en `manifests/mibici_processed.json`, el run queda con
 `git_dirty=true`. `data_version` no cambia, porque se calcula con los CSV
 originales.
+
+## Servicio de predicción P1 (API REST en contenedor)
+
+Actividad 8: el modelo de demanda P1 se sirve como API REST con FastAPI dentro de
+un contenedor OCI. El procedimiento principal usa Docker; el mismo `Containerfile`
+es compatible con Podman.
+
+**Estado:** el modelo está recuperado del Model Registry y exportado. La
+infraestructura del contenedor está **preparada, pendiente de integración** con la
+API. **La API (`api/`) está pendiente** y se
+implementa según la [especificación](docs/especificacion-api-p1.md). Hasta que exista,
+la imagen no se puede construir. La prueba dentro del contenedor y su captura
+también están pendientes.
+
+### Estrategia de despliegue
+
+- **Modelo servido:** P1, salidas esperadas por estación el día siguiente. Sus 18
+  variables son numéricas con rangos claros y la salida es un número no negativo,
+  lo que permite un contrato de validación estricto.
+- **Recuperación del modelo:** se descarga del Model Registry de MLflow por nombre y
+  versión numérica (el alias `champion` se resuelve una sola vez) y se **empaqueta
+  en la imagen** junto con `registry.json`, que guarda su linaje y el SHA-256 de cada
+  archivo. El contenedor no depende de que el servidor de MLflow esté encendido y
+  la imagen es reproducible en cualquier máquina.
+- **Tipo de inferencia:** el caso de uso es un pronóstico diario por estación, que
+  encaja con inferencia por lotes. El servicio atiende peticiones en línea bajo
+  demanda (`/predict`) y ofrece `/predict/batch` (hasta 500 registros) para la
+  corrida diaria de todas las estaciones activas.
+
+### Modelo servido y linaje
+
+| Campo | Valor |
+|---|---|
+| Modelo registrado / versión / alias | `mibici-equipo26-p1-demand` / `1` / `champion` |
+| Run | `51ef51ad5b534386a3c020692887c6bc` (`p1-hgb-lr0.05-it300`) |
+| Logged model | `m-8917791035574d139539ba27ae896ad4` |
+| Commit / árbol | `8c7c709` (merge del PR #10) / `git_dirty=false` |
+| Datos | `data_version` `cd917f9aa025`; 14 Parquet de viajes y `estaciones.parquet` verificados por SHA-256 contra el manifiesto |
+| Almacén MLflow | `mlflow-p1-store-20261107`, fuera del repositorio (no se versiona) |
+| Reproducción de | run `9d55326449364961b1cbc585ac28cefe`, logged model `m-a1ba41ed76654e6fa8eb2fd611b2bd88` (registro del 24 de octubre, almacén no disponible) |
+
+El registro del 24 de octubre se hizo en un almacén local que ya no existe, así que
+el modelo se reentrenó desde el commit fuente en un clon y un almacén nuevos.
+La nueva corrida coincide con los 16 parámetros y las tres métricas de validación
+publicadas. Su digest de entrenamiento es e3b4786b, frente a 10f3651e del original.
+La causa no está identificada; no se afirma identidad del conjunto de entrenamiento
+ni del binario original. La investigación queda pendiente y no bloquea la API.
+
+Evidencia en [docs/evidencia-api/](docs/evidencia-api/):
+[recibo del almacén y la reproducción](docs/evidencia-api/recibo-registro-p1.json),
+[metadatos de la exportación](docs/evidencia-api/exportacion-registry.json) y
+[predicciones de referencia del modelo exportado](docs/evidencia-api/prediccion-referencia.json),
+calculadas sin API para las peticiones de ejemplo.
+
+### Componentes
+
+| Archivo | Función | Estado |
+|---|---|---|
+| `scripts/exportar_modelo.py` | Registry → directorio nuevo `models/p1` con `registry.json` (hashes y linaje) | Listo |
+| `scripts/registrar_p1.py` | Registro seguro de un run concreto en un almacén nuevo (solo para reproducir desde cero) | Listo |
+| `constraints/base.txt` | `requirements.txt` sin la línea `-e .`, para usarlo como restricción | Listo |
+| `Containerfile`, `.dockerignore` | Imagen con usuario no root; copia `api/` y el modelo exportado | Preparado, pendiente de integración |
+| `scripts/probar_contenedor.sh` | Build, ejecución y prueba de aceptación del contenedor con evidencia y captura | Preparado, pendiente de integración |
+| `docs/evidencia-api/peticion-*.json` | Peticiones de ejemplo (filas reales del panel de P1) | Listo |
+| `api/` | Servicio FastAPI | Pendiente ([especificación](docs/especificacion-api-p1.md)) |
+
+### Construir y ejecutar con Docker (almacén entregado)
+
+Requiere que `api/` ya exista. Desde la raíz del repositorio, con el entorno del
+proyecto activo y Docker en ejecución (`docker info` debe responder sin error).
+
+**Atajo para los pasos 3 a 6:** `bash scripts/probar_contenedor.sh`. En macOS abre
+Docker Desktop si no responde, construye la imagen, levanta el contenedor en
+`127.0.0.1:8000`, comprueba el usuario no root y que el modelo y la API sean de solo
+lectura, exige HTTP 200 en `/health`, `/predict` y `/predict/batch`, exige un 422
+ante una petición incoherente y exige que las predicciones sean idénticas a la
+[referencia](docs/evidencia-api/prediccion-referencia.json). Si cualquier comprobación
+falla, termina con código distinto de 0 y no toma la captura. Guarda la salida en
+`docs/evidencia-api/contenedor-docker.txt` y el log del build en
+`docs/evidencia-api/contenedor-docker-build.log`, y en Terminal.app toma la captura
+de la ventana. Nunca sobrescribe evidencia ni toca un contenedor existente con el
+mismo nombre o un puerto ocupado. Para Podman: `MOTOR=podman bash
+scripts/probar_contenedor.sh`.
+
+1. **Levantar el registry** del almacén aislado (terminal 1; puerto libre y rutas
+   absolutas, sin tocar otros servidores):
+
+   ```bash
+   STORE="$(cd .. && pwd)/mlflow-p1-store-20261107"
+   mlflow server --backend-store-uri "sqlite:///$STORE/mlflow.db" \
+     --artifacts-destination "$STORE/mlartifacts" --host 127.0.0.1 --port 5055 --workers 1
+   ```
+
+2. **Exportar el modelo** a un directorio nuevo (terminal 2). El script se niega a
+   sobrescribir: si `models/p1` ya existe, úsenlo tal cual o elijan otro destino y
+   pásenlo después con `--build-arg MODEL_DIR=<destino>`. Quien no tenga el almacén
+   puede recibir la carpeta `models/p1/` completa: al arrancar, la API verifica sus
+   hashes contra `registry.json`.
+
+   ```bash
+   python scripts/exportar_modelo.py --tracking-uri http://127.0.0.1:5055 \
+     --destino models/p1 --recibo-almacen docs/evidencia-api/recibo-registro-p1.json
+   ```
+
+3. **Construir la imagen:**
+
+   ```bash
+   docker build -f Containerfile -t mibici-p1-api:1 .
+   ```
+
+   Si la etiqueta `python:3.13.16-slim` no está disponible, usen
+   `--build-arg PYTHON_IMAGE=python:3.13-slim`.
+
+4. **Ejecutar el contenedor** publicando el puerto de forma explícita:
+
+   ```bash
+   docker run -d --name mibici-p1-api -p 127.0.0.1:8000:8000 mibici-p1-api:1
+   docker logs mibici-p1-api
+   ```
+
+5. **Consumir la API:**
+
+   ```bash
+   curl -s http://127.0.0.1:8000/health
+   curl -s -X POST http://127.0.0.1:8000/predict \
+     -H "Content-Type: application/json" -d @docs/evidencia-api/peticion-predict.json
+   curl -s -X POST http://127.0.0.1:8000/predict/batch \
+     -H "Content-Type: application/json" -d @docs/evidencia-api/peticion-batch.json
+   ```
+
+6. **Captura para la entrega:** en una sola terminal ejecuten `docker ps --filter
+   name=mibici-p1-api` (debe verse el contenedor con el puerto
+   `127.0.0.1:8000->8000/tcp`) y luego el `curl` de `/predict`. Guarden la captura
+   como `docs/evidencia-api/captura-contenedor.png`.
+
+7. **Detener:** `docker stop mibici-p1-api && docker rm mibici-p1-api`.
+
+Con Podman los comandos son los mismos cambiando `docker` por `podman`. Ambos leen
+`.dockerignore`.
+
+Al arrancar, MLflow avisará que el modelo declara `mlflow==3.17.1` (y `psutil`,
+`pytest` y `rich`, que MLflow infirió al guardarlo) mientras el servicio usa
+3.17.2. Los metadatos del modelo no se modifican para ocultar el aviso; la carga
+y las predicciones se verificaron idénticas con ambas versiones.
+
+### Pruebas del registrador
+
+```bash
+python -m pytest tests/test_registrar_p1.py
+```
+
+Usan almacenes SQLite temporales y nunca tocan el almacén entregado. Cubren el modo
+de revisión, el registro con alias, la reutilización de un registro que ya coincide,
+parámetros distintos, métricas NaN o infinitas, conflictos de versión o alias y un
+fallo de servidor simulado, que detiene el script sin escribir.
+
+### Reproducir el modelo desde cero (clon y almacén independientes)
+
+Solo es necesario si no tienen el almacén entregado. Todo ocurre en un clon nuevo y
+en un almacén nuevo: **no ejecuten `ingest` en la copia de trabajo del equipo ni
+sobre sus datos**, porque la ingesta reescribe `data/` y puede cambiar
+`manifests/mibici_processed.json` (ver el caveat de la
+[evidencia del 24 de octubre](docs/evidence/2026-10-24-final/README.md)).
+
+```bash
+# 1. Clon nuevo y árbol de trabajo en el commit del entrenamiento
+git clone https://github.com/MNA-MLOps-Grupo26/TC5061-Proyecto-Equipo26.git p1-repro
+cd p1-repro
+git worktree add ../p1-repro-8c7c709 8c7c709feb1a118f1a87a931e4a362492fa3f744
+
+# 2. Almacén nuevo y exclusivo fuera de los repositorios. mktemp -d crea siempre una
+#    carpeta nueva con sufijo aleatorio; si falla, && impide arrancar el servidor.
+STORE="$(mktemp -d "$HOME/mlflow-p1-repro-XXXXXX")" && echo "Almacén nuevo: $STORE" && \
+  mlflow server --backend-store-uri "sqlite:///$STORE/mlflow.db" \
+    --artifacts-destination "$STORE/mlartifacts" --host 127.0.0.1 --port 5056 --workers 1
+# En otra terminal: crear el experimento en el servidor para que los artefactos
+# queden como mlflow-artifacts:/ y no como rutas file:// locales
+python -c "from mlflow import MlflowClient; MlflowClient('http://127.0.0.1:5056').create_experiment('mibici-equipo26')"
+
+# 3. Entorno, ingesta en el clon nuevo y entrenamiento del candidato
+cd ../p1-repro-8c7c709
+uv venv --python 3.13.16 && source .venv/bin/activate && uv pip install -r requirements.txt
+export MLFLOW_TRACKING_URI=http://127.0.0.1:5056
+mlflow run . -e ingest --env-manager local --experiment-name mibici-equipo26
+git status --porcelain   # debe quedar vacío; si cambió el manifiesto, el run tendrá git_dirty=true
+mlflow run . -e train -P question=P1 -P model=hgb --env-manager local --experiment-name mibici-equipo26
+
+# 4. Registrar el run concreto (primero en modo revisión) y exportar, desde el clon en main
+cd ../p1-repro
+python scripts/registrar_p1.py --tracking-uri http://127.0.0.1:5056 --run-id <RUN_ID>
+python scripts/registrar_p1.py --tracking-uri http://127.0.0.1:5056 --run-id <RUN_ID> --aplicar
+python scripts/exportar_modelo.py --tracking-uri http://127.0.0.1:5056 --destino models/p1 \
+  --esperar-version <VERSION> --esperar-run-id <RUN_ID> --esperar-logged-model-id <MODEL_ID>
+```
+
+`<RUN_ID>` es el run `p1-hgb-lr0.05-it300` que aparece en la UI del servidor.
+`registrar_p1.py` no lo elige por nombre: verifica ese run concreto (16
+parámetros, tres métricas de validación finitas con tolerancia 1e-9 y un único
+logged model), reutiliza un registro que ya coincida y se detiene sin cambios ante
+cualquier conflicto, por ejemplo si `champion` ya apunta a otra versión. Si los
+datos de MiBici cambiaron desde la entrega, `data_version` no coincidirá y el
+script se detendrá. Si no puede consultar MLflow (conexión, permisos o error del
+servidor), también se detiene sin escribir.
 
 ## Flujo de trabajo con Git
 

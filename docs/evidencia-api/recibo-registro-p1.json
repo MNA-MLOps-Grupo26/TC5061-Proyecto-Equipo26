@@ -1,0 +1,344 @@
+{
+  "descripcion": "La nueva corrida coincide con los 16 parámetros y las tres métricas de validación publicadas. Su digest de entrenamiento es e3b4786b, frente a 10f3651e del original. La causa no está identificada; no se afirma identidad del conjunto de entrenamiento ni del binario original.",
+  "generado_utc": "2026-11-07T17:44:31+00:00",
+  "almacen": {
+    "id": "mlflow-p1-store-20261107",
+    "ubicacion": "week08/mlflow-p1-store-20261107 (carpeta hermana del clon del repositorio, fuera de él)",
+    "fuera_de_repositorios": true,
+    "origen": "almacén creado el 2026-11-07 en un directorio temporal de la VM Linux de la sesión; copiado con la API de respaldo de SQLite sin procesos escribiendo (sin archivos WAL ni journal)",
+    "mlflow_db_sha256": "bb138f430337ddd781bec7c1f04dcd52771fdbc629c1dcb876b1a97c81622b71",
+    "mlflow_db_integrity_check": "ok",
+    "mlflow_db_volcado_logico_sha256": "aee018eec1a95d905c671bb44c23af16cb77f2ba917d835850414ea5ced7b9b8",
+    "volcado_logico_igual_a_la_fuente": true,
+    "artefactos": {
+      "n_archivos": 17,
+      "iguales_a_la_fuente": true,
+      "sha256": {
+        "1/51ef51ad5b534386a3c020692887c6bc/artifacts/config/config.py": "dac368681950f77b8eda3c882ce248a1b7cd9701236086a16d7ddbbccd76038a",
+        "1/51ef51ad5b534386a3c020692887c6bc/artifacts/config/run_config.json": "38456910429c3b936bda082c62740f24e2e7260301dc827c838a20f674d27412",
+        "1/51ef51ad5b534386a3c020692887c6bc/artifacts/data/mibici_downloads.json": "28e57796dab5b51fabe84dc35cc79e5f60b0fd9f2b56ccb07b49547b7980269a",
+        "1/51ef51ad5b534386a3c020692887c6bc/artifacts/data/mibici_processed.json": "8b548cf463c7a4d3279d73342cb3c2c181f2153b76704305f151c85c14330864",
+        "1/51ef51ad5b534386a3c020692887c6bc/artifacts/plots/p1-hgb-lr0.05-it300-test-grafica.png": "be7b7d0b1d73e52b91d8ac88b994c28aba5f57a05fc964730172687e429572ba",
+        "1/51ef51ad5b534386a3c020692887c6bc/artifacts/plots/p1-hgb-lr0.05-it300-test-real-vs-predicho.png": "03c4ecb88d23d4ba2cb07ebbbedbcb160e3ba65b2bb3f917325312a211c7f132",
+        "1/51ef51ad5b534386a3c020692887c6bc/artifacts/plots/p1-hgb-lr0.05-it300-validation-grafica.png": "8515b07cdea7964b55975926ce4f7938c2ac71ce8c7c40490dc63e8044916b27",
+        "1/51ef51ad5b534386a3c020692887c6bc/artifacts/plots/p1-hgb-lr0.05-it300-validation-real-vs-predicho.png": "d026d42331d7bfebd1958ea6f63a8ab49def4ae9efc8167c79f86eaf7cb570d6",
+        "1/51ef51ad5b534386a3c020692887c6bc/artifacts/tables/p1-hgb-lr0.05-it300-test-predicciones.csv": "c7b2763573bd98f06ac2bf80c845a1ecb3d26126aac592aea145f1f0bd5a2a11",
+        "1/51ef51ad5b534386a3c020692887c6bc/artifacts/tables/p1-hgb-lr0.05-it300-validation-predicciones.csv": "203c9a19770e59180bcf41bbf73595c645b1ebe5457efceac297e76f6934f6ec",
+        "1/models/m-8917791035574d139539ba27ae896ad4/artifacts/MLmodel": "e5a60a6a2904140487f92ebf912165f867d48894f1928dea984a87709fc03f7c",
+        "1/models/m-8917791035574d139539ba27ae896ad4/artifacts/conda.yaml": "2084914cec0bdee1a92819aceed3385d3862211919833173a5dfdb3f105a6f90",
+        "1/models/m-8917791035574d139539ba27ae896ad4/artifacts/input_example.json": "91bbe5a8dcd638ea6e5ebc3bb1b70886c8060d09fa6f4a56079cb0c4a165143a",
+        "1/models/m-8917791035574d139539ba27ae896ad4/artifacts/model.skops": "2cac5ef209865bf0eb70a388c594dfd4791dfab73b51088802a3df07dbb09fae",
+        "1/models/m-8917791035574d139539ba27ae896ad4/artifacts/python_env.yaml": "2bbb76ab1fd0255c388c0bee599ec8ab2a574a42d45d885f5a48d69cb0c5c9c7",
+        "1/models/m-8917791035574d139539ba27ae896ad4/artifacts/requirements.txt": "133608160d0e654698a86e4bdc1d53f3b4d744a4768aedc53e747bdd753a5c13",
+        "1/models/m-8917791035574d139539ba27ae896ad4/artifacts/serving_input_example.json": "0f417eda13f597fee587e2457f5058fd9373f2928bcdbe19da0480ff83a6cb4d"
+      }
+    },
+    "experimento": {
+      "id": "1",
+      "nombre": "mibici-equipo26",
+      "artifact_location": "mlflow-artifacts:/1"
+    },
+    "copia_no_aislada_previa": {
+      "ubicacion": "week08/TC5061-Proyecto-Equipo26/mlflow.db y mlartifacts/ (ignorados por Git)",
+      "mlflow_db_sha256": "c27afd173d9779f7fd0d250ab713cdd8e7e5c9f4684233e1bae7b2e0c0da3d1a",
+      "estado": "byte a byte igual a la fuente; no se usa como referencia y no se modificó"
+    }
+  },
+  "identificadores": {
+    "modelo_registrado": "mibici-equipo26-p1-demand",
+    "version": "1",
+    "alias": "champion",
+    "alias_resuelve_a": "1",
+    "run_id": "51ef51ad5b534386a3c020692887c6bc",
+    "run_name": "p1-hgb-lr0.05-it300",
+    "logged_model_id": "m-8917791035574d139539ba27ae896ad4",
+    "model_version_model_id_campo": null,
+    "source": "models:/m-8917791035574d139539ba27ae896ad4",
+    "experiment_id": "1",
+    "logged_model_artifact_location": "mlflow-artifacts:/1/models/m-8917791035574d139539ba27ae896ad4/artifacts"
+  },
+  "codigo": {
+    "repositorio": "https://github.com/MNA-MLOps-Grupo26/TC5061-Proyecto-Equipo26",
+    "commit": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+    "git_dirty": "false",
+    "arbol": "clon nuevo en el commit, git status --porcelain vacío antes y después del entrenamiento",
+    "comando": "mlflow run . -e train -P question=P1 -P model=hgb --env-manager local --experiment-name mibici-equipo26"
+  },
+  "entorno_de_entrenamiento": {
+    "python": "3.13.16",
+    "plataforma": "Linux aarch64 (VM de la sesión)",
+    "paquetes": {
+      "mlflow": "3.17.1",
+      "scikit-learn": "1.9.1",
+      "pandas": "3.0.6",
+      "numpy": "2.5.4",
+      "pyarrow": "25.0.1",
+      "skops": "0.16.0"
+    },
+    "hilos": "OMP_NUM_THREADS=MKL_NUM_THREADS=OPENBLAS_NUM_THREADS=2"
+  },
+  "fuentes_verificadas": {
+    "manifiesto": "manifests/mibici_processed.json (igual en 8c7c709 y en HEAD)",
+    "manifiesto_sha256": "8b548cf463c7a4d3279d73342cb3c2c181f2153b76704305f151c85c14330864",
+    "data_version": "cd917f9aa025",
+    "archivos": [
+      {
+        "archivo": "datos_abiertos_2025_08.parquet",
+        "sha256": "eb1d81f34a3829cc1e62dfc110c5d3f06f4f1243ef6b80c2a65d7ddb0d9a45f6",
+        "coincide_con_manifiesto": true
+      },
+      {
+        "archivo": "datos_abiertos_2025_09.parquet",
+        "sha256": "03a614bfbdae8190f57260fa0aacf8456a34d90e603f273e36c10560b46060e7",
+        "coincide_con_manifiesto": true
+      },
+      {
+        "archivo": "datos_abiertos_2025_10.parquet",
+        "sha256": "1eaa3056abe4dffea2969cd0b2ea63ac13e0b03d04d1c67cb69a09ee478bd390",
+        "coincide_con_manifiesto": true
+      },
+      {
+        "archivo": "datos_abiertos_2025_11.parquet",
+        "sha256": "850a4a8e0f2eca0a4c033da3d6a80b23e54a829e2db98ee16cb3dc9d8b6bb0ba",
+        "coincide_con_manifiesto": true
+      },
+      {
+        "archivo": "datos_abiertos_2025_12.parquet",
+        "sha256": "becde4edf214adb82e2db1c324c06c5ab149266ad8abbff378786df48b3ef080",
+        "coincide_con_manifiesto": true
+      },
+      {
+        "archivo": "datos_abiertos_2026_01.parquet",
+        "sha256": "63d82edc996d8ba2709f99d3d558708988b288df68f8819e4c19d6ae1ee5d78e",
+        "coincide_con_manifiesto": true
+      },
+      {
+        "archivo": "datos_abiertos_2026_02.parquet",
+        "sha256": "9189df7f0a737e807687893f4dec87d62befe4020e83cd3e676df61fcc5983b7",
+        "coincide_con_manifiesto": true
+      },
+      {
+        "archivo": "datos_abiertos_2026_03.parquet",
+        "sha256": "a86f62eb61ff7e4771647a91e3f241ceaae82025e0e3be15f8b2a58faee4376d",
+        "coincide_con_manifiesto": true
+      },
+      {
+        "archivo": "datos_abiertos_2026_04.parquet",
+        "sha256": "1ac7dbc50c8f695b7cd84df65185d75c11fde2f99b1b7535c1083620a550347c",
+        "coincide_con_manifiesto": true
+      },
+      {
+        "archivo": "datos_abiertos_2026_05.parquet",
+        "sha256": "038cd0bc79ed602d8acfa30b828723688570ea31a22e42cbd581c90a16ec02c9",
+        "coincide_con_manifiesto": true
+      },
+      {
+        "archivo": "datos_abiertos_2026_06.parquet",
+        "sha256": "b544764647458b8743e29e7b0ba755de567208cda4884ac9138ff9624728daa9",
+        "coincide_con_manifiesto": true
+      },
+      {
+        "archivo": "datos_abiertos_2026_07.parquet",
+        "sha256": "f7243ecb744c53c8adeff654ac152cc2d109e5f8a824eea208c9d3563f74d9b2",
+        "coincide_con_manifiesto": true
+      },
+      {
+        "archivo": "datos_abiertos_2026_08.parquet",
+        "sha256": "2c747257b7c9c7f6a48c4bc4f373d5a308f4d2f0cca840a82fcaeefb561a0a4d",
+        "coincide_con_manifiesto": true
+      },
+      {
+        "archivo": "datos_abiertos_2026_09.parquet",
+        "sha256": "6eecaf2eca7386fd1b2ad0bfcf14af116196ae0d054a6e610ff02ab0e8c7873d",
+        "coincide_con_manifiesto": true
+      },
+      {
+        "archivo": "estaciones.parquet",
+        "sha256": "80ef17e6566e9a1821896e9739a19fc765c8590f27660488267606ed5a56afce",
+        "coincide_con_manifiesto": true
+      }
+    ]
+  },
+  "comparacion_con_la_entrega_publicada": {
+    "fuente": "docs/evidence/2026-10-24-final/registration-evidence.json",
+    "parametros": [
+      {
+        "parametro": "train_start",
+        "original": "2025-08-01",
+        "nuevo": "2025-08-01",
+        "igual": true
+      },
+      {
+        "parametro": "validation_start",
+        "original": "2026-08-01",
+        "nuevo": "2026-08-01",
+        "igual": true
+      },
+      {
+        "parametro": "test_start",
+        "original": "2026-09-01",
+        "nuevo": "2026-09-01",
+        "igual": true
+      },
+      {
+        "parametro": "data_end_exclusive",
+        "original": "2026-10-01",
+        "nuevo": "2026-10-01",
+        "igual": true
+      },
+      {
+        "parametro": "data_version",
+        "original": "cd917f9aa025",
+        "nuevo": "cd917f9aa025",
+        "igual": true
+      },
+      {
+        "parametro": "random_seed",
+        "original": "42",
+        "nuevo": "42",
+        "igual": true
+      },
+      {
+        "parametro": "loss",
+        "original": "poisson",
+        "nuevo": "poisson",
+        "igual": true
+      },
+      {
+        "parametro": "learning_rate",
+        "original": "0.05",
+        "nuevo": "0.05",
+        "igual": true
+      },
+      {
+        "parametro": "max_iter",
+        "original": "300",
+        "nuevo": "300",
+        "igual": true
+      },
+      {
+        "parametro": "max_leaf_nodes",
+        "original": "31",
+        "nuevo": "31",
+        "igual": true
+      },
+      {
+        "parametro": "min_samples_leaf",
+        "original": "50",
+        "nuevo": "50",
+        "igual": true
+      },
+      {
+        "parametro": "early_stopping",
+        "original": "False",
+        "nuevo": "False",
+        "igual": true
+      },
+      {
+        "parametro": "horizonte_dias",
+        "original": "1",
+        "nuevo": "1",
+        "igual": true
+      },
+      {
+        "parametro": "n_variables",
+        "original": "18",
+        "nuevo": "18",
+        "igual": true
+      },
+      {
+        "parametro": "fit",
+        "original": "train_only",
+        "nuevo": "train_only",
+        "igual": true
+      },
+      {
+        "parametro": "selection_metric",
+        "original": "val_wape",
+        "nuevo": "val_wape",
+        "igual": true
+      }
+    ],
+    "todos_los_parametros_iguales": true,
+    "metricas_validacion": [
+      {
+        "metrica": "val_mae",
+        "original": 4.851352276716691,
+        "nuevo": 4.851352276716691,
+        "diferencia_absoluta": 0.0,
+        "pasa_atol_1e-9": true
+      },
+      {
+        "metrica": "val_rmse",
+        "original": 8.171478370762053,
+        "nuevo": 8.171478370762053,
+        "diferencia_absoluta": 0.0,
+        "pasa_atol_1e-9": true
+      },
+      {
+        "metrica": "val_wape",
+        "original": 0.17812945580458703,
+        "nuevo": 0.17812945580458703,
+        "diferencia_absoluta": 0.0,
+        "pasa_atol_1e-9": true
+      }
+    ],
+    "todas_las_metricas_pasan": true,
+    "digest_entrenamiento": {
+      "original": "10f3651e",
+      "nuevo": [
+        "e3b4786b"
+      ],
+      "iguales": false,
+      "causa": "no identificada; investigación pendiente, no bloquea la API"
+    }
+  },
+  "reproduction_of": {
+    "run_id": "9d55326449364961b1cbc585ac28cefe",
+    "logged_model_id": "m-a1ba41ed76654e6fa8eb2fd611b2bd88",
+    "registro_original": "mibici-equipo26-p1-demand versión 1 @champion (almacén aislado del 2026-10-24, no disponible)",
+    "git_dirty_original": "true (documentado en docs/evidence/2026-10-24-final/README.md, sección del manifiesto)"
+  },
+  "carga_con_mlflow_3_17_2": {
+    "mlflow_cliente": "3.17.2",
+    "servidor": "mlflow 3.17.2 sobre la fuente",
+    "uri": "models:/mibici-equipo26-p1-demand/1",
+    "alias_resuelve": true,
+    "firma_18_variables": [
+      "salidas_lag1",
+      "llegadas_lag1",
+      "saldo_lag1",
+      "salidas_lag7",
+      "salidas_media7",
+      "salidas_media28",
+      "llegadas_media7",
+      "llegadas_media28",
+      "salidas_mismo_dia_media4",
+      "dias_historia",
+      "dias_desde_ultimo_viaje",
+      "dia_semana",
+      "es_fin_semana",
+      "mes",
+      "dia_mes",
+      "capacidad",
+      "latitud",
+      "longitud"
+    ],
+    "prediccion_input_example": [
+      39.91381664686928,
+      28.294861264820828,
+      45.40944131280361,
+      54.03542940262846,
+      56.46973649596071
+    ],
+    "prediccion_con_mlflow_3_17_1": [
+      39.91381664686928,
+      28.294861264820828,
+      45.40944131280361,
+      54.03542940262846,
+      56.46973649596071
+    ],
+    "identicas": true,
+    "aviso": "el modelo declara mlflow==3.17.1 en sus requirements; se conserva sin cambios"
+  }
+}
