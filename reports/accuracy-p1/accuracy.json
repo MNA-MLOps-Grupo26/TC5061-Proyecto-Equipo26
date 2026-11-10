@@ -1,0 +1,140 @@
+{
+  "model": {
+    "nombre": "mibici-equipo26-p1-demand",
+    "version": "1",
+    "alias_consultado": "champion",
+    "uri_descargada": "models:/mibici-equipo26-p1-demand/1",
+    "run_id": "51ef51ad5b534386a3c020692887c6bc",
+    "logged_model_id": "m-8917791035574d139539ba27ae896ad4",
+    "source": "models:/m-8917791035574d139539ba27ae896ad4",
+    "source_sha": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+    "git_dirty": "false",
+    "data_version": "cd917f9aa025",
+    "mlflow_version_del_modelo": "3.17.1"
+  },
+  "model_sha256": "2cac5ef209865bf0eb70a388c594dfd4791dfab73b51088802a3df07dbb09fae",
+  "method": "Unchanged model; daily one-step rolling observed history; no fitting or tuning. September previously examined. October minus September deltas.",
+  "cohorts": {
+    "all_stations": {
+      "september": {
+        "n": 14119,
+        "stations": 471,
+        "days": 30,
+        "mae": 7.487992599450225,
+        "rmse": 13.745461392914946,
+        "wape": 0.2160711541489887,
+        "bias_prediction_minus_actual": -3.987627912821069,
+        "actual_mean": 34.65521637509739
+      },
+      "october": {
+        "n": 14618,
+        "stations": 473,
+        "days": 31,
+        "mae": 8.054406442839335,
+        "rmse": 15.891006470864005,
+        "wape": 0.18526307128976108,
+        "bias_prediction_minus_actual": -3.9076860550677495,
+        "actual_mean": 43.47550964564236
+      },
+      "delta": {
+        "mae": 0.5664138433891104,
+        "rmse": 2.145545077949059,
+        "wape": -0.03080808285922762
+      },
+      "baseline_september": {
+        "n": 14119,
+        "stations": 471,
+        "days": 30,
+        "mae": 8.639239086809736,
+        "rmse": 15.420399922151162,
+        "wape": 0.2492911599021998,
+        "bias_prediction_minus_actual": -5.360430389309914,
+        "actual_mean": 34.65521637509739
+      },
+      "baseline_october": {
+        "n": 14618,
+        "stations": 473,
+        "days": 31,
+        "mae": 8.50338053541296,
+        "rmse": 15.28459847780899,
+        "wape": 0.19559012889605706,
+        "bias_prediction_minus_actual": -4.001095681123729,
+        "actual_mean": 43.47550964564236
+      }
+    },
+    "common_stations": {
+      "september": {
+        "n": 14119,
+        "stations": 471,
+        "days": 30,
+        "mae": 7.487992599450225,
+        "rmse": 13.745461392914946,
+        "wape": 0.2160711541489887,
+        "bias_prediction_minus_actual": -3.987627912821069,
+        "actual_mean": 34.65521637509739
+      },
+      "october": {
+        "n": 14601,
+        "stations": 471,
+        "days": 31,
+        "mae": 8.058219270970515,
+        "rmse": 15.89815162342574,
+        "wape": 0.18518446284514584,
+        "bias_prediction_minus_actual": -3.9087758427221155,
+        "actual_mean": 43.51455379768509
+      },
+      "delta": {
+        "mae": 0.5702266715202899,
+        "rmse": 2.1526902305107942,
+        "wape": -0.03088669130384286
+      },
+      "baseline_september": {
+        "n": 14119,
+        "stations": 471,
+        "days": 30,
+        "mae": 8.639239086809736,
+        "rmse": 15.420399922151162,
+        "wape": 0.2492911599021998,
+        "bias_prediction_minus_actual": -5.360430389309914,
+        "actual_mean": 34.65521637509739
+      },
+      "baseline_october": {
+        "n": 14601,
+        "stations": 471,
+        "days": 31,
+        "mae": 8.507465242106704,
+        "rmse": 15.290795851695698,
+        "wape": 0.1955085023199592,
+        "bias_prediction_minus_actual": -4.000958838435723,
+        "actual_mean": 43.51455379768509
+      }
+    }
+  },
+  "exploratory_95pct_7day_block_intervals": {
+    "mae": {
+      "low": -1.0378774611686559,
+      "high": 1.8607850608196743
+    },
+    "rmse": {
+      "low": -0.4334348969333757,
+      "high": 4.190516895581862
+    },
+    "wape": {
+      "low": -0.07280407620316705,
+      "high": -0.003824741025682633
+    }
+  },
+  "uncertainty_limit": "Only 30/31 dates, dependent observations, nonstationarity and calendar composition. Exploratory intervals, not causal proof or a formal independent-sample significance test.",
+  "weekday_reweighted_common_stations": {
+    "september": {
+      "mae": 7.487992599450224,
+      "rmse": 13.745461392914946,
+      "wape": 0.21607115414898867
+    },
+    "october": {
+      "mae": 8.082759284504192,
+      "rmse": 15.930432373110062,
+      "wape": 0.18385329384539892
+    }
+  }
+}
