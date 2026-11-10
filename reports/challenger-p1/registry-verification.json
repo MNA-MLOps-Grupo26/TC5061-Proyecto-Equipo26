@@ -1,0 +1,19 @@
+{
+  "registered_model": "mibici-equipo26-p1-demand",
+  "scope": "isolated_local_comparison_not_canonical",
+  "versions": [
+    {
+      "version": "1",
+      "roundtrip_predictions_match": true,
+      "max_abs_difference": 0.0
+    },
+    {
+      "version": "2",
+      "roundtrip_predictions_match": true,
+      "max_abs_difference": 0.0
+    }
+  ],
+  "aliases": {},
+  "candidate_max_prediction": 7837.608370884685,
+  "candidate_max_actual": 657.0
+}

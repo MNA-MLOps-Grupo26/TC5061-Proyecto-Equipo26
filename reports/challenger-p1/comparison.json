@@ -1,0 +1,84 @@
+{
+  "model_name": "mibici-equipo26-p1-demand",
+  "original_run_id": "51ef51ad5b534386a3c020692887c6bc",
+  "original_sha256": "2cac5ef209865bf0eb70a388c594dfd4791dfab73b51088802a3df07dbb09fae",
+  "challenger": "Median imputation + StandardScaler + PoissonRegressor(alpha=1.0,max_iter=1000)",
+  "train_window": [
+    "2025-08-01",
+    "2026-10-01"
+  ],
+  "train_n": 165857,
+  "train_last_date": "2026-09-30 00:00:00",
+  "evaluation_window": [
+    "2026-10-01",
+    "2026-11-01"
+  ],
+  "evaluation_n": 14618,
+  "metrics": {
+    "old": {
+      "n": 14618,
+      "stations": 473,
+      "days": 31,
+      "mae": 8.054406442839335,
+      "rmse": 15.891006470864005,
+      "wape": 0.18526307128976108,
+      "bias_prediction_minus_actual": -3.9076860550677495,
+      "actual_mean": 43.47550964564236
+    },
+    "new": {
+      "n": 14618,
+      "stations": 473,
+      "days": 31,
+      "mae": 27.474129798448512,
+      "rmse": 208.35600104417736,
+      "wape": 0.6319449736732943,
+      "bias_prediction_minus_actual": 7.5872755905399,
+      "actual_mean": 43.47550964564236
+    }
+  },
+  "candidate_minus_original": {
+    "mae": 19.41972335560918,
+    "rmse": 192.46499457331336,
+    "wape": 0.4466819023835332
+  },
+  "paired_exploratory_95pct_intervals": {
+    "mae": {
+      "low": 16.775932606593173,
+      "high": 21.834521457242307
+    },
+    "rmse": {
+      "low": 156.80099912909645,
+      "high": 223.4525821687702
+    },
+    "wape": {
+      "low": 0.3946086909885824,
+      "high": 0.494302904593316
+    }
+  },
+  "candidate_n_iter": 69,
+  "limitations": [
+    "October was already inspected in drift/accuracy diagnostics; held out from fitting, not pristine confirmatory evidence.",
+    "No hyperparameter search or repeated candidate selection against October.",
+    "Original trained through July; challenger trained through September. Algorithm and training-history changes are confounded.",
+    "Daily one-step rolling observed history, not monthly forecast.",
+    "Single month; moving-week paired bootstrap is exploratory."
+  ],
+  "local_registry": {
+    "scope": "Isolated local comparison; not canonical team registry",
+    "versions": [
+      {
+        "label": "original_export_copy",
+        "version": "1",
+        "run_id": "b6ad396d31044b359d3d1e1222aa9858",
+        "model_uri": "models:/m-2de1762b25684f26aebef4a58ec1a7b6"
+      },
+      {
+        "label": "poisson_challenger",
+        "version": 2,
+        "run_id": "8e1dffe5cb9248959b11f301e51dd950",
+        "model_uri": "models:/m-49d44bd50b7f4be197aaad405aeedb43"
+      }
+    ],
+    "champion_alias_changed": false
+  }
+}
