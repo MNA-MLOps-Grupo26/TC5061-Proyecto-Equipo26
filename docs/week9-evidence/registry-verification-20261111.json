@@ -1,0 +1,29 @@
+{
+  "name": "mibici-equipo26-p1-demand",
+  "version": 3,
+  "run_id": "c9973a366f47463c91f80a509bd074ca",
+  "model_uri": "models:/m-6ab08bf0744d46528302473d5553c940",
+  "tracking_uri": "sqlite:///<local-comparison-registry>/mlflow.db",
+  "scope": "isolated_local_comparison_not_canonical",
+  "prior_versions_preserved": [
+    1,
+    2
+  ],
+  "aliases_modified": false,
+  "signature": {
+    "inputs": "[{\"type\": \"double\", \"name\": \"salidas_lag1\", \"required\": true}, {\"type\": \"double\", \"name\": \"llegadas_lag1\", \"required\": true}, {\"type\": \"double\", \"name\": \"saldo_lag1\", \"required\": true}, {\"type\": \"double\", \"name\": \"salidas_lag7\", \"required\": false}, {\"type\": \"double\", \"name\": \"salidas_media7\", \"required\": true}, {\"type\": \"double\", \"name\": \"salidas_media28\", \"required\": true}, {\"type\": \"double\", \"name\": \"llegadas_media7\", \"required\": true}, {\"type\": \"double\", \"name\": \"llegadas_media28\", \"required\": true}, {\"type\": \"double\", \"name\": \"salidas_mismo_dia_media4\", \"required\": false}, {\"type\": \"double\", \"name\": \"dias_historia\", \"required\": true}, {\"type\": \"double\", \"name\": \"dias_desde_ultimo_viaje\", \"required\": true}, {\"type\": \"double\", \"name\": \"dia_semana\", \"required\": true}, {\"type\": \"double\", \"name\": \"es_fin_semana\", \"required\": true}, {\"type\": \"double\", \"name\": \"mes\", \"required\": true}, {\"type\": \"double\", \"name\": \"dia_mes\", \"required\": true}, {\"type\": \"double\", \"name\": \"capacidad\", \"required\": false}, {\"type\": \"double\", \"name\": \"latitud\", \"required\": false}, {\"type\": \"double\", \"name\": \"longitud\", \"required\": false}]",
+    "outputs": "[{\"type\": \"tensor\", \"tensor-spec\": {\"dtype\": \"float64\", \"shape\": [-1]}}]",
+    "params": null
+  },
+  "max_abs_difference": 0.0,
+  "metrics": {
+    "n": 14618,
+    "stations": 473,
+    "days": 31,
+    "mae": 7.766359766419322,
+    "rmse": 13.861818201448893,
+    "wape": 0.17863757848317163,
+    "bias_prediction_minus_actual": 2.3314146316266644,
+    "actual_mean": 43.47550964564236
+  }
+}

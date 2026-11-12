@@ -772,3 +772,7 @@ El alias `champion` identifica cada versión seleccionada y permite cargarla con
 Los tres aliases actuales apuntan a la versión 1 del registro local; no implican
 un despliegue ni un servicio compartido. La versión y el run conservan el linaje
 auditable. Véase la [justificación del ciclo de vida](docs/evidence/2026-10-24-final/REGISTRATION.md).
+
+## Semana 9: drift y comparación de versiones
+
+Código, evidencia y reproducción en [docs/week9.md](docs/week9.md). Registro alternativo local aislado, sin cambios al modelo servido.

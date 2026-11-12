@@ -1,0 +1,14 @@
+{
+  "design": "Predict correction to prior seven-day average, then clip total demand at zero",
+  "candidates": [
+    "squared_error",
+    "absolute_error"
+  ],
+  "max_iter": 300,
+  "max_leaf_nodes": 31,
+  "min_samples_leaf": 50,
+  "l2_regularization": 10,
+  "learning_rate": 0.05,
+  "selection": "September WAPE; do not choose loss using October",
+  "disclosure": "Iterative retrospective development; October inspected previously, not pristine holdout"
+}
