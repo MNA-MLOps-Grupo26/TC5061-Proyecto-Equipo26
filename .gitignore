@@ -218,3 +218,5 @@ cython_debug/
 .pypirc
 # Explicitly authorized portable Week 9 model; no registry or training data.
 !/models/week9-v3/
+# Isolated monitoring/accuracy environments
+.venv-accuracy/
