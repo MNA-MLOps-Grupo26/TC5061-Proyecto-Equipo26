@@ -1,0 +1,209 @@
+Consolidación de salidas existentes; no es una ejecución nueva.
+Los extractos se identifican expresamente.
+
+=== Suite inicial: extracto del resumen final ===
+=========================== short test summary info ============================
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[ok]
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[redondeo]
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[captura_redondeo]
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[captura_nan]
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[modelo_archivo]
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[modelo_directorio]
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[api_archivo]
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[api_directorio]
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[exec_error]
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[captura_distinta]
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[captura500]
+11 failed, 202 passed, 3 skipped, 3 warnings in 89.43s (0:01:29)
+
+=== ingesta/pytest-bash.txt: salida completa ===
+.............................                                            [100%]
+29 passed in 24.03s
+
+=== ingesta/ruff-check.txt: salida completa ===
+All checks passed!
+
+=== ingesta/ruff-format.txt: salida completa ===
+50 files already formatted
+
+=== p1/04-registro.txt: salida completa ===
+2026/11/15 10:06:32 INFO mlflow.agent.hint: Load the `instrumenting-with-mlflow-tracing` skill at <repo>/.venv/lib/python3.13/site-packages/mlflow/assistant/skills/instrumenting-with-mlflow-tracing/SKILL.md before writing any tracing code; it ships with this MLflow install. Set MLFLOW_DISABLE_AGENT_HINT=1 to silence this.
+Run b77adcb1769d41839eef31f7220522af verificado; logged model m-f99d519f75b64004a62dd05666d13037
+  plan: crear_modelo (mibici-equipo26-p1-demand)
+  plan: crear_version
+  plan: fijar_alias
+Registered model 'mibici-equipo26-p1-demand' already exists. Creating a new version of this model...
+2026/11/15 10:06:33 INFO mlflow.store.model_registry.abstract_store: Waiting up to 300 seconds for model version to finish creation. Model name: mibici-equipo26-p1-demand, version 1
+Created version '1' of model 'mibici-equipo26-p1-demand'.
+Listo: mibici-equipo26-p1-demand versión 1, alias @champion
+
+=== p1/05-exportacion.txt: salida completa ===
+2026/11/15 10:06:33 INFO mlflow.agent.hint: Load the `instrumenting-with-mlflow-tracing` skill at <repo>/.venv/lib/python3.13/site-packages/mlflow/assistant/skills/instrumenting-with-mlflow-tracing/SKILL.md before writing any tracing code; it ships with this MLflow install. Set MLFLOW_DISABLE_AGENT_HINT=1 to silence this.
+Alias mibici-equipo26-p1-demand@champion -> versión 1 (run b77adcb1769d41839eef31f7220522af)
+
+Downloading artifacts:   0%|          | 0/7 [00:00<?, ?it/s]
+Downloading artifacts:  14%|█▍        | 1/7 [00:00<00:00, 130.63it/s]
+Downloading artifacts:  29%|██▊       | 2/7 [00:00<00:00, 201.24it/s]
+Downloading artifacts:  43%|████▎     | 3/7 [00:00<00:00, 298.68it/s]
+Downloading artifacts:  57%|█████▋    | 4/7 [00:00<00:00, 396.54it/s]
+Downloading artifacts:  71%|███████▏  | 5/7 [00:00<00:00, 488.41it/s]
+Downloading artifacts:  86%|████████▌ | 6/7 [00:00<00:00, 567.10it/s]
+Downloading artifacts: 100%|██████████| 7/7 [00:00<00:00, 461.50it/s]
+Downloading artifacts: 100%|██████████| 7/7 [00:00<00:00, 458.74it/s]
+Exportado a <repo>/models/p1 (8 archivos + registry.json)
+Predicción del input_example: [39.9138, 28.2949, 45.4094, 54.0354, 56.4697]
+
+=== p1/06-api-modelo-real.txt: salida completa ===
+..                                                                       [100%]
+=============================== warnings summary ===============================
+tests/test_api_modelo_real.py::test_health_real
+  <repo>/.venv/lib/python3.13/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+2 passed, 1 warning in 1.94s
+
+=== p1/deepchecks-tests.txt: salida completa ===
+...................                                                      [100%]
+=============================== warnings summary ===============================
+../../../../../../tmp/mibici-deepchecks-repro-20261115/lib/python3.11/site-packages/deepchecks/core/serialization/dataframe/html.py:16
+  /tmp/mibici-deepchecks-repro-20261115/lib/python3.11/site-packages/deepchecks/core/serialization/dataframe/html.py:16: UserWarning:
+
+  pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+19 passed, 1 warning in 64.32s (0:01:04)
+
+=== p1/10-deepchecks-real.txt: salida completa ===
+Matplotlib is building the font cache; this may take a moment.
+/tmp/mibici-deepchecks-repro-20261115/lib/python3.11/site-packages/deepchecks/core/serialization/dataframe/html.py:16: UserWarning:
+
+pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+/Users/runner/work/crossbow/crossbow/arrow/cpp/src/arrow/util/cpu_info.cc:239: IOError: sysctlbyname failed for 'hw.l1dcachesize'. Detail: [errno 1] Operation not permitted
+/Users/runner/work/crossbow/crossbow/arrow/cpp/src/arrow/util/cpu_info.cc:239: IOError: sysctlbyname failed for 'hw.l2cachesize'. Detail: [errno 1] Operation not permitted
+/Users/runner/work/crossbow/crossbow/arrow/cpp/src/arrow/util/cpu_info.cc:239: IOError: sysctlbyname failed for 'hw.l3cachesize'. Detail: [errno 1] Operation not permitted
+/Users/runner/work/crossbow/crossbow/arrow/cpp/src/arrow/util/cpu_info.cc:239: IOError: sysctlbyname failed for 'hw.optional.neon'. Detail: [errno 1] Operation not permitted
+[OK  ] 01 Expected Types                   viajes sin particionar       2 columnas con el tipo esperado
+[OK  ] 02 Data Duplicates                  viajes sin particionar (viaje_id) Found 0% duplicate data
+[OK  ] 03 PercentOfNulls                   viajes sin particionar (viaje_id, inicio_viaje) Passed for 2 relevant columns
+[OK  ] 04 Expected Types                   P1 train                     21 columnas con el tipo esperado
+[OK  ] 05 Data Duplicates                  P1 train (estacion_id, fecha) Found 0% duplicate data
+[OK  ] 06 PercentOfNulls                   P1 train llaves, objetivo y calendario Passed for 8 relevant columns
+[OK  ] 07 PercentOfNulls                   P1 train rezagos y catálogo  Passed for 13 relevant columns. Top columns with null ratio: {'salidas_lag7': '1.97%', 'sa
+[OK  ] 08 Mixed Nulls                      P1 train                     Passed for 21 relevant columns
+[OK  ] 09 Mixed Data Types                 P1 train                     21 columns passed: found 0 columns with negligible types mix, and 21 columns without any t
+[OK  ] 10 Single Value in Column           P1 train                     Passed for 18 relevant columns
+[OK  ] 11 Feature Label Correlation        P1 train                     Passed for 18 relevant columns
+[OK  ] 12 Expected Types                   P1 validation                21 columnas con el tipo esperado
+[OK  ] 13 Data Duplicates                  P1 validation (estacion_id, fecha) Found 0% duplicate data
+[OK  ] 14 PercentOfNulls                   P1 validation llaves, objetivo y calendario Passed for 8 relevant columns
+[OK  ] 15 PercentOfNulls                   P1 validation rezagos y catálogo Passed for 13 relevant columns. Top columns with null ratio: {'salidas_lag7': '0.8%', 'sal
+[OK  ] 16 Mixed Nulls                      P1 validation                Passed for 21 relevant columns
+[OK  ] 17 Mixed Data Types                 P1 validation                21 columns passed: found 0 columns with negligible types mix, and 21 columns without any t
+[OK  ] 18 Single Value in Column           P1 validation                Passed for 18 relevant columns
+[OK  ] 19 Feature Label Correlation        P1 validation                Passed for 18 relevant columns
+[OK  ] 20 Expected Types                   P1 test                      21 columnas con el tipo esperado
+[OK  ] 21 Data Duplicates                  P1 test (estacion_id, fecha) Found 0% duplicate data
+[OK  ] 22 PercentOfNulls                   P1 test llaves, objetivo y calendario Passed for 8 relevant columns
+[OK  ] 23 PercentOfNulls                   P1 test rezagos y catálogo   Passed for 13 relevant columns. Top columns with null ratio: {'salidas_lag7': '0.04%', 'sa
+[OK  ] 24 Mixed Nulls                      P1 test                      Passed for 21 relevant columns
+[OK  ] 25 Mixed Data Types                 P1 test                      21 columns passed: found 0 columns with negligible types mix, and 21 columns without any t
+[OK  ] 26 Single Value in Column           P1 test                      Passed for 18 relevant columns
+[OK  ] 27 Feature Label Correlation        P1 test                      Passed for 18 relevant columns
+[OK  ] 28 Date Train-Test Leakage (overlap) P1 train vs validation       No leaked dates found
+[OK  ] 29 Feature Drift                    P1 train vs validation       Passed for 15 columns out of 15 columns. Found column "dia_semana" has the highest categor
+[OK  ] 30 Label Drift                      P1 train vs validation       Label's drift score Kolmogorov-Smirnov is 0.09
+[OK  ] 31 Date Train-Test Leakage (overlap) P1 train vs test             No leaked dates found
+[OK  ] 32 Feature Drift                    P1 train vs test             Passed for 15 columns out of 15 columns. Found column "dia_semana" has the highest categor
+[OK  ] 33 Label Drift                      P1 train vs test             Label's drift score Kolmogorov-Smirnov is 0.04
+[OK  ] 34 Expected Types                   viajes train                 7 columnas con el tipo esperado
+[OK  ] 35 Data Duplicates                  viajes train (viaje_id)      Found 0% duplicate data
+[OK  ] 36 PercentOfNulls                   viajes train todas las columnas Passed for 7 relevant columns
+[OK  ] 37 Mixed Data Types                 viajes train                 7 columns passed: found 0 columns with negligible types mix, and 7 columns without any typ
+[OK  ] 38 Expected Types                   viajes validation            7 columnas con el tipo esperado
+[OK  ] 39 Data Duplicates                  viajes validation (viaje_id) Found 0% duplicate data
+[OK  ] 40 PercentOfNulls                   viajes validation todas las columnas Passed for 7 relevant columns
+[OK  ] 41 Mixed Data Types                 viajes validation            7 columns passed: found 0 columns with negligible types mix, and 7 columns without any typ
+[OK  ] 42 Expected Types                   viajes test                  7 columnas con el tipo esperado
+[OK  ] 43 Data Duplicates                  viajes test (viaje_id)       Found 0% duplicate data
+[OK  ] 44 PercentOfNulls                   viajes test todas las columnas Passed for 7 relevant columns
+[OK  ] 45 Mixed Data Types                 viajes test                  7 columns passed: found 0 columns with negligible types mix, and 7 columns without any typ
+[OK  ] 46 Date Train-Test Leakage (overlap) viajes train vs validation   No leaked dates found
+[OK  ] 47 Feature Drift                    viajes train vs validation   Passed for 5 columns out of 5 columns. Found column "dia_semana" has the highest categoric
+[OK  ] 48 New Category Train Test          viajes train vs validation   Passed for 1 relevant feature. Top features with new categories ratio: {'origen_id': '0.63
+[OK  ] 49 Date Train-Test Leakage (overlap) viajes train vs test         No leaked dates found
+[OK  ] 50 Feature Drift                    viajes train vs test         Passed for 5 columns out of 5 columns. Found column "dia_semana" has the highest categoric
+[OK  ] 51 New Category Train Test          viajes train vs test         Passed for 1 relevant feature. Top features with new categories ratio: {'origen_id': '1.11
+
+51 chequeos | 0 bloqueantes fallidos | 0 avisos | reportes en reports/deepchecks
+
+=== p1/08-docker-build.txt: salida completa ===
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Containerfile
+#1 transferring dockerfile: 1.41kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.13.16-slim
+#2 DONE 1.1s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 547B done
+#3 DONE 0.0s
+
+#4 [1/8] FROM docker.io/library/python:3.13.16-slim@sha256:cf50a4f6ac4f026458b08d5222023d700ac806410dff5e9ca8728fa44f2b850f
+#4 resolve docker.io/library/python:3.13.16-slim@sha256:cf50a4f6ac4f026458b08d5222023d700ac806410dff5e9ca8728fa44f2b850f done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 2.24MB 0.1s done
+#5 DONE 0.1s
+
+#6 [4/8] COPY api/requirements.txt /app/api/requirements.txt
+#6 CACHED
+
+#7 [5/8] RUN pip install --no-cache-dir -r /app/api/requirements.txt
+#7 CACHED
+
+#8 [2/8] WORKDIR /app
+#8 CACHED
+
+#9 [3/8] RUN useradd --system --create-home --uid 10001 --user-group app
+#9 CACHED
+
+#10 [6/8] COPY api/ /app/api/
+#10 CACHED
+
+#11 [7/8] COPY models/p1/ /app/modelo/
+#11 DONE 0.1s
+
+#12 [8/8] RUN chmod -R a+rX,go-w /app
+#12 DONE 0.3s
+
+#13 exporting to image
+#13 exporting layers 0.1s done
+#13 exporting manifest sha256:890630d4acd0ae01c3b7bdd90b8ebf38ab28f58f672778f93520520d90179626 done
+#13 exporting config sha256:de6f9a187a792496d96fd776cd05470a8cfb8f1f801f19c0bd5bc87b8d9eb64f done
+#13 exporting attestation manifest sha256:5591e5f841f6d989a0514ef937f86a4f807198a34d29cea30aafba7f172e7f16 done
+#13 exporting manifest list sha256:e36cb2e12893c1747c7ac6b5c1098ee0a80e108757025983bd6a98327fa2354f done
+#13 naming to docker.io/library/mibici-p1-repro:20261115-f5ffb47d done
+#13 unpacking to docker.io/library/mibici-p1-repro:20261115-f5ffb47d 0.0s done
+#13 DONE 0.1s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/lnkzxwotiir7gujn8q0h95dyz
+
+=== p1/09-docker-api.txt: salida completa ===
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+2026/11/15 16:07:07 WARNING mlflow.utils.requirements_utils: Detected one or more mismatches between the model's dependencies and the current Python environment:
+ - psutil (current: uninstalled, required: psutil==7.2.2)
+ - pytest (current: uninstalled, required: pytest==9.1.1)
+ - rich (current: uninstalled, required: rich==15.0.0)
+To fix the mismatches, call `mlflow.pyfunc.get_model_dependencies(model_uri)` to fetch the model's environment and install dependencies using the resulting environment file.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     172.17.0.1:59026 - "GET /health HTTP/1.1" 200 OK
+INFO:     172.17.0.1:59030 - "POST /predict HTTP/1.1" 200 OK
+INFO:     172.17.0.1:59044 - "POST /predict/batch HTTP/1.1" 200 OK
+INFO:     172.17.0.1:59060 - "POST /predict HTTP/1.1" 422 Unprocessable Content

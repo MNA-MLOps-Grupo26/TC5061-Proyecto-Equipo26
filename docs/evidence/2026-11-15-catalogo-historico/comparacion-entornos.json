@@ -1,0 +1,156 @@
+{
+  "windows_run_url": "https://github.com/MNA-MLOps-Grupo26/TC5061-Proyecto-Equipo26/actions/runs/43743086810",
+  "windows_commit": "4d60046e4f5a4d7ecd29d6b69c14407819c6c889",
+  "status": "comparison_completed",
+  "environment": {
+    "macos": {
+      "system": "Darwin",
+      "release": "25.6.0",
+      "machine": "arm64",
+      "python": "3.13.5",
+      "packages": {
+        "numpy": "2.5.4",
+        "pandas": "3.0.6",
+        "pyarrow": "25.0.1",
+        "mlflow": "3.17.2",
+        "scikit-learn": "1.9.1"
+      },
+      "threads": {
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "MKL_NUM_THREADS": "2"
+      }
+    },
+    "windows": {
+      "system": "Windows",
+      "release": "2025Server",
+      "machine": "AMD64",
+      "python": "3.13.5",
+      "packages": {
+        "numpy": "2.5.4",
+        "pandas": "3.0.6",
+        "pyarrow": "25.0.1",
+        "mlflow": "3.17.2",
+        "scikit-learn": "1.9.1"
+      },
+      "threads": {
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "MKL_NUM_THREADS": "2"
+      }
+    }
+  },
+  "same_python_and_package_versions": true,
+  "source_hashes_differ_only_by_crlf": true,
+  "same_mlflow_digest_function": true,
+  "same_raw_files": true,
+  "data_version": {
+    "macos": "cd917f9aa025",
+    "windows": "cd917f9aa025"
+  },
+  "different_parquet_files": [
+    "estaciones.parquet"
+  ],
+  "station_parquet_sha256": {
+    "macos": "80ef17e6566e9a1821896e9739a19fc765c8590f27660488267606ed5a56afce",
+    "windows": "bcfd7d47b881edd6159cec56c68325a805d4354417f46ab600f54eec77014eaa"
+  },
+  "dataframes": {
+    "stations": {
+      "same_rows": true,
+      "same_column_order": true,
+      "same_index_dtype": true,
+      "same_index": true,
+      "different_columns": [
+        "latitud"
+      ],
+      "same_dtypes": true,
+      "same_null_counts": true,
+      "latitude_matches_rounded_10_decimals": true
+    },
+    "training_frame": {
+      "same_rows": true,
+      "same_column_order": true,
+      "same_index_dtype": true,
+      "same_index": true,
+      "different_columns": [
+        "latitud"
+      ],
+      "same_dtypes": true,
+      "same_null_counts": true,
+      "latitude_matches_rounded_10_decimals": true
+    }
+  },
+  "digests": {
+    "historical": "10f3651e",
+    "macos": "e3b4786b",
+    "windows": "10f3651e"
+  },
+  "metrics": {
+    "train_mae": {
+      "macos": 4.930429960868238,
+      "windows": 4.930429960868238,
+      "absolute_difference": 0.0
+    },
+    "train_rmse": {
+      "macos": 7.99572142271299,
+      "windows": 7.99572142271299,
+      "absolute_difference": 0.0
+    },
+    "train_wape": {
+      "macos": 0.15546216130879686,
+      "windows": 0.15546216130879686,
+      "absolute_difference": 0.0
+    },
+    "val_mae": {
+      "macos": 4.851352276716691,
+      "windows": 4.851352276716691,
+      "absolute_difference": 0.0
+    },
+    "val_rmse": {
+      "macos": 8.171478370762053,
+      "windows": 8.171478370762053,
+      "absolute_difference": 0.0
+    },
+    "val_wape": {
+      "macos": 0.17812945580458703,
+      "windows": 0.17812945580458703,
+      "absolute_difference": 0.0
+    },
+    "test_mae": {
+      "macos": 7.477021536287801,
+      "windows": 7.477021536287801,
+      "absolute_difference": 0.0
+    },
+    "test_rmse": {
+      "macos": 13.673625827542246,
+      "windows": 13.673625827542246,
+      "absolute_difference": 0.0
+    },
+    "test_wape": {
+      "macos": 0.21575457660857816,
+      "windows": 0.21575457660857816,
+      "absolute_difference": 0.0
+    }
+  },
+  "all_nine_metrics_exactly_equal": true,
+  "all_prediction_arrays_exact_hashes_equal": false,
+  "example_predictions": {
+    "macos": [
+      122.55957713166208,
+      4.092428571892937,
+      111.53998701033007
+    ],
+    "windows": [
+      122.55957713166208,
+      4.092428571892937,
+      111.53998701033007
+    ]
+  },
+  "limits": [
+    "macOS ARM64 versus Windows Server 2025 x64 changes both OS and architecture.",
+    "The October environment was not recreated; matching its digest supports the explanation but does not prove binary identity of its model.",
+    "Matching hashes after rounding to 10 decimals is a diagnostic only; no rounding was applied to training.",
+    "Windows inference used a freshly retrained model, not the exported binary from the prior API review."
+  ]
+}
