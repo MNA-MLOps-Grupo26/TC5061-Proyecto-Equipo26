@@ -1,9 +1,0 @@
-2026/11/15 10:06:32 INFO mlflow.agent.hint: Load the `instrumenting-with-mlflow-tracing` skill at <repo>/.venv/lib/python3.13/site-packages/mlflow/assistant/skills/instrumenting-with-mlflow-tracing/SKILL.md before writing any tracing code; it ships with this MLflow install. Set MLFLOW_DISABLE_AGENT_HINT=1 to silence this.
-Run b77adcb1769d41839eef31f7220522af verificado; logged model m-f99d519f75b64004a62dd05666d13037
-  plan: crear_modelo (mibici-equipo26-p1-demand)
-  plan: crear_version
-  plan: fijar_alias
-Registered model 'mibici-equipo26-p1-demand' already exists. Creating a new version of this model...
-2026/11/15 10:06:33 INFO mlflow.store.model_registry.abstract_store: Waiting up to 300 seconds for model version to finish creation. Model name: mibici-equipo26-p1-demand, version 1
-Created version '1' of model 'mibici-equipo26-p1-demand'.
-Listo: mibici-equipo26-p1-demand versión 1, alias @champion

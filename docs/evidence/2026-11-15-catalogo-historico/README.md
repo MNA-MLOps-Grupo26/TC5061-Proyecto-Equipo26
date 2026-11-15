@@ -28,9 +28,21 @@ Los datos y modelos permanecen fuera de Git. Esta carpeta contiene metadatos y
 salidas de pruebas, sin datasets. Se sustituyeron rutas personales por marcadores
 y se retiraron colores ANSI de los logs; los resultados numéricos se conservan.
 
-Evidencia de la primera ingesta: [estado inicial](ingesta/baseline.json),
-[comparación de hashes y entorno](ingesta/resultado.json),
-[log](ingesta/ingesta.txt) y [identidad del código probado](ingesta/codigo-verificado.json).
+## Archivos de evidencia
+
+Toda la evidencia publicada de este cambio se concentra en este directorio:
+
+- `README.md`: procedimiento, resultados y limitaciones.
+- [resultados.json](resultados.json): hashes del código y datos, comparación de
+  métricas, comandos, entorno y resultados de aceptación.
+- [descarga.txt](descarga.txt): descarga desde cero en el clon de reproducción de P1.
+- [entrenamiento.txt](entrenamiento.txt): entrenamiento real de P1.
+- [pruebas.txt](pruebas.txt): salidas de registro, exportación, API, calidad y
+  Docker, más el resumen de la suite y su repetición fuera del sandbox.
+
+Se consolidaron las salidas ya existentes; esta reorganización no es una prueba
+nueva. El resumen de la suite inicial es un extracto identificado en el log.
+Los registros completos y duplicados se conservan localmente fuera de este PR.
 
 ## Pruebas automatizadas
 
@@ -39,20 +51,19 @@ primaria válida, HTTP 404, HTML, CSV alterado, agotamiento de fuentes, validaci
 de archivos locales, ausencia de hashes y conservación de procedencia sin
 consultar el portal.
 
-La [suite inicial](ingesta/pytest-sandbox.txt) terminó con 202 aprobadas,
+La [suite inicial](pruebas.txt) terminó con 202 aprobadas,
 3 omitidas y 11 fallidas porque el sandbox bloqueó `/dev/fd/62` usado por Bash.
 Se repitió el archivo completo `test_probar_contenedor.py` fuera del sandbox:
-[29 aprobadas](ingesta/pytest-bash.txt). El resultado agregado es 213 aprobadas
+[29 aprobadas](pruebas.txt). El resultado agregado es 213 aprobadas
 y 3 omitidas; no representa una única ejecución completa sin fallas.
 Las omisiones eran DeepChecks y dos pruebas de API con modelo real, ejecutadas
-después en la reproducción de P1. [Ruff check](ingesta/ruff-check.txt) y
-[format](ingesta/ruff-format.txt) aprobaron.
+después en la reproducción de P1. [Ruff check y format](pruebas.txt) aprobaron.
 
 ## Reentrenamiento y servicio de P1
 
 El segundo clon usó un almacén MLflow nuevo y exclusivo para esta prueba.
 Se ejecutaron MLflow Projects `ingest` y `train`, registro, exportación y pruebas
-de API. [Resultado y comandos](p1/resultado.json) y [resumen](p1/resumen-final.json).
+de API. [Resultados, comandos y resumen](resultados.json).
 
 | Etapa | Resultado |
 |---|---|
@@ -83,13 +94,6 @@ de la prueba, no del registro compartido del equipo. MLflow y el contenedor
 temporal se detuvieron al finalizar. Docker reutilizó capas de dependencias
 existentes e incorporó el modelo recién entrenado.
 
-Logs: [ingesta](p1/01-ingesta.txt), [entrenamiento](p1/02-entrenamiento.txt),
-[registro](p1/04-registro.txt), [exportación](p1/05-exportacion.txt),
-[API real](p1/06-api-modelo-real.txt), [DeepChecks](p1/10-deepchecks-real.txt),
-[detalle de chequeos](p1/deepchecks-resumen.json),
-[pruebas DeepChecks](p1/deepchecks-tests.txt), [build Docker](p1/08-docker-build.txt),
-[servicio Docker](p1/09-docker-api.txt) y [verificaciones Docker](p1/docker-resultado.json).
-
 ## Repetir la descarga
 
 En otro clon con este cambio, sin datos locales:
@@ -105,7 +109,7 @@ En Windows, sustituir `.venv/bin/python` por `.venv\Scripts\python.exe`.
 Una segunda ingesta en el mismo clon valida y reutiliza los CSV locales;
 ya no prueba la descarga desde cero. Para entrenar, registrar y exportar,
 seguir el [README del proyecto](../../../README.md); los comandos concretos
-de esta ejecución están en [resultado.json](p1/resultado.json).
+de esta ejecución están en [resultados.json](resultados.json).
 
 ## Límites y pendiente histórico
 
@@ -120,5 +124,5 @@ de esta ejecución están en [resultado.json](p1/resultado.json).
 - El alcance es P1 histórico. No reproduce P2/P3, el challenger de semana 9,
   el drift de octubre ni los intervalos bootstrap del A/B testing.
 - Las pruebas preceden al commit del PR: los runs registraron correctamente
-  `git_dirty=true`. Los [SHA-256 del código](p1/codigo-verificado.json) permiten
+  `git_dirty=true`. Los [SHA-256 del código](resultados.json) permiten
   identificar el estado probado; los archivos de código coinciden con esos hashes.
