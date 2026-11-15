@@ -25,6 +25,38 @@ Los entornos de Evidently y precisión están separados para no sustituir `requi
 3. Solo para reproducir el entrenamiento, con directorio de salida NUEVO: `python -m scripts.select_local_residual --source RUTA_PROCESSED --current reports/accuracy-p1/current.parquet --original-predictions reports/accuracy-p1/october_predictions.parquet --out reports/improved-p1-local-residual`. El directorio de datos debe ser el histórico verificado agosto 2025–septiembre 2026. Conserva selección temporal y parámetros originales; no amplía la búsqueda.
 4. `scripts/register_local_residual.py` documenta el registro de la versión congelada. Solo acepta el almacén aislado llamado TC5061-mlflow-comparison-20261110-final con versiones previas 1 y 2; requiere `--store`, `--current` y opcional `--base`. Se niega a repetir sobre v3 existente. No es un bootstrap de un registro vacío ni se debe ejecutar contra el almacén servido.
 
+## A/B pareado v1 frente a v3
+
+`mibici/ab_testing.py` genera la tabla de métricas, sesgo e intervalos a partir de las predicciones; no contiene valores esperados. Usa el entorno de `requirements-accuracy.txt`, se ejecuta desde la raíz y escribe las salidas fuera de Git:
+
+1. Ejecutar el paso 2 de arriba (`accuracy_monitoring` con la exportación original v1 verificada) para obtener `current.parquet` y `october_predictions.parquet`.
+2. Construir las predicciones pareadas. v3 se carga desde `models/week9-v3`: se verifica su SHA-256, se usa la lista fija de tipos permitidos y la demanda se obtiene con `predict_residual_demand`. El ZIP se extrae en un directorio temporal.
+
+   `python -m mibici.ab_testing predict --current SALIDA/current.parquet --original-predictions SALIDA/october_predictions.parquet --original-model MODELO_ORIGINAL --out SALIDA_AB`
+
+   Produce `predictions.parquet` (`estacion_id`, `fecha`, `salidas`, `old` = v1 y `new` = v3) y `provenance.json` (SHA-256 de entradas, modelos y salida).
+3. Comparar:
+
+   `python -m mibici.ab_testing compare --predictions SALIDA_AB/predictions.parquet --provenance SALIDA_AB/provenance.json --reference docs/week9-evidence/comparison.json --out SALIDA_AB`
+
+   Produce `ab_results.json` y `ab_table.md`. `--reference` es opcional: agrega las diferencias contra el reporte, con una tolerancia absoluta de `--tolerance` (por defecto 1e-9), sin modificar ese archivo.
+
+Antes de calcular, el módulo valida las columnas, las fechas de día calendario consecutivas (al menos siete), las claves estación-fecha únicas, que los valores reales y las predicciones sean finitos, que no haya demanda negativa y que la demanda total sea positiva. Ordena por fecha y estación.
+
+Para cada modelo calcula MAE, RMSE, WAPE y sesgo (predicción − real). WAPE se reporta como proporción y como porcentaje, y su diferencia en puntos porcentuales.
+
+Los intervalos usan sin cambios `paired_intervals` de `mibici/challenger_monitoring.py`:
+
+- Las sumas diarias de error absoluto, error cuadrático, demanda y filas se calculan por fecha, de modo que todas las estaciones de una fecha permanecen juntas.
+- Se sortean `ceil(31/7)` inicios de bloque con `numpy.random.default_rng(42)`. Cada bloque cubre siete fechas consecutivas.
+- Los bloques se concatenan y se truncan a 31 fechas.
+- Con las mismas fechas para ambos modelos se calculan las diferencias v3 − v1 de MAE, RMSE y WAPE.
+- Se hacen 2,000 repeticiones y se toman los percentiles 2.5 y 97.5.
+
+No se usa `block_interval` de `accuracy_monitoring.py`, que compara periodos distintos. El sesgo no tiene intervalo publicado.
+
+Resultado de la corrida local del 15 de noviembre de 2026 (macOS) y su comparación con el reporte: [week9-evidence/ab-v1-v3-20261115](week9-evidence/ab-v1-v3-20261115/README.md). v3 coincide exactamente con `comparison.json`. v1 difiere (MAE 8.0343 frente a 8.0544) por una sensibilidad documentada a la representación de `latitud` entre entornos, que aún no se ha cerrado. Por eso los intervalos de esa corrida no son los publicados. Se trata de una evaluación retrospectiva de un solo mes, con intervalos exploratorios.
+
 No se reentrenó ni re-registró durante esta integración. Las pruebas usan fixtures sintéticos y no escriben en MLflow. El análisis completo existente queda local; solo se integra la cadena necesaria para esta entrega, sin modelos experimentales descartados.
 
 ## Feedback anterior y contribuciones

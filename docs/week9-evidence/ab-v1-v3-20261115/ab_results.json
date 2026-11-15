@@ -1,0 +1,208 @@
+{
+  "design": "Paired comparison of two models on identical station-date rows",
+  "data": {
+    "n": 14618,
+    "dates": 31,
+    "first_date": "2026-10-01",
+    "last_date": "2026-10-31",
+    "stations": 473,
+    "actual_total": 635525.0
+  },
+  "metrics": {
+    "original_v1": {
+      "mae": 8.034345051707092,
+      "rmse": 15.701217812163023,
+      "wape": {
+        "proportion": 0.1848016300945742,
+        "percent": 18.48016300945742
+      },
+      "bias_prediction_minus_actual": -3.884778825552489,
+      "actual_mean": 43.47550964564236
+    },
+    "candidate_v3": {
+      "mae": 7.766359766419323,
+      "rmse": 13.861818201448893,
+      "wape": {
+        "proportion": 0.17863757848317166,
+        "percent": 17.863757848317167
+      },
+      "bias_prediction_minus_actual": 2.3314146316266644,
+      "actual_mean": 43.47550964564236
+    }
+  },
+  "candidate_minus_original": {
+    "mae": -0.2679852852877689,
+    "rmse": -1.8393996107141302,
+    "wape": {
+      "proportion": -0.006164051611402543,
+      "percentage_points": -0.6164051611402535
+    },
+    "bias_prediction_minus_actual": 6.216193457179154
+  },
+  "paired_bootstrap_95pct_intervals": {
+    "mae": {
+      "low": -0.8081980660834576,
+      "high": 0.46920582810702255
+    },
+    "rmse": {
+      "low": -3.280481221336122,
+      "high": 0.23667520366641187
+    },
+    "wape": {
+      "proportion": {
+        "low": -0.017973313270967323,
+        "high": 0.011226144923358052
+      },
+      "percentage_points": {
+        "low": -1.7973313270967322,
+        "high": 1.1226144923358052
+      }
+    },
+    "bias": "not computed (not part of the published method)"
+  },
+  "bootstrap": {
+    "method": "paired moving-block bootstrap over calendar dates",
+    "block_length_days": 7,
+    "repetitions": 2000,
+    "seed": 42,
+    "rng": "numpy.random.default_rng",
+    "interval": "percentile 95% (quantiles 0.025 and 0.975)",
+    "unit": "date; all stations of a date stay together",
+    "pairing": "same resampled dates for both models in every replicate",
+    "difference": "candidate_v3 minus original_v1",
+    "implementation": "mibici.challenger_monitoring.paired_intervals"
+  },
+  "units": {
+    "mae_rmse_bias": "trips per station-day",
+    "wape.proportion": "sum|error| / sum(actual), 0-1 scale",
+    "wape.percent": "proportion x 100",
+    "wape.percentage_points": "difference of percents (pp)",
+    "bias": "mean(prediction - actual); positive = overprediction"
+  },
+  "provenance": {
+    "current_sha256": "0db793d79974a70f2c44d194e2352d8722edc5e19e86db2eb388b96b84d6ed15",
+    "original_predictions_sha256": "fe2736a34ee5dbf141c8140fc984474276fb875c0d058b073920f7be579cdd0b",
+    "original_predictions_source": "mibici.accuracy_monitoring with verified v1 export",
+    "candidate": {
+      "registered_model_name": "mibici-equipo26-p1-demand",
+      "source_registry_version": 3,
+      "source_run_id": "c9973a366f47463c91f80a509bd074ca",
+      "artifact_sha256": "278b7a9e51ce2f564b9ae096f6e3e687e49468490d527d35627404490efd2224",
+      "loader": "skops.io.load with fixed allowlist + mibici.residual_model.predict_residual_demand",
+      "trusted_types": [
+        "sklearn.ensemble._hist_gradient_boosting.predictor.TreePredictor",
+        "numpy.dtype"
+      ]
+    },
+    "original": {
+      "registered_model_name": "mibici-equipo26-p1-demand",
+      "version": "1",
+      "run_id": "51ef51ad5b534386a3c020692887c6bc",
+      "model_sha256": "2cac5ef209865bf0eb70a388c594dfd4791dfab73b51088802a3df07dbb09fae"
+    },
+    "predictions_sha256": "f4838752b40c2bd31a8e64adea780910e5917cf81da45632c6fda4972a861c59"
+  },
+  "limitations": [
+    "Retrospective evaluation over a single month (October 2026), already inspected during drift/accuracy work; not a pristine holdout.",
+    "Intervals are exploratory: only about four or five independent weekly blocks, dependent observations and nonstationarity.",
+    "Original trained through July 2026, candidate through September 2026: algorithm and training-history changes are confounded.",
+    "Daily one-step rolling observed history, not a full-month forecast."
+  ],
+  "reference_comparison": {
+    "tolerance_abs": 1e-09,
+    "wape_scale": "proportion",
+    "all_within_tolerance": false,
+    "values": {
+      "original.mae": {
+        "computed": 8.034345051707092,
+        "reference": 8.054406442839335,
+        "difference": -0.020061391132243145,
+        "within_tolerance": false
+      },
+      "original.rmse": {
+        "computed": 15.701217812163023,
+        "reference": 15.891006470864005,
+        "difference": -0.18978865870098183,
+        "within_tolerance": false
+      },
+      "original.wape": {
+        "computed": 0.1848016300945742,
+        "reference": 0.18526307128976108,
+        "difference": -0.00046144119518687354,
+        "within_tolerance": false
+      },
+      "original.bias_prediction_minus_actual": {
+        "computed": -3.884778825552489,
+        "reference": -3.9076860550677495,
+        "difference": 0.022907229515260585,
+        "within_tolerance": false
+      },
+      "candidate.mae": {
+        "computed": 7.766359766419323,
+        "reference": 7.766359766419322,
+        "difference": 8.881784197001252e-16,
+        "within_tolerance": true
+      },
+      "candidate.rmse": {
+        "computed": 13.861818201448893,
+        "reference": 13.861818201448893,
+        "difference": 0.0,
+        "within_tolerance": true
+      },
+      "candidate.wape": {
+        "computed": 0.17863757848317166,
+        "reference": 0.17863757848317163,
+        "difference": 2.7755575615628914e-17,
+        "within_tolerance": true
+      },
+      "candidate.bias_prediction_minus_actual": {
+        "computed": 2.3314146316266644,
+        "reference": 2.3314146316266644,
+        "difference": 0.0,
+        "within_tolerance": true
+      },
+      "intervals.mae.low": {
+        "computed": -0.8081980660834576,
+        "reference": -0.8293064017834273,
+        "difference": 0.021108335699969727,
+        "within_tolerance": false
+      },
+      "intervals.mae.high": {
+        "computed": 0.46920582810702255,
+        "reference": 0.45244189065361984,
+        "difference": 0.01676393745340271,
+        "within_tolerance": false
+      },
+      "intervals.rmse.low": {
+        "computed": -3.280481221336122,
+        "reference": -3.5421410417507837,
+        "difference": 0.26165982041466185,
+        "within_tolerance": false
+      },
+      "intervals.rmse.high": {
+        "computed": 0.23667520366641187,
+        "reference": 0.03219258241520311,
+        "difference": 0.20448262125120875,
+        "within_tolerance": false
+      },
+      "intervals.wape.low": {
+        "computed": -0.017973313270967323,
+        "reference": -0.0185662575414544,
+        "difference": 0.0005929442704870787,
+        "within_tolerance": false
+      },
+      "intervals.wape.high": {
+        "computed": 0.011226144923358052,
+        "reference": 0.01091062496422409,
+        "difference": 0.0003155199591339617,
+        "within_tolerance": false
+      },
+      "original.n": {
+        "computed": 14618,
+        "reference": 14618,
+        "within_tolerance": true
+      }
+    },
+    "file": "docs/week9-evidence/comparison.json"
+  }
+}

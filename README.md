@@ -775,4 +775,4 @@ auditable. Véase la [justificación del ciclo de vida](docs/evidence/2026-10-24
 
 ## Semana 9: drift y comparación de versiones
 
-Código, evidencia y reproducción en [docs/week9.md](docs/week9.md). Registro alternativo local aislado, sin cambios al modelo servido.
+Código, evidencia y reproducción en [docs/week9.md](docs/week9.md). Registro alternativo local aislado, sin cambios al modelo servido. El A/B pareado v1 frente a v3 se genera con `python -m mibici.ab_testing` ([instrucciones](docs/week9.md#ab-pareado-v1-frente-a-v3)).
