@@ -8,8 +8,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from mibici.coordenadas import MODOS
 from mibici.features import VARIABLES_P1, dataset_p1
-from mibici.monitoring import prepare, validate_windows
+from mibici.monitoring import deterministic_catalog, prepare, validate_windows
 
 
 def metrics(frame):
@@ -74,16 +75,25 @@ def main():
     parser.add_argument("--october", required=True, type=Path)
     parser.add_argument("--model", required=True, type=Path)
     parser.add_argument("--out", default=Path("reports/accuracy-p1"), type=Path)
+    parser.add_argument(
+        "--coordenadas",
+        choices=MODOS,
+        default="pandas",
+        help="Conversión de coordenadas del catálogo (ver mibici/coordenadas.py)",
+    )
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     # Revalidate inputs and rebuild rather than trusting cached panels.
-    _, current, _ = prepare(args.source, args.october, args.out)
+    _, current, _ = prepare(args.source, args.october, args.out, args.coordenadas)
     manifest = json.loads(Path("manifests/mibici_processed.json").read_text())
     trips = pd.concat(
         [pd.read_parquet(args.source / i["filename"]) for i in manifest["files"]],
         ignore_index=True,
     )
     stations = pd.read_parquet(args.source / "estaciones.parquet")
+    if args.coordenadas != "pandas":
+        # Same deterministic catalog as prepare(); otherwise September would use the parquet.
+        stations, _ = deterministic_catalog(args.source, manifest, stations, args.coordenadas)
     previous = dataset_p1(trips, stations)
     previous = previous.loc[
         previous.fecha.between("2026-09-01", "2026-10-01", inclusive="left")

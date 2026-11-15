@@ -9,7 +9,8 @@ from pathlib import Path
 import pandas as pd
 
 from mibici import features
-from mibici.preprocess import COLUMNAS, COLUMNAS_ESTACIONES
+from mibici.coordenadas import MODOS
+from mibici.preprocess import COLUMNAS, COLUMNAS_ESTACIONES, leer_estaciones
 
 CATEGORICAL = ["dia_semana", "es_fin_semana", "mes"]
 
@@ -38,7 +39,36 @@ def digest(path):
         return hashlib.file_digest(f, "sha256").hexdigest()
 
 
-def prepare(source, october, out):
+def deterministic_catalog(source, manifest, parquet, coordenadas):
+    """Catálogo reconstruido desde el CSV verificado con conversión de coordenadas fija."""
+    raw_catalog = source.parent / "raw" / manifest["stations"]["source_filename"]
+    if digest(raw_catalog) != manifest["stations"]["source_sha256"]:
+        raise ValueError("Catalog source hash mismatch")
+    rebuilt = leer_estaciones(raw_catalog, coordenadas=coordenadas)
+    # Solo latitud/longitud pueden cambiar; identificadores y capacidad deben ser idénticos.
+    pd.testing.assert_frame_equal(
+        parquet[["estacion_id", "capacidad"]].reset_index(drop=True),
+        rebuilt[["estacion_id", "capacidad"]],
+        check_dtype=False,
+        check_exact=True,
+    )
+    changed = {
+        col: int(
+            (
+                ~(
+                    (parquet[col].to_numpy() == rebuilt[col].to_numpy())
+                    | (parquet[col].isna().to_numpy() & rebuilt[col].isna().to_numpy())
+                )
+            ).sum()
+        )
+        for col in ["latitud", "longitud"]
+    }
+    return rebuilt, changed
+
+
+def prepare(source, october, out, coordenadas="pandas"):
+    if coordenadas not in MODOS:
+        raise ValueError(f"Unknown coordinate mode: {coordenadas}")
     manifest = json.loads(Path("manifests/mibici_processed.json").read_text())
     provenance = []
     frames = []
@@ -55,7 +85,12 @@ def prepare(source, october, out):
     catalog_path = source / "estaciones.parquet"
     catalog_mismatch = digest(catalog_path) != manifest["stations"]["sha256"]
     stations = pd.read_parquet(catalog_path)
-    if catalog_mismatch:
+    coordinates_changed = None
+    if coordenadas != "pandas":
+        stations, coordinates_changed = deterministic_catalog(
+            source, manifest, stations, coordenadas
+        )
+    elif catalog_mismatch:
         raw_catalog = source.parent / "raw" / manifest["stations"]["source_filename"]
         if digest(raw_catalog) != manifest["stations"]["source_sha256"]:
             raise ValueError("Catalog and source hash mismatch")
@@ -129,7 +164,12 @@ def prepare(source, october, out):
         "october_sha256": digest(october),
         "october_url": "https://mibici.net/site/assets/files/133188/datos_abiertos_2026_10.csv",
         "catalog_manifest_mismatch": catalog_mismatch,
-        "catalog_source_verified_and_numeric_values_equal": True,
+        "catalog_source_verified_and_numeric_values_equal": coordenadas == "pandas",
+        "coordinate_parsing": coordenadas,
+        "coordinates_changed_vs_parquet": coordinates_changed,
+        "station_latitud_fingerprint": hashlib.sha256(
+            stations.sort_values("estacion_id").latitud.to_numpy(dtype="<f8").tobytes()
+        ).hexdigest(),
         "catalog_sha256": digest(catalog_path),
         "original_data_version": manifest["data_version"],
         "source_files": provenance,
@@ -179,9 +219,15 @@ def main():
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--october", type=Path, required=True)
     parser.add_argument("--out", type=Path, default=Path("reports/drift-p1"))
+    parser.add_argument(
+        "--coordenadas",
+        choices=MODOS,
+        default="pandas",
+        help="Conversión de coordenadas del catálogo (ver mibici/coordenadas.py)",
+    )
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
-    reference, current, summary = prepare(args.source, args.october, args.out)
+    reference, current, summary = prepare(args.source, args.october, args.out, args.coordenadas)
     print(json.dumps(summary, default=int), flush=True)
     report(reference, current, args.out)
     # Sensitivity: same calendar month and same station cohort, no tuning.
