@@ -1,0 +1,16 @@
+{
+  "base_commit": "2298aa6e4844dedb782400f0c993ce1f018d9235",
+  "branch": "test/reproduccion-completa-p1",
+  "uncommitted_changes": true,
+  "files": {
+    "mibici/config.py": "f6b67128e59461e7d7b4e12663988b2fa945370eaabe3c443a994428ffb05df4",
+    "mibici/dataset.py": "b3c4adefaada730e4717e42cbff48a07426de791badad512ccdcba986461ddc9",
+    "mibici/features.py": "5195c89d3a637723692d3718b2b926fc72ff2f6aa8540cb86a915c95f14de32b",
+    "mibici/modeling/p1.py": "1a12c23da1fe23106c0d6c15fddddda50051fdd4eef954d5b2889a0f0cc7a807",
+    "mibici/tracking.py": "06d67b501749ced3ac22de1d0ff9732854a52f484fdb9bca71927f22094d7044",
+    "requirements.txt": "05184c8cbbdb4f84d6548cf1fc262ca51794d9e48a6e5e7357730b2ed12441b4",
+    "Containerfile": "578615657cbaa243b0fae89ee4792aa1d5d9bcb62752c2a1c385bc75be667c8b",
+    "api/requirements.txt": "f9d189ae9d7b8daacfaa79136ddf7dda8925105f9cc78a421832981bb13f0ed7",
+    "tests/test_dataset_download.py": "d4f6ada9a6b884b64d120f3fcea297028c72ee71ca766c35b76447bdde50f248"
+  }
+}

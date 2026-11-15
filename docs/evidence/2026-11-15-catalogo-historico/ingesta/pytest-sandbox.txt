@@ -1,0 +1,1282 @@
+....................................ss.................................. [ 33%]
+............................................................FFF......F.. [ 66%]
+.........FFFFFFF.......................................................  [100%]
+=================================== FAILURES ===================================
+______ test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[ok] ______
+
+tmp_path = PosixPath('<tmp>')
+caso = 'ok'
+
+    @pytest.mark.parametrize(
+        "caso",
+        [
+            "ok",
+            "redondeo",
+            "captura_redondeo",
+            "lote_corto",
+            "lote_largo",
+            "lote_nan",
+            "lote_infinito",
+            "individual_nan",
+            "individual_infinito",
+            "captura_nan",
+            "health500",
+            "health201",
+            "predict500",
+            "predict201",
+            "batch500",
+            "individual",
+            "lote",
+            "orden",
+            "sin422",
+            "salud",
+            "root",
+            "modelo_archivo",
+            "modelo_directorio",
+            "api_archivo",
+            "api_directorio",
+            "exec_error",
+            "captura_distinta",
+            "captura500",
+            "transporte",
+        ],
+    )
+    @pytest.mark.skipif(os.name == "nt", reason="El script de aceptación requiere Bash")
+    @pytest.mark.skipif(
+        os.name != "nt" and os.geteuid() == 0,
+        reason="Todos los escenarios requieren un árbol de solo lectura para un usuario no root",
+    )
+    def test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan(tmp_path, caso):
+        binarios = tmp_path / "bin"
+        binarios.mkdir()
+        doble = binarios / "doble"
+        doble.write_text(f"#!{sys.executable}\n{DOBLE}", encoding="utf-8")
+        doble.chmod(0o755)
+        for nombre in (
+            "git",
+            "docker",
+            "curl",
+            "uname",
+            "lsof",
+            "osascript",
+            "screencapture",
+            "sleep",
+        ):
+            (binarios / nombre).symlink_to(doble)
+        (binarios / "python3").symlink_to(sys.executable)
+        evidencia = tmp_path / "docs/evidencia-api"
+        evidencia.mkdir(parents=True)
+        for archivo in ("prediccion-referencia.json", "peticion-predict.json", "peticion-batch.json"):
+            shutil.copyfile(REPO / "docs/evidencia-api" / archivo, evidencia / archivo)
+        shutil.copyfile(REPO / "scripts/probar_contenedor.sh", tmp_path / "probar.sh")
+        (tmp_path / "Containerfile").write_text("# doble\n", encoding="utf-8")
+        directorios = [tmp_path / "app" / nombre for nombre in ("modelo", "api")]
+        for directorio in directorios:
+            directorio.mkdir(parents=True)
+            archivo = directorio / "registry.json"
+            archivo.write_text("{}", encoding="utf-8")
+            archivo.chmod(0o444)
+            directorio.chmod(0o555)
+        if caso in ("modelo_archivo", "modelo_directorio", "api_archivo", "api_directorio"):
+            nombre, tipo = caso.split("_")
+            objetivo = tmp_path / "app" / nombre
+            if tipo == "archivo":
+                objetivo /= "registry.json"
+            objetivo.chmod(0o755 if tipo == "directorio" else 0o644)
+        entorno = {
+            **os.environ,
+            "PATH": str(binarios) + os.pathsep + os.environ.get("PATH", ""),
+            "CASO_ACEPTACION": caso,
+            "MODEL_DIR": "app/modelo",
+            "MOTOR": "docker",
+            "CAPTURA": "1",
+            "TERM_PROGRAM": "Apple_Terminal",
+        }
+        try:
+            resultado = subprocess.run(
+                ["/bin/bash", "probar.sh"],
+                check=False,
+                cwd=tmp_path,
+                env=entorno,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+        finally:
+            for directorio in directorios:
+                directorio.chmod(0o755)
+        correcto = caso in ("ok", "redondeo", "captura_redondeo")
+>       assert resultado.returncode == (0 if correcto else 1), resultado.stdout + resultado.stderr
+E       AssertionError: probar.sh: line 92: /dev/fd/62: Operation not permitted
+E
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/bin/bash', 'probar.sh'], returncode=1, stdout='', stderr='probar.sh: line 92: /dev/fd/62: Operation not permitted\n').returncode
+
+tests/test_probar_contenedor.py:217: AssertionError
+___ test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[redondeo] ___
+
+tmp_path = PosixPath('<tmp>')
+caso = 'redondeo'
+
+    @pytest.mark.parametrize(
+        "caso",
+        [
+            "ok",
+            "redondeo",
+            "captura_redondeo",
+            "lote_corto",
+            "lote_largo",
+            "lote_nan",
+            "lote_infinito",
+            "individual_nan",
+            "individual_infinito",
+            "captura_nan",
+            "health500",
+            "health201",
+            "predict500",
+            "predict201",
+            "batch500",
+            "individual",
+            "lote",
+            "orden",
+            "sin422",
+            "salud",
+            "root",
+            "modelo_archivo",
+            "modelo_directorio",
+            "api_archivo",
+            "api_directorio",
+            "exec_error",
+            "captura_distinta",
+            "captura500",
+            "transporte",
+        ],
+    )
+    @pytest.mark.skipif(os.name == "nt", reason="El script de aceptación requiere Bash")
+    @pytest.mark.skipif(
+        os.name != "nt" and os.geteuid() == 0,
+        reason="Todos los escenarios requieren un árbol de solo lectura para un usuario no root",
+    )
+    def test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan(tmp_path, caso):
+        binarios = tmp_path / "bin"
+        binarios.mkdir()
+        doble = binarios / "doble"
+        doble.write_text(f"#!{sys.executable}\n{DOBLE}", encoding="utf-8")
+        doble.chmod(0o755)
+        for nombre in (
+            "git",
+            "docker",
+            "curl",
+            "uname",
+            "lsof",
+            "osascript",
+            "screencapture",
+            "sleep",
+        ):
+            (binarios / nombre).symlink_to(doble)
+        (binarios / "python3").symlink_to(sys.executable)
+        evidencia = tmp_path / "docs/evidencia-api"
+        evidencia.mkdir(parents=True)
+        for archivo in ("prediccion-referencia.json", "peticion-predict.json", "peticion-batch.json"):
+            shutil.copyfile(REPO / "docs/evidencia-api" / archivo, evidencia / archivo)
+        shutil.copyfile(REPO / "scripts/probar_contenedor.sh", tmp_path / "probar.sh")
+        (tmp_path / "Containerfile").write_text("# doble\n", encoding="utf-8")
+        directorios = [tmp_path / "app" / nombre for nombre in ("modelo", "api")]
+        for directorio in directorios:
+            directorio.mkdir(parents=True)
+            archivo = directorio / "registry.json"
+            archivo.write_text("{}", encoding="utf-8")
+            archivo.chmod(0o444)
+            directorio.chmod(0o555)
+        if caso in ("modelo_archivo", "modelo_directorio", "api_archivo", "api_directorio"):
+            nombre, tipo = caso.split("_")
+            objetivo = tmp_path / "app" / nombre
+            if tipo == "archivo":
+                objetivo /= "registry.json"
+            objetivo.chmod(0o755 if tipo == "directorio" else 0o644)
+        entorno = {
+            **os.environ,
+            "PATH": str(binarios) + os.pathsep + os.environ.get("PATH", ""),
+            "CASO_ACEPTACION": caso,
+            "MODEL_DIR": "app/modelo",
+            "MOTOR": "docker",
+            "CAPTURA": "1",
+            "TERM_PROGRAM": "Apple_Terminal",
+        }
+        try:
+            resultado = subprocess.run(
+                ["/bin/bash", "probar.sh"],
+                check=False,
+                cwd=tmp_path,
+                env=entorno,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+        finally:
+            for directorio in directorios:
+                directorio.chmod(0o755)
+        correcto = caso in ("ok", "redondeo", "captura_redondeo")
+>       assert resultado.returncode == (0 if correcto else 1), resultado.stdout + resultado.stderr
+E       AssertionError: probar.sh: line 92: /dev/fd/62: Operation not permitted
+E
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/bin/bash', 'probar.sh'], returncode=1, stdout='', stderr='probar.sh: line 92: /dev/fd/62: Operation not permitted\n').returncode
+
+tests/test_probar_contenedor.py:217: AssertionError
+_ test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[captura_redondeo] _
+
+tmp_path = PosixPath('<tmp>')
+caso = 'captura_redondeo'
+
+    @pytest.mark.parametrize(
+        "caso",
+        [
+            "ok",
+            "redondeo",
+            "captura_redondeo",
+            "lote_corto",
+            "lote_largo",
+            "lote_nan",
+            "lote_infinito",
+            "individual_nan",
+            "individual_infinito",
+            "captura_nan",
+            "health500",
+            "health201",
+            "predict500",
+            "predict201",
+            "batch500",
+            "individual",
+            "lote",
+            "orden",
+            "sin422",
+            "salud",
+            "root",
+            "modelo_archivo",
+            "modelo_directorio",
+            "api_archivo",
+            "api_directorio",
+            "exec_error",
+            "captura_distinta",
+            "captura500",
+            "transporte",
+        ],
+    )
+    @pytest.mark.skipif(os.name == "nt", reason="El script de aceptación requiere Bash")
+    @pytest.mark.skipif(
+        os.name != "nt" and os.geteuid() == 0,
+        reason="Todos los escenarios requieren un árbol de solo lectura para un usuario no root",
+    )
+    def test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan(tmp_path, caso):
+        binarios = tmp_path / "bin"
+        binarios.mkdir()
+        doble = binarios / "doble"
+        doble.write_text(f"#!{sys.executable}\n{DOBLE}", encoding="utf-8")
+        doble.chmod(0o755)
+        for nombre in (
+            "git",
+            "docker",
+            "curl",
+            "uname",
+            "lsof",
+            "osascript",
+            "screencapture",
+            "sleep",
+        ):
+            (binarios / nombre).symlink_to(doble)
+        (binarios / "python3").symlink_to(sys.executable)
+        evidencia = tmp_path / "docs/evidencia-api"
+        evidencia.mkdir(parents=True)
+        for archivo in ("prediccion-referencia.json", "peticion-predict.json", "peticion-batch.json"):
+            shutil.copyfile(REPO / "docs/evidencia-api" / archivo, evidencia / archivo)
+        shutil.copyfile(REPO / "scripts/probar_contenedor.sh", tmp_path / "probar.sh")
+        (tmp_path / "Containerfile").write_text("# doble\n", encoding="utf-8")
+        directorios = [tmp_path / "app" / nombre for nombre in ("modelo", "api")]
+        for directorio in directorios:
+            directorio.mkdir(parents=True)
+            archivo = directorio / "registry.json"
+            archivo.write_text("{}", encoding="utf-8")
+            archivo.chmod(0o444)
+            directorio.chmod(0o555)
+        if caso in ("modelo_archivo", "modelo_directorio", "api_archivo", "api_directorio"):
+            nombre, tipo = caso.split("_")
+            objetivo = tmp_path / "app" / nombre
+            if tipo == "archivo":
+                objetivo /= "registry.json"
+            objetivo.chmod(0o755 if tipo == "directorio" else 0o644)
+        entorno = {
+            **os.environ,
+            "PATH": str(binarios) + os.pathsep + os.environ.get("PATH", ""),
+            "CASO_ACEPTACION": caso,
+            "MODEL_DIR": "app/modelo",
+            "MOTOR": "docker",
+            "CAPTURA": "1",
+            "TERM_PROGRAM": "Apple_Terminal",
+        }
+        try:
+            resultado = subprocess.run(
+                ["/bin/bash", "probar.sh"],
+                check=False,
+                cwd=tmp_path,
+                env=entorno,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+        finally:
+            for directorio in directorios:
+                directorio.chmod(0o755)
+        correcto = caso in ("ok", "redondeo", "captura_redondeo")
+>       assert resultado.returncode == (0 if correcto else 1), resultado.stdout + resultado.stderr
+E       AssertionError: probar.sh: line 92: /dev/fd/62: Operation not permitted
+E
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/bin/bash', 'probar.sh'], returncode=1, stdout='', stderr='probar.sh: line 92: /dev/fd/62: Operation not permitted\n').returncode
+
+tests/test_probar_contenedor.py:217: AssertionError
+_ test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[captura_nan] __
+
+tmp_path = PosixPath('<tmp>')
+caso = 'captura_nan'
+
+    @pytest.mark.parametrize(
+        "caso",
+        [
+            "ok",
+            "redondeo",
+            "captura_redondeo",
+            "lote_corto",
+            "lote_largo",
+            "lote_nan",
+            "lote_infinito",
+            "individual_nan",
+            "individual_infinito",
+            "captura_nan",
+            "health500",
+            "health201",
+            "predict500",
+            "predict201",
+            "batch500",
+            "individual",
+            "lote",
+            "orden",
+            "sin422",
+            "salud",
+            "root",
+            "modelo_archivo",
+            "modelo_directorio",
+            "api_archivo",
+            "api_directorio",
+            "exec_error",
+            "captura_distinta",
+            "captura500",
+            "transporte",
+        ],
+    )
+    @pytest.mark.skipif(os.name == "nt", reason="El script de aceptación requiere Bash")
+    @pytest.mark.skipif(
+        os.name != "nt" and os.geteuid() == 0,
+        reason="Todos los escenarios requieren un árbol de solo lectura para un usuario no root",
+    )
+    def test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan(tmp_path, caso):
+        binarios = tmp_path / "bin"
+        binarios.mkdir()
+        doble = binarios / "doble"
+        doble.write_text(f"#!{sys.executable}\n{DOBLE}", encoding="utf-8")
+        doble.chmod(0o755)
+        for nombre in (
+            "git",
+            "docker",
+            "curl",
+            "uname",
+            "lsof",
+            "osascript",
+            "screencapture",
+            "sleep",
+        ):
+            (binarios / nombre).symlink_to(doble)
+        (binarios / "python3").symlink_to(sys.executable)
+        evidencia = tmp_path / "docs/evidencia-api"
+        evidencia.mkdir(parents=True)
+        for archivo in ("prediccion-referencia.json", "peticion-predict.json", "peticion-batch.json"):
+            shutil.copyfile(REPO / "docs/evidencia-api" / archivo, evidencia / archivo)
+        shutil.copyfile(REPO / "scripts/probar_contenedor.sh", tmp_path / "probar.sh")
+        (tmp_path / "Containerfile").write_text("# doble\n", encoding="utf-8")
+        directorios = [tmp_path / "app" / nombre for nombre in ("modelo", "api")]
+        for directorio in directorios:
+            directorio.mkdir(parents=True)
+            archivo = directorio / "registry.json"
+            archivo.write_text("{}", encoding="utf-8")
+            archivo.chmod(0o444)
+            directorio.chmod(0o555)
+        if caso in ("modelo_archivo", "modelo_directorio", "api_archivo", "api_directorio"):
+            nombre, tipo = caso.split("_")
+            objetivo = tmp_path / "app" / nombre
+            if tipo == "archivo":
+                objetivo /= "registry.json"
+            objetivo.chmod(0o755 if tipo == "directorio" else 0o644)
+        entorno = {
+            **os.environ,
+            "PATH": str(binarios) + os.pathsep + os.environ.get("PATH", ""),
+            "CASO_ACEPTACION": caso,
+            "MODEL_DIR": "app/modelo",
+            "MOTOR": "docker",
+            "CAPTURA": "1",
+            "TERM_PROGRAM": "Apple_Terminal",
+        }
+        try:
+            resultado = subprocess.run(
+                ["/bin/bash", "probar.sh"],
+                check=False,
+                cwd=tmp_path,
+                env=entorno,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+        finally:
+            for directorio in directorios:
+                directorio.chmod(0o755)
+        correcto = caso in ("ok", "redondeo", "captura_redondeo")
+        assert resultado.returncode == (0 if correcto else 1), resultado.stdout + resultado.stderr
+        assert (evidencia / "captura-contenedor.png").exists() == correcto
+        assert ("ACEPTACIÓN: OK" in resultado.stdout) == correcto
+        if caso.startswith("captura"):
+>           assert "==================== CAPTURA:" in resultado.stdout
+E           AssertionError: assert '==================== CAPTURA:' in ''
+E            +  where '' = CompletedProcess(args=['/bin/bash', 'probar.sh'], returncode=1, stdout='', stderr='probar.sh: line 92: /dev/fd/62: Operation not permitted\n').stdout
+
+tests/test_probar_contenedor.py:221: AssertionError
+_ test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[modelo_archivo] _
+
+tmp_path = PosixPath('<tmp>')
+caso = 'modelo_archivo'
+
+    @pytest.mark.parametrize(
+        "caso",
+        [
+            "ok",
+            "redondeo",
+            "captura_redondeo",
+            "lote_corto",
+            "lote_largo",
+            "lote_nan",
+            "lote_infinito",
+            "individual_nan",
+            "individual_infinito",
+            "captura_nan",
+            "health500",
+            "health201",
+            "predict500",
+            "predict201",
+            "batch500",
+            "individual",
+            "lote",
+            "orden",
+            "sin422",
+            "salud",
+            "root",
+            "modelo_archivo",
+            "modelo_directorio",
+            "api_archivo",
+            "api_directorio",
+            "exec_error",
+            "captura_distinta",
+            "captura500",
+            "transporte",
+        ],
+    )
+    @pytest.mark.skipif(os.name == "nt", reason="El script de aceptación requiere Bash")
+    @pytest.mark.skipif(
+        os.name != "nt" and os.geteuid() == 0,
+        reason="Todos los escenarios requieren un árbol de solo lectura para un usuario no root",
+    )
+    def test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan(tmp_path, caso):
+        binarios = tmp_path / "bin"
+        binarios.mkdir()
+        doble = binarios / "doble"
+        doble.write_text(f"#!{sys.executable}\n{DOBLE}", encoding="utf-8")
+        doble.chmod(0o755)
+        for nombre in (
+            "git",
+            "docker",
+            "curl",
+            "uname",
+            "lsof",
+            "osascript",
+            "screencapture",
+            "sleep",
+        ):
+            (binarios / nombre).symlink_to(doble)
+        (binarios / "python3").symlink_to(sys.executable)
+        evidencia = tmp_path / "docs/evidencia-api"
+        evidencia.mkdir(parents=True)
+        for archivo in ("prediccion-referencia.json", "peticion-predict.json", "peticion-batch.json"):
+            shutil.copyfile(REPO / "docs/evidencia-api" / archivo, evidencia / archivo)
+        shutil.copyfile(REPO / "scripts/probar_contenedor.sh", tmp_path / "probar.sh")
+        (tmp_path / "Containerfile").write_text("# doble\n", encoding="utf-8")
+        directorios = [tmp_path / "app" / nombre for nombre in ("modelo", "api")]
+        for directorio in directorios:
+            directorio.mkdir(parents=True)
+            archivo = directorio / "registry.json"
+            archivo.write_text("{}", encoding="utf-8")
+            archivo.chmod(0o444)
+            directorio.chmod(0o555)
+        if caso in ("modelo_archivo", "modelo_directorio", "api_archivo", "api_directorio"):
+            nombre, tipo = caso.split("_")
+            objetivo = tmp_path / "app" / nombre
+            if tipo == "archivo":
+                objetivo /= "registry.json"
+            objetivo.chmod(0o755 if tipo == "directorio" else 0o644)
+        entorno = {
+            **os.environ,
+            "PATH": str(binarios) + os.pathsep + os.environ.get("PATH", ""),
+            "CASO_ACEPTACION": caso,
+            "MODEL_DIR": "app/modelo",
+            "MOTOR": "docker",
+            "CAPTURA": "1",
+            "TERM_PROGRAM": "Apple_Terminal",
+        }
+        try:
+            resultado = subprocess.run(
+                ["/bin/bash", "probar.sh"],
+                check=False,
+                cwd=tmp_path,
+                env=entorno,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+        finally:
+            for directorio in directorios:
+                directorio.chmod(0o755)
+        correcto = caso in ("ok", "redondeo", "captura_redondeo")
+        assert resultado.returncode == (0 if correcto else 1), resultado.stdout + resultado.stderr
+        assert (evidencia / "captura-contenedor.png").exists() == correcto
+        assert ("ACEPTACIÓN: OK" in resultado.stdout) == correcto
+        if caso.startswith("captura"):
+            assert "==================== CAPTURA:" in resultado.stdout
+        elif caso in ("modelo_archivo", "modelo_directorio", "api_archivo", "api_directorio"):
+>           assert "Rutas escribibles:" in resultado.stdout
+E           AssertionError: assert 'Rutas escribibles:' in ''
+E            +  where '' = CompletedProcess(args=['/bin/bash', 'probar.sh'], returncode=1, stdout='', stderr='probar.sh: line 92: /dev/fd/62: Operation not permitted\n').stdout
+
+tests/test_probar_contenedor.py:223: AssertionError
+_ test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[modelo_directorio] _
+
+tmp_path = PosixPath('<tmp>')
+caso = 'modelo_directorio'
+
+    @pytest.mark.parametrize(
+        "caso",
+        [
+            "ok",
+            "redondeo",
+            "captura_redondeo",
+            "lote_corto",
+            "lote_largo",
+            "lote_nan",
+            "lote_infinito",
+            "individual_nan",
+            "individual_infinito",
+            "captura_nan",
+            "health500",
+            "health201",
+            "predict500",
+            "predict201",
+            "batch500",
+            "individual",
+            "lote",
+            "orden",
+            "sin422",
+            "salud",
+            "root",
+            "modelo_archivo",
+            "modelo_directorio",
+            "api_archivo",
+            "api_directorio",
+            "exec_error",
+            "captura_distinta",
+            "captura500",
+            "transporte",
+        ],
+    )
+    @pytest.mark.skipif(os.name == "nt", reason="El script de aceptación requiere Bash")
+    @pytest.mark.skipif(
+        os.name != "nt" and os.geteuid() == 0,
+        reason="Todos los escenarios requieren un árbol de solo lectura para un usuario no root",
+    )
+    def test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan(tmp_path, caso):
+        binarios = tmp_path / "bin"
+        binarios.mkdir()
+        doble = binarios / "doble"
+        doble.write_text(f"#!{sys.executable}\n{DOBLE}", encoding="utf-8")
+        doble.chmod(0o755)
+        for nombre in (
+            "git",
+            "docker",
+            "curl",
+            "uname",
+            "lsof",
+            "osascript",
+            "screencapture",
+            "sleep",
+        ):
+            (binarios / nombre).symlink_to(doble)
+        (binarios / "python3").symlink_to(sys.executable)
+        evidencia = tmp_path / "docs/evidencia-api"
+        evidencia.mkdir(parents=True)
+        for archivo in ("prediccion-referencia.json", "peticion-predict.json", "peticion-batch.json"):
+            shutil.copyfile(REPO / "docs/evidencia-api" / archivo, evidencia / archivo)
+        shutil.copyfile(REPO / "scripts/probar_contenedor.sh", tmp_path / "probar.sh")
+        (tmp_path / "Containerfile").write_text("# doble\n", encoding="utf-8")
+        directorios = [tmp_path / "app" / nombre for nombre in ("modelo", "api")]
+        for directorio in directorios:
+            directorio.mkdir(parents=True)
+            archivo = directorio / "registry.json"
+            archivo.write_text("{}", encoding="utf-8")
+            archivo.chmod(0o444)
+            directorio.chmod(0o555)
+        if caso in ("modelo_archivo", "modelo_directorio", "api_archivo", "api_directorio"):
+            nombre, tipo = caso.split("_")
+            objetivo = tmp_path / "app" / nombre
+            if tipo == "archivo":
+                objetivo /= "registry.json"
+            objetivo.chmod(0o755 if tipo == "directorio" else 0o644)
+        entorno = {
+            **os.environ,
+            "PATH": str(binarios) + os.pathsep + os.environ.get("PATH", ""),
+            "CASO_ACEPTACION": caso,
+            "MODEL_DIR": "app/modelo",
+            "MOTOR": "docker",
+            "CAPTURA": "1",
+            "TERM_PROGRAM": "Apple_Terminal",
+        }
+        try:
+            resultado = subprocess.run(
+                ["/bin/bash", "probar.sh"],
+                check=False,
+                cwd=tmp_path,
+                env=entorno,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+        finally:
+            for directorio in directorios:
+                directorio.chmod(0o755)
+        correcto = caso in ("ok", "redondeo", "captura_redondeo")
+        assert resultado.returncode == (0 if correcto else 1), resultado.stdout + resultado.stderr
+        assert (evidencia / "captura-contenedor.png").exists() == correcto
+        assert ("ACEPTACIÓN: OK" in resultado.stdout) == correcto
+        if caso.startswith("captura"):
+            assert "==================== CAPTURA:" in resultado.stdout
+        elif caso in ("modelo_archivo", "modelo_directorio", "api_archivo", "api_directorio"):
+>           assert "Rutas escribibles:" in resultado.stdout
+E           AssertionError: assert 'Rutas escribibles:' in ''
+E            +  where '' = CompletedProcess(args=['/bin/bash', 'probar.sh'], returncode=1, stdout='', stderr='probar.sh: line 92: /dev/fd/62: Operation not permitted\n').stdout
+
+tests/test_probar_contenedor.py:223: AssertionError
+_ test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[api_archivo] __
+
+tmp_path = PosixPath('<tmp>')
+caso = 'api_archivo'
+
+    @pytest.mark.parametrize(
+        "caso",
+        [
+            "ok",
+            "redondeo",
+            "captura_redondeo",
+            "lote_corto",
+            "lote_largo",
+            "lote_nan",
+            "lote_infinito",
+            "individual_nan",
+            "individual_infinito",
+            "captura_nan",
+            "health500",
+            "health201",
+            "predict500",
+            "predict201",
+            "batch500",
+            "individual",
+            "lote",
+            "orden",
+            "sin422",
+            "salud",
+            "root",
+            "modelo_archivo",
+            "modelo_directorio",
+            "api_archivo",
+            "api_directorio",
+            "exec_error",
+            "captura_distinta",
+            "captura500",
+            "transporte",
+        ],
+    )
+    @pytest.mark.skipif(os.name == "nt", reason="El script de aceptación requiere Bash")
+    @pytest.mark.skipif(
+        os.name != "nt" and os.geteuid() == 0,
+        reason="Todos los escenarios requieren un árbol de solo lectura para un usuario no root",
+    )
+    def test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan(tmp_path, caso):
+        binarios = tmp_path / "bin"
+        binarios.mkdir()
+        doble = binarios / "doble"
+        doble.write_text(f"#!{sys.executable}\n{DOBLE}", encoding="utf-8")
+        doble.chmod(0o755)
+        for nombre in (
+            "git",
+            "docker",
+            "curl",
+            "uname",
+            "lsof",
+            "osascript",
+            "screencapture",
+            "sleep",
+        ):
+            (binarios / nombre).symlink_to(doble)
+        (binarios / "python3").symlink_to(sys.executable)
+        evidencia = tmp_path / "docs/evidencia-api"
+        evidencia.mkdir(parents=True)
+        for archivo in ("prediccion-referencia.json", "peticion-predict.json", "peticion-batch.json"):
+            shutil.copyfile(REPO / "docs/evidencia-api" / archivo, evidencia / archivo)
+        shutil.copyfile(REPO / "scripts/probar_contenedor.sh", tmp_path / "probar.sh")
+        (tmp_path / "Containerfile").write_text("# doble\n", encoding="utf-8")
+        directorios = [tmp_path / "app" / nombre for nombre in ("modelo", "api")]
+        for directorio in directorios:
+            directorio.mkdir(parents=True)
+            archivo = directorio / "registry.json"
+            archivo.write_text("{}", encoding="utf-8")
+            archivo.chmod(0o444)
+            directorio.chmod(0o555)
+        if caso in ("modelo_archivo", "modelo_directorio", "api_archivo", "api_directorio"):
+            nombre, tipo = caso.split("_")
+            objetivo = tmp_path / "app" / nombre
+            if tipo == "archivo":
+                objetivo /= "registry.json"
+            objetivo.chmod(0o755 if tipo == "directorio" else 0o644)
+        entorno = {
+            **os.environ,
+            "PATH": str(binarios) + os.pathsep + os.environ.get("PATH", ""),
+            "CASO_ACEPTACION": caso,
+            "MODEL_DIR": "app/modelo",
+            "MOTOR": "docker",
+            "CAPTURA": "1",
+            "TERM_PROGRAM": "Apple_Terminal",
+        }
+        try:
+            resultado = subprocess.run(
+                ["/bin/bash", "probar.sh"],
+                check=False,
+                cwd=tmp_path,
+                env=entorno,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+        finally:
+            for directorio in directorios:
+                directorio.chmod(0o755)
+        correcto = caso in ("ok", "redondeo", "captura_redondeo")
+        assert resultado.returncode == (0 if correcto else 1), resultado.stdout + resultado.stderr
+        assert (evidencia / "captura-contenedor.png").exists() == correcto
+        assert ("ACEPTACIÓN: OK" in resultado.stdout) == correcto
+        if caso.startswith("captura"):
+            assert "==================== CAPTURA:" in resultado.stdout
+        elif caso in ("modelo_archivo", "modelo_directorio", "api_archivo", "api_directorio"):
+>           assert "Rutas escribibles:" in resultado.stdout
+E           AssertionError: assert 'Rutas escribibles:' in ''
+E            +  where '' = CompletedProcess(args=['/bin/bash', 'probar.sh'], returncode=1, stdout='', stderr='probar.sh: line 92: /dev/fd/62: Operation not permitted\n').stdout
+
+tests/test_probar_contenedor.py:223: AssertionError
+_ test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[api_directorio] _
+
+tmp_path = PosixPath('<tmp>')
+caso = 'api_directorio'
+
+    @pytest.mark.parametrize(
+        "caso",
+        [
+            "ok",
+            "redondeo",
+            "captura_redondeo",
+            "lote_corto",
+            "lote_largo",
+            "lote_nan",
+            "lote_infinito",
+            "individual_nan",
+            "individual_infinito",
+            "captura_nan",
+            "health500",
+            "health201",
+            "predict500",
+            "predict201",
+            "batch500",
+            "individual",
+            "lote",
+            "orden",
+            "sin422",
+            "salud",
+            "root",
+            "modelo_archivo",
+            "modelo_directorio",
+            "api_archivo",
+            "api_directorio",
+            "exec_error",
+            "captura_distinta",
+            "captura500",
+            "transporte",
+        ],
+    )
+    @pytest.mark.skipif(os.name == "nt", reason="El script de aceptación requiere Bash")
+    @pytest.mark.skipif(
+        os.name != "nt" and os.geteuid() == 0,
+        reason="Todos los escenarios requieren un árbol de solo lectura para un usuario no root",
+    )
+    def test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan(tmp_path, caso):
+        binarios = tmp_path / "bin"
+        binarios.mkdir()
+        doble = binarios / "doble"
+        doble.write_text(f"#!{sys.executable}\n{DOBLE}", encoding="utf-8")
+        doble.chmod(0o755)
+        for nombre in (
+            "git",
+            "docker",
+            "curl",
+            "uname",
+            "lsof",
+            "osascript",
+            "screencapture",
+            "sleep",
+        ):
+            (binarios / nombre).symlink_to(doble)
+        (binarios / "python3").symlink_to(sys.executable)
+        evidencia = tmp_path / "docs/evidencia-api"
+        evidencia.mkdir(parents=True)
+        for archivo in ("prediccion-referencia.json", "peticion-predict.json", "peticion-batch.json"):
+            shutil.copyfile(REPO / "docs/evidencia-api" / archivo, evidencia / archivo)
+        shutil.copyfile(REPO / "scripts/probar_contenedor.sh", tmp_path / "probar.sh")
+        (tmp_path / "Containerfile").write_text("# doble\n", encoding="utf-8")
+        directorios = [tmp_path / "app" / nombre for nombre in ("modelo", "api")]
+        for directorio in directorios:
+            directorio.mkdir(parents=True)
+            archivo = directorio / "registry.json"
+            archivo.write_text("{}", encoding="utf-8")
+            archivo.chmod(0o444)
+            directorio.chmod(0o555)
+        if caso in ("modelo_archivo", "modelo_directorio", "api_archivo", "api_directorio"):
+            nombre, tipo = caso.split("_")
+            objetivo = tmp_path / "app" / nombre
+            if tipo == "archivo":
+                objetivo /= "registry.json"
+            objetivo.chmod(0o755 if tipo == "directorio" else 0o644)
+        entorno = {
+            **os.environ,
+            "PATH": str(binarios) + os.pathsep + os.environ.get("PATH", ""),
+            "CASO_ACEPTACION": caso,
+            "MODEL_DIR": "app/modelo",
+            "MOTOR": "docker",
+            "CAPTURA": "1",
+            "TERM_PROGRAM": "Apple_Terminal",
+        }
+        try:
+            resultado = subprocess.run(
+                ["/bin/bash", "probar.sh"],
+                check=False,
+                cwd=tmp_path,
+                env=entorno,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+        finally:
+            for directorio in directorios:
+                directorio.chmod(0o755)
+        correcto = caso in ("ok", "redondeo", "captura_redondeo")
+        assert resultado.returncode == (0 if correcto else 1), resultado.stdout + resultado.stderr
+        assert (evidencia / "captura-contenedor.png").exists() == correcto
+        assert ("ACEPTACIÓN: OK" in resultado.stdout) == correcto
+        if caso.startswith("captura"):
+            assert "==================== CAPTURA:" in resultado.stdout
+        elif caso in ("modelo_archivo", "modelo_directorio", "api_archivo", "api_directorio"):
+>           assert "Rutas escribibles:" in resultado.stdout
+E           AssertionError: assert 'Rutas escribibles:' in ''
+E            +  where '' = CompletedProcess(args=['/bin/bash', 'probar.sh'], returncode=1, stdout='', stderr='probar.sh: line 92: /dev/fd/62: Operation not permitted\n').stdout
+
+tests/test_probar_contenedor.py:223: AssertionError
+__ test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[exec_error] __
+
+tmp_path = PosixPath('<tmp>')
+caso = 'exec_error'
+
+    @pytest.mark.parametrize(
+        "caso",
+        [
+            "ok",
+            "redondeo",
+            "captura_redondeo",
+            "lote_corto",
+            "lote_largo",
+            "lote_nan",
+            "lote_infinito",
+            "individual_nan",
+            "individual_infinito",
+            "captura_nan",
+            "health500",
+            "health201",
+            "predict500",
+            "predict201",
+            "batch500",
+            "individual",
+            "lote",
+            "orden",
+            "sin422",
+            "salud",
+            "root",
+            "modelo_archivo",
+            "modelo_directorio",
+            "api_archivo",
+            "api_directorio",
+            "exec_error",
+            "captura_distinta",
+            "captura500",
+            "transporte",
+        ],
+    )
+    @pytest.mark.skipif(os.name == "nt", reason="El script de aceptación requiere Bash")
+    @pytest.mark.skipif(
+        os.name != "nt" and os.geteuid() == 0,
+        reason="Todos los escenarios requieren un árbol de solo lectura para un usuario no root",
+    )
+    def test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan(tmp_path, caso):
+        binarios = tmp_path / "bin"
+        binarios.mkdir()
+        doble = binarios / "doble"
+        doble.write_text(f"#!{sys.executable}\n{DOBLE}", encoding="utf-8")
+        doble.chmod(0o755)
+        for nombre in (
+            "git",
+            "docker",
+            "curl",
+            "uname",
+            "lsof",
+            "osascript",
+            "screencapture",
+            "sleep",
+        ):
+            (binarios / nombre).symlink_to(doble)
+        (binarios / "python3").symlink_to(sys.executable)
+        evidencia = tmp_path / "docs/evidencia-api"
+        evidencia.mkdir(parents=True)
+        for archivo in ("prediccion-referencia.json", "peticion-predict.json", "peticion-batch.json"):
+            shutil.copyfile(REPO / "docs/evidencia-api" / archivo, evidencia / archivo)
+        shutil.copyfile(REPO / "scripts/probar_contenedor.sh", tmp_path / "probar.sh")
+        (tmp_path / "Containerfile").write_text("# doble\n", encoding="utf-8")
+        directorios = [tmp_path / "app" / nombre for nombre in ("modelo", "api")]
+        for directorio in directorios:
+            directorio.mkdir(parents=True)
+            archivo = directorio / "registry.json"
+            archivo.write_text("{}", encoding="utf-8")
+            archivo.chmod(0o444)
+            directorio.chmod(0o555)
+        if caso in ("modelo_archivo", "modelo_directorio", "api_archivo", "api_directorio"):
+            nombre, tipo = caso.split("_")
+            objetivo = tmp_path / "app" / nombre
+            if tipo == "archivo":
+                objetivo /= "registry.json"
+            objetivo.chmod(0o755 if tipo == "directorio" else 0o644)
+        entorno = {
+            **os.environ,
+            "PATH": str(binarios) + os.pathsep + os.environ.get("PATH", ""),
+            "CASO_ACEPTACION": caso,
+            "MODEL_DIR": "app/modelo",
+            "MOTOR": "docker",
+            "CAPTURA": "1",
+            "TERM_PROGRAM": "Apple_Terminal",
+        }
+        try:
+            resultado = subprocess.run(
+                ["/bin/bash", "probar.sh"],
+                check=False,
+                cwd=tmp_path,
+                env=entorno,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+        finally:
+            for directorio in directorios:
+                directorio.chmod(0o755)
+        correcto = caso in ("ok", "redondeo", "captura_redondeo")
+        assert resultado.returncode == (0 if correcto else 1), resultado.stdout + resultado.stderr
+        assert (evidencia / "captura-contenedor.png").exists() == correcto
+        assert ("ACEPTACIÓN: OK" in resultado.stdout) == correcto
+        if caso.startswith("captura"):
+            assert "==================== CAPTURA:" in resultado.stdout
+        elif caso in ("modelo_archivo", "modelo_directorio", "api_archivo", "api_directorio"):
+            assert "Rutas escribibles:" in resultado.stdout
+        elif caso == "exec_error":
+>           assert "Error simulado de docker exec" in resultado.stdout
+E           AssertionError: assert 'Error simulado de docker exec' in ''
+E            +  where '' = CompletedProcess(args=['/bin/bash', 'probar.sh'], returncode=1, stdout='', stderr='probar.sh: line 92: /dev/fd/62: Operation not permitted\n').stdout
+
+tests/test_probar_contenedor.py:225: AssertionError
+_ test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[captura_distinta] _
+
+tmp_path = PosixPath('<tmp>')
+caso = 'captura_distinta'
+
+    @pytest.mark.parametrize(
+        "caso",
+        [
+            "ok",
+            "redondeo",
+            "captura_redondeo",
+            "lote_corto",
+            "lote_largo",
+            "lote_nan",
+            "lote_infinito",
+            "individual_nan",
+            "individual_infinito",
+            "captura_nan",
+            "health500",
+            "health201",
+            "predict500",
+            "predict201",
+            "batch500",
+            "individual",
+            "lote",
+            "orden",
+            "sin422",
+            "salud",
+            "root",
+            "modelo_archivo",
+            "modelo_directorio",
+            "api_archivo",
+            "api_directorio",
+            "exec_error",
+            "captura_distinta",
+            "captura500",
+            "transporte",
+        ],
+    )
+    @pytest.mark.skipif(os.name == "nt", reason="El script de aceptación requiere Bash")
+    @pytest.mark.skipif(
+        os.name != "nt" and os.geteuid() == 0,
+        reason="Todos los escenarios requieren un árbol de solo lectura para un usuario no root",
+    )
+    def test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan(tmp_path, caso):
+        binarios = tmp_path / "bin"
+        binarios.mkdir()
+        doble = binarios / "doble"
+        doble.write_text(f"#!{sys.executable}\n{DOBLE}", encoding="utf-8")
+        doble.chmod(0o755)
+        for nombre in (
+            "git",
+            "docker",
+            "curl",
+            "uname",
+            "lsof",
+            "osascript",
+            "screencapture",
+            "sleep",
+        ):
+            (binarios / nombre).symlink_to(doble)
+        (binarios / "python3").symlink_to(sys.executable)
+        evidencia = tmp_path / "docs/evidencia-api"
+        evidencia.mkdir(parents=True)
+        for archivo in ("prediccion-referencia.json", "peticion-predict.json", "peticion-batch.json"):
+            shutil.copyfile(REPO / "docs/evidencia-api" / archivo, evidencia / archivo)
+        shutil.copyfile(REPO / "scripts/probar_contenedor.sh", tmp_path / "probar.sh")
+        (tmp_path / "Containerfile").write_text("# doble\n", encoding="utf-8")
+        directorios = [tmp_path / "app" / nombre for nombre in ("modelo", "api")]
+        for directorio in directorios:
+            directorio.mkdir(parents=True)
+            archivo = directorio / "registry.json"
+            archivo.write_text("{}", encoding="utf-8")
+            archivo.chmod(0o444)
+            directorio.chmod(0o555)
+        if caso in ("modelo_archivo", "modelo_directorio", "api_archivo", "api_directorio"):
+            nombre, tipo = caso.split("_")
+            objetivo = tmp_path / "app" / nombre
+            if tipo == "archivo":
+                objetivo /= "registry.json"
+            objetivo.chmod(0o755 if tipo == "directorio" else 0o644)
+        entorno = {
+            **os.environ,
+            "PATH": str(binarios) + os.pathsep + os.environ.get("PATH", ""),
+            "CASO_ACEPTACION": caso,
+            "MODEL_DIR": "app/modelo",
+            "MOTOR": "docker",
+            "CAPTURA": "1",
+            "TERM_PROGRAM": "Apple_Terminal",
+        }
+        try:
+            resultado = subprocess.run(
+                ["/bin/bash", "probar.sh"],
+                check=False,
+                cwd=tmp_path,
+                env=entorno,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+        finally:
+            for directorio in directorios:
+                directorio.chmod(0o755)
+        correcto = caso in ("ok", "redondeo", "captura_redondeo")
+        assert resultado.returncode == (0 if correcto else 1), resultado.stdout + resultado.stderr
+        assert (evidencia / "captura-contenedor.png").exists() == correcto
+        assert ("ACEPTACIÓN: OK" in resultado.stdout) == correcto
+        if caso.startswith("captura"):
+>           assert "==================== CAPTURA:" in resultado.stdout
+E           AssertionError: assert '==================== CAPTURA:' in ''
+E            +  where '' = CompletedProcess(args=['/bin/bash', 'probar.sh'], returncode=1, stdout='', stderr='probar.sh: line 92: /dev/fd/62: Operation not permitted\n').stdout
+
+tests/test_probar_contenedor.py:221: AssertionError
+__ test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[captura500] __
+
+tmp_path = PosixPath('<tmp>')
+caso = 'captura500'
+
+    @pytest.mark.parametrize(
+        "caso",
+        [
+            "ok",
+            "redondeo",
+            "captura_redondeo",
+            "lote_corto",
+            "lote_largo",
+            "lote_nan",
+            "lote_infinito",
+            "individual_nan",
+            "individual_infinito",
+            "captura_nan",
+            "health500",
+            "health201",
+            "predict500",
+            "predict201",
+            "batch500",
+            "individual",
+            "lote",
+            "orden",
+            "sin422",
+            "salud",
+            "root",
+            "modelo_archivo",
+            "modelo_directorio",
+            "api_archivo",
+            "api_directorio",
+            "exec_error",
+            "captura_distinta",
+            "captura500",
+            "transporte",
+        ],
+    )
+    @pytest.mark.skipif(os.name == "nt", reason="El script de aceptación requiere Bash")
+    @pytest.mark.skipif(
+        os.name != "nt" and os.geteuid() == 0,
+        reason="Todos los escenarios requieren un árbol de solo lectura para un usuario no root",
+    )
+    def test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan(tmp_path, caso):
+        binarios = tmp_path / "bin"
+        binarios.mkdir()
+        doble = binarios / "doble"
+        doble.write_text(f"#!{sys.executable}\n{DOBLE}", encoding="utf-8")
+        doble.chmod(0o755)
+        for nombre in (
+            "git",
+            "docker",
+            "curl",
+            "uname",
+            "lsof",
+            "osascript",
+            "screencapture",
+            "sleep",
+        ):
+            (binarios / nombre).symlink_to(doble)
+        (binarios / "python3").symlink_to(sys.executable)
+        evidencia = tmp_path / "docs/evidencia-api"
+        evidencia.mkdir(parents=True)
+        for archivo in ("prediccion-referencia.json", "peticion-predict.json", "peticion-batch.json"):
+            shutil.copyfile(REPO / "docs/evidencia-api" / archivo, evidencia / archivo)
+        shutil.copyfile(REPO / "scripts/probar_contenedor.sh", tmp_path / "probar.sh")
+        (tmp_path / "Containerfile").write_text("# doble\n", encoding="utf-8")
+        directorios = [tmp_path / "app" / nombre for nombre in ("modelo", "api")]
+        for directorio in directorios:
+            directorio.mkdir(parents=True)
+            archivo = directorio / "registry.json"
+            archivo.write_text("{}", encoding="utf-8")
+            archivo.chmod(0o444)
+            directorio.chmod(0o555)
+        if caso in ("modelo_archivo", "modelo_directorio", "api_archivo", "api_directorio"):
+            nombre, tipo = caso.split("_")
+            objetivo = tmp_path / "app" / nombre
+            if tipo == "archivo":
+                objetivo /= "registry.json"
+            objetivo.chmod(0o755 if tipo == "directorio" else 0o644)
+        entorno = {
+            **os.environ,
+            "PATH": str(binarios) + os.pathsep + os.environ.get("PATH", ""),
+            "CASO_ACEPTACION": caso,
+            "MODEL_DIR": "app/modelo",
+            "MOTOR": "docker",
+            "CAPTURA": "1",
+            "TERM_PROGRAM": "Apple_Terminal",
+        }
+        try:
+            resultado = subprocess.run(
+                ["/bin/bash", "probar.sh"],
+                check=False,
+                cwd=tmp_path,
+                env=entorno,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+        finally:
+            for directorio in directorios:
+                directorio.chmod(0o755)
+        correcto = caso in ("ok", "redondeo", "captura_redondeo")
+        assert resultado.returncode == (0 if correcto else 1), resultado.stdout + resultado.stderr
+        assert (evidencia / "captura-contenedor.png").exists() == correcto
+        assert ("ACEPTACIÓN: OK" in resultado.stdout) == correcto
+        if caso.startswith("captura"):
+>           assert "==================== CAPTURA:" in resultado.stdout
+E           AssertionError: assert '==================== CAPTURA:' in ''
+E            +  where '' = CompletedProcess(args=['/bin/bash', 'probar.sh'], returncode=1, stdout='', stderr='probar.sh: line 92: /dev/fd/62: Operation not permitted\n').stdout
+
+tests/test_probar_contenedor.py:221: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.13/site-packages/fastapi/testclient.py:1
+  <repo>/.venv/lib/python3.13/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/test_compare_p3.py::test_comparacion_acotada_y_representantes_miembros
+  <repo>/.venv/lib/python3.13/site-packages/joblib/externals/loky/backend/context.py:134: UserWarning: Could not find the number of physical cores for the following reason:
+  invalid literal for int() with base 10: ''
+  Returning the number of logical cores instead. You can silence this warning by setting LOKY_MAX_CPU_COUNT to the number of cores you want to use.
+    warnings.warn(
+
+tests/test_registrar_p1.py::test_revision_no_cambia_nada
+  <repo>/.venv/lib/python3.13/site-packages/mlflow/store/tracking/sqlalchemy_store.py:327: SADeprecationWarning: The ``noload`` loader strategy is deprecated and will be removed in a future release.  This option produces incorrect results by returning ``None`` for related items. (deprecated since: 2.1)
+    sqlalchemy.orm.configure_mappers()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[ok]
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[redondeo]
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[captura_redondeo]
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[captura_nan]
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[modelo_archivo]
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[modelo_directorio]
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[api_archivo]
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[api_directorio]
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[exec_error]
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[captura_distinta]
+FAILED tests/test_probar_contenedor.py::test_aceptacion_solo_captura_si_todas_las_comprobaciones_pasan[captura500]
+11 failed, 202 passed, 3 skipped, 3 warnings in 89.43s (0:01:29)

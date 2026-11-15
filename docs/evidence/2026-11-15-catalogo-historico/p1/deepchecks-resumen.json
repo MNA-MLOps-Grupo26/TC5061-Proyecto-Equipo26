@@ -1,0 +1,410 @@
+[
+  {
+    "n": 1,
+    "chequeo": "Expected Types",
+    "datos": "viajes sin particionar",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "2 columnas con el tipo esperado"
+  },
+  {
+    "n": 2,
+    "chequeo": "Data Duplicates",
+    "datos": "viajes sin particionar (viaje_id)",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "Found 0% duplicate data"
+  },
+  {
+    "n": 3,
+    "chequeo": "PercentOfNulls",
+    "datos": "viajes sin particionar (viaje_id, inicio_viaje)",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "Passed for 2 relevant columns"
+  },
+  {
+    "n": 4,
+    "chequeo": "Expected Types",
+    "datos": "P1 train",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "21 columnas con el tipo esperado"
+  },
+  {
+    "n": 5,
+    "chequeo": "Data Duplicates",
+    "datos": "P1 train (estacion_id, fecha)",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "Found 0% duplicate data"
+  },
+  {
+    "n": 6,
+    "chequeo": "PercentOfNulls",
+    "datos": "P1 train llaves, objetivo y calendario",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "Passed for 8 relevant columns"
+  },
+  {
+    "n": 7,
+    "chequeo": "PercentOfNulls",
+    "datos": "P1 train rezagos y catálogo",
+    "tipo": "informativo",
+    "paso": true,
+    "detalle": "Passed for 13 relevant columns. Top columns with null ratio: {'salidas_lag7': '1.97%', 'salidas_mismo_dia_media4': '1.97%', 'capacidad': '0.08%', 'latitud': '0.08%', 'longitud': '0.08%'}"
+  },
+  {
+    "n": 8,
+    "chequeo": "Mixed Nulls",
+    "datos": "P1 train",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "Passed for 21 relevant columns"
+  },
+  {
+    "n": 9,
+    "chequeo": "Mixed Data Types",
+    "datos": "P1 train",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "21 columns passed: found 0 columns with negligible types mix, and 21 columns without any types mix"
+  },
+  {
+    "n": 10,
+    "chequeo": "Single Value in Column",
+    "datos": "P1 train",
+    "tipo": "informativo",
+    "paso": true,
+    "detalle": "Passed for 18 relevant columns"
+  },
+  {
+    "n": 11,
+    "chequeo": "Feature Label Correlation",
+    "datos": "P1 train",
+    "tipo": "informativo",
+    "paso": true,
+    "detalle": "Passed for 18 relevant columns"
+  },
+  {
+    "n": 12,
+    "chequeo": "Expected Types",
+    "datos": "P1 validation",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "21 columnas con el tipo esperado"
+  },
+  {
+    "n": 13,
+    "chequeo": "Data Duplicates",
+    "datos": "P1 validation (estacion_id, fecha)",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "Found 0% duplicate data"
+  },
+  {
+    "n": 14,
+    "chequeo": "PercentOfNulls",
+    "datos": "P1 validation llaves, objetivo y calendario",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "Passed for 8 relevant columns"
+  },
+  {
+    "n": 15,
+    "chequeo": "PercentOfNulls",
+    "datos": "P1 validation rezagos y catálogo",
+    "tipo": "informativo",
+    "paso": true,
+    "detalle": "Passed for 13 relevant columns. Top columns with null ratio: {'salidas_lag7': '0.8%', 'salidas_mismo_dia_media4': '0.8%', 'capacidad': '0.43%', 'latitud': '0.43%', 'longitud': '0.43%'}"
+  },
+  {
+    "n": 16,
+    "chequeo": "Mixed Nulls",
+    "datos": "P1 validation",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "Passed for 21 relevant columns"
+  },
+  {
+    "n": 17,
+    "chequeo": "Mixed Data Types",
+    "datos": "P1 validation",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "21 columns passed: found 0 columns with negligible types mix, and 21 columns without any types mix"
+  },
+  {
+    "n": 18,
+    "chequeo": "Single Value in Column",
+    "datos": "P1 validation",
+    "tipo": "informativo",
+    "paso": true,
+    "detalle": "Passed for 18 relevant columns"
+  },
+  {
+    "n": 19,
+    "chequeo": "Feature Label Correlation",
+    "datos": "P1 validation",
+    "tipo": "informativo",
+    "paso": true,
+    "detalle": "Passed for 18 relevant columns"
+  },
+  {
+    "n": 20,
+    "chequeo": "Expected Types",
+    "datos": "P1 test",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "21 columnas con el tipo esperado"
+  },
+  {
+    "n": 21,
+    "chequeo": "Data Duplicates",
+    "datos": "P1 test (estacion_id, fecha)",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "Found 0% duplicate data"
+  },
+  {
+    "n": 22,
+    "chequeo": "PercentOfNulls",
+    "datos": "P1 test llaves, objetivo y calendario",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "Passed for 8 relevant columns"
+  },
+  {
+    "n": 23,
+    "chequeo": "PercentOfNulls",
+    "datos": "P1 test rezagos y catálogo",
+    "tipo": "informativo",
+    "paso": true,
+    "detalle": "Passed for 13 relevant columns. Top columns with null ratio: {'salidas_lag7': '0.04%', 'salidas_mismo_dia_media4': '0.04%', 'capacidad': '0.42%', 'latitud': '0.42%', 'longitud': '0.42%'}"
+  },
+  {
+    "n": 24,
+    "chequeo": "Mixed Nulls",
+    "datos": "P1 test",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "Passed for 21 relevant columns"
+  },
+  {
+    "n": 25,
+    "chequeo": "Mixed Data Types",
+    "datos": "P1 test",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "21 columns passed: found 0 columns with negligible types mix, and 21 columns without any types mix"
+  },
+  {
+    "n": 26,
+    "chequeo": "Single Value in Column",
+    "datos": "P1 test",
+    "tipo": "informativo",
+    "paso": true,
+    "detalle": "Passed for 18 relevant columns"
+  },
+  {
+    "n": 27,
+    "chequeo": "Feature Label Correlation",
+    "datos": "P1 test",
+    "tipo": "informativo",
+    "paso": true,
+    "detalle": "Passed for 18 relevant columns"
+  },
+  {
+    "n": 28,
+    "chequeo": "Date Train-Test Leakage (overlap)",
+    "datos": "P1 train vs validation",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "No leaked dates found"
+  },
+  {
+    "n": 29,
+    "chequeo": "Feature Drift",
+    "datos": "P1 train vs validation",
+    "tipo": "informativo",
+    "paso": true,
+    "detalle": "Passed for 15 columns out of 15 columns. Found column \"dia_semana\" has the highest categorical drift score: 0.05 Found column \"salidas_mismo_dia_media4\" has the highest numerical drift score: 0.11"
+  },
+  {
+    "n": 30,
+    "chequeo": "Label Drift",
+    "datos": "P1 train vs validation",
+    "tipo": "informativo",
+    "paso": true,
+    "detalle": "Label's drift score Kolmogorov-Smirnov is 0.09"
+  },
+  {
+    "n": 31,
+    "chequeo": "Date Train-Test Leakage (overlap)",
+    "datos": "P1 train vs test",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "No leaked dates found"
+  },
+  {
+    "n": 32,
+    "chequeo": "Feature Drift",
+    "datos": "P1 train vs test",
+    "tipo": "informativo",
+    "paso": true,
+    "detalle": "Passed for 15 columns out of 15 columns. Found column \"dia_semana\" has the highest categorical drift score: 0.05 Found column \"salidas_mismo_dia_media4\" has the highest numerical drift score: 0.08"
+  },
+  {
+    "n": 33,
+    "chequeo": "Label Drift",
+    "datos": "P1 train vs test",
+    "tipo": "informativo",
+    "paso": true,
+    "detalle": "Label's drift score Kolmogorov-Smirnov is 0.04"
+  },
+  {
+    "n": 34,
+    "chequeo": "Expected Types",
+    "datos": "viajes train",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "7 columnas con el tipo esperado"
+  },
+  {
+    "n": 35,
+    "chequeo": "Data Duplicates",
+    "datos": "viajes train (viaje_id)",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "Found 0% duplicate data"
+  },
+  {
+    "n": 36,
+    "chequeo": "PercentOfNulls",
+    "datos": "viajes train todas las columnas",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "Passed for 7 relevant columns"
+  },
+  {
+    "n": 37,
+    "chequeo": "Mixed Data Types",
+    "datos": "viajes train",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "7 columns passed: found 0 columns with negligible types mix, and 7 columns without any types mix"
+  },
+  {
+    "n": 38,
+    "chequeo": "Expected Types",
+    "datos": "viajes validation",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "7 columnas con el tipo esperado"
+  },
+  {
+    "n": 39,
+    "chequeo": "Data Duplicates",
+    "datos": "viajes validation (viaje_id)",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "Found 0% duplicate data"
+  },
+  {
+    "n": 40,
+    "chequeo": "PercentOfNulls",
+    "datos": "viajes validation todas las columnas",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "Passed for 7 relevant columns"
+  },
+  {
+    "n": 41,
+    "chequeo": "Mixed Data Types",
+    "datos": "viajes validation",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "7 columns passed: found 0 columns with negligible types mix, and 7 columns without any types mix"
+  },
+  {
+    "n": 42,
+    "chequeo": "Expected Types",
+    "datos": "viajes test",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "7 columnas con el tipo esperado"
+  },
+  {
+    "n": 43,
+    "chequeo": "Data Duplicates",
+    "datos": "viajes test (viaje_id)",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "Found 0% duplicate data"
+  },
+  {
+    "n": 44,
+    "chequeo": "PercentOfNulls",
+    "datos": "viajes test todas las columnas",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "Passed for 7 relevant columns"
+  },
+  {
+    "n": 45,
+    "chequeo": "Mixed Data Types",
+    "datos": "viajes test",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "7 columns passed: found 0 columns with negligible types mix, and 7 columns without any types mix"
+  },
+  {
+    "n": 46,
+    "chequeo": "Date Train-Test Leakage (overlap)",
+    "datos": "viajes train vs validation",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "No leaked dates found"
+  },
+  {
+    "n": 47,
+    "chequeo": "Feature Drift",
+    "datos": "viajes train vs validation",
+    "tipo": "informativo",
+    "paso": true,
+    "detalle": "Passed for 5 columns out of 5 columns. Found column \"dia_semana\" has the highest categorical drift score: 0.05 Found column \"duracion_min\" has the highest numerical drift score: 0.03"
+  },
+  {
+    "n": 48,
+    "chequeo": "New Category Train Test",
+    "datos": "viajes train vs validation",
+    "tipo": "informativo",
+    "paso": true,
+    "detalle": "Passed for 1 relevant feature. Top features with new categories ratio: {'origen_id': '0.63%'}"
+  },
+  {
+    "n": 49,
+    "chequeo": "Date Train-Test Leakage (overlap)",
+    "datos": "viajes train vs test",
+    "tipo": "bloqueante",
+    "paso": true,
+    "detalle": "No leaked dates found"
+  },
+  {
+    "n": 50,
+    "chequeo": "Feature Drift",
+    "datos": "viajes train vs test",
+    "tipo": "informativo",
+    "paso": true,
+    "detalle": "Passed for 5 columns out of 5 columns. Found column \"dia_semana\" has the highest categorical drift score: 0.04 Found column \"duracion_min\" has the highest numerical drift score: 0.09"
+  },
+  {
+    "n": 51,
+    "chequeo": "New Category Train Test",
+    "datos": "viajes train vs test",
+    "tipo": "informativo",
+    "paso": true,
+    "detalle": "Passed for 1 relevant feature. Top features with new categories ratio: {'origen_id': '1.11%'}"
+  }
+]

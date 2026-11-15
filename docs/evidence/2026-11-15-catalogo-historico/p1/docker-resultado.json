@@ -1,0 +1,125 @@
+{
+  "container": "mibici-p1-repro-f5ffb47d",
+  "image": "mibici-p1-repro:20261115-f5ffb47d",
+  "base_image": "python:3.13.16-slim",
+  "checks": {
+    "health": true,
+    "non_root": true,
+    "read_only": true,
+    "predict": true,
+    "batch": true,
+    "order": true,
+    "invalid_422": true
+  },
+  "build_exit_code": 0,
+  "build_seconds": 2.66,
+  "image_id": "sha256:e36cb2e12893c1747c7ac6b5c1098ee0a80e108757025983bd6a98327fa2354f",
+  "architecture": "arm64",
+  "user": "app",
+  "container_id": "8b009d06a41e53e83b63359c6b339de975a4a89f783580a69bd1d1f6cfad6715",
+  "url": "http://127.0.0.1:53525",
+  "health": {
+    "status": 200,
+    "body": {
+      "estado": "ok",
+      "modelo": {
+        "nombre": "mibici-equipo26-p1-demand",
+        "version": "1",
+        "run_id": "b77adcb1769d41839eef31f7220522af",
+        "alias_consultado": "champion",
+        "logged_model_id": "m-f99d519f75b64004a62dd05666d13037",
+        "source_sha": "2298aa6e4844dedb782400f0c993ce1f018d9235",
+        "data_version": "cd917f9aa025"
+      },
+      "verificacion": {
+        "hashes": "ok",
+        "firma": "ok",
+        "archivos_verificados": 8
+      }
+    }
+  },
+  "permissions": "API y modelo de solo lectura",
+  "single": {
+    "status": 200,
+    "body": {
+      "viajes_esperados": 122.55957713166208,
+      "estacion_id": 21,
+      "fecha": "2026-09-15",
+      "modelo": {
+        "nombre": "mibici-equipo26-p1-demand",
+        "version": "1",
+        "run_id": "b77adcb1769d41839eef31f7220522af"
+      }
+    }
+  },
+  "batch": {
+    "status": 200,
+    "body": {
+      "n": 3,
+      "predicciones": [
+        {
+          "indice": 0,
+          "viajes_esperados": 122.55957713166208,
+          "estacion_id": 21,
+          "fecha": "2026-09-15"
+        },
+        {
+          "indice": 1,
+          "viajes_esperados": 4.092428571892937,
+          "estacion_id": 180,
+          "fecha": "2026-09-12"
+        },
+        {
+          "indice": 2,
+          "viajes_esperados": 111.53998701033007,
+          "estacion_id": 999,
+          "fecha": "2026-09-15"
+        }
+      ],
+      "modelo": {
+        "nombre": "mibici-equipo26-p1-demand",
+        "version": "1",
+        "run_id": "b77adcb1769d41839eef31f7220522af"
+      }
+    }
+  },
+  "invalid": {
+    "status": 422,
+    "body": {
+      "detail": [
+        {
+          "loc": [
+            "body"
+          ],
+          "msg": "Value error, es_fin_semana no coincide con dia_semana (1 solo si dia_semana >= 5)",
+          "type": "value_error",
+          "input": {
+            "estacion_id": 21,
+            "fecha": "2026-09-15",
+            "salidas_lag1": 146.0,
+            "llegadas_lag1": 141.0,
+            "saldo_lag1": 5.0,
+            "salidas_lag7": 110.0,
+            "salidas_media7": 122.714286,
+            "salidas_media28": 106.285714,
+            "llegadas_media7": 117.857143,
+            "llegadas_media28": 100.928571,
+            "salidas_mismo_dia_media4": 105.5,
+            "dias_historia": 410,
+            "dias_desde_ultimo_viaje": 1,
+            "dia_semana": 1,
+            "es_fin_semana": 1,
+            "mes": 9,
+            "dia_mes": 15,
+            "capacidad": 23.0,
+            "latitud": 20.678814,
+            "longitud": -103.368058
+          }
+        }
+      ]
+    }
+  },
+  "status": "passed",
+  "test_container_removed": true,
+  "total_seconds": 6.98
+}

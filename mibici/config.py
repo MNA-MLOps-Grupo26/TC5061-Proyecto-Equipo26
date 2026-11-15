@@ -36,10 +36,20 @@ MANIFESTS_DIR = PROJ_ROOT / "manifests"
 MIBICI_PORTAL = "https://mibici.net/es/datos-abiertos/"
 LOCAL_TIMEZONE = "America/Mexico_City"
 # Catálogo de estaciones (id, nombre, coordenadas y capacidad). Se usa la
-# versión más reciente publicada; aplicar su capacidad a meses previos es un
+# versión congelada del entrenamiento; aplicar su capacidad a meses previos es un
 # supuesto documentado en el ML Canvas.
 NOMENCLATURA_MES = "2026_09"
 NOMENCLATURA_FILENAME = f"nomenclatura_{NOMENCLATURA_MES}.csv"
+
+# Copia histórica del mismo CSV; siempre se exige el hash del manifiesto.
+DOWNLOAD_FALLBACKS = {
+    "nomenclatura_2026_09.csv": [
+        (
+            "https://web.archive.org/web/20261009131525id_/"
+            "https://www.mibici.net/site/assets/files/1118/nomenclatura_2026_09.csv"
+        )
+    ]
+}
 
 # Archivos procesados y manifiestos
 VIAJES_PARQUET_GLOB = "datos_abiertos_*.parquet"

@@ -1,0 +1,62 @@
+Matplotlib is building the font cache; this may take a moment.
+/tmp/mibici-deepchecks-repro-20261115/lib/python3.11/site-packages/deepchecks/core/serialization/dataframe/html.py:16: UserWarning:
+
+pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+/Users/runner/work/crossbow/crossbow/arrow/cpp/src/arrow/util/cpu_info.cc:239: IOError: sysctlbyname failed for 'hw.l1dcachesize'. Detail: [errno 1] Operation not permitted
+/Users/runner/work/crossbow/crossbow/arrow/cpp/src/arrow/util/cpu_info.cc:239: IOError: sysctlbyname failed for 'hw.l2cachesize'. Detail: [errno 1] Operation not permitted
+/Users/runner/work/crossbow/crossbow/arrow/cpp/src/arrow/util/cpu_info.cc:239: IOError: sysctlbyname failed for 'hw.l3cachesize'. Detail: [errno 1] Operation not permitted
+/Users/runner/work/crossbow/crossbow/arrow/cpp/src/arrow/util/cpu_info.cc:239: IOError: sysctlbyname failed for 'hw.optional.neon'. Detail: [errno 1] Operation not permitted
+[OK  ] 01 Expected Types                   viajes sin particionar       2 columnas con el tipo esperado
+[OK  ] 02 Data Duplicates                  viajes sin particionar (viaje_id) Found 0% duplicate data
+[OK  ] 03 PercentOfNulls                   viajes sin particionar (viaje_id, inicio_viaje) Passed for 2 relevant columns
+[OK  ] 04 Expected Types                   P1 train                     21 columnas con el tipo esperado
+[OK  ] 05 Data Duplicates                  P1 train (estacion_id, fecha) Found 0% duplicate data
+[OK  ] 06 PercentOfNulls                   P1 train llaves, objetivo y calendario Passed for 8 relevant columns
+[OK  ] 07 PercentOfNulls                   P1 train rezagos y catálogo  Passed for 13 relevant columns. Top columns with null ratio: {'salidas_lag7': '1.97%', 'sa
+[OK  ] 08 Mixed Nulls                      P1 train                     Passed for 21 relevant columns
+[OK  ] 09 Mixed Data Types                 P1 train                     21 columns passed: found 0 columns with negligible types mix, and 21 columns without any t
+[OK  ] 10 Single Value in Column           P1 train                     Passed for 18 relevant columns
+[OK  ] 11 Feature Label Correlation        P1 train                     Passed for 18 relevant columns
+[OK  ] 12 Expected Types                   P1 validation                21 columnas con el tipo esperado
+[OK  ] 13 Data Duplicates                  P1 validation (estacion_id, fecha) Found 0% duplicate data
+[OK  ] 14 PercentOfNulls                   P1 validation llaves, objetivo y calendario Passed for 8 relevant columns
+[OK  ] 15 PercentOfNulls                   P1 validation rezagos y catálogo Passed for 13 relevant columns. Top columns with null ratio: {'salidas_lag7': '0.8%', 'sal
+[OK  ] 16 Mixed Nulls                      P1 validation                Passed for 21 relevant columns
+[OK  ] 17 Mixed Data Types                 P1 validation                21 columns passed: found 0 columns with negligible types mix, and 21 columns without any t
+[OK  ] 18 Single Value in Column           P1 validation                Passed for 18 relevant columns
+[OK  ] 19 Feature Label Correlation        P1 validation                Passed for 18 relevant columns
+[OK  ] 20 Expected Types                   P1 test                      21 columnas con el tipo esperado
+[OK  ] 21 Data Duplicates                  P1 test (estacion_id, fecha) Found 0% duplicate data
+[OK  ] 22 PercentOfNulls                   P1 test llaves, objetivo y calendario Passed for 8 relevant columns
+[OK  ] 23 PercentOfNulls                   P1 test rezagos y catálogo   Passed for 13 relevant columns. Top columns with null ratio: {'salidas_lag7': '0.04%', 'sa
+[OK  ] 24 Mixed Nulls                      P1 test                      Passed for 21 relevant columns
+[OK  ] 25 Mixed Data Types                 P1 test                      21 columns passed: found 0 columns with negligible types mix, and 21 columns without any t
+[OK  ] 26 Single Value in Column           P1 test                      Passed for 18 relevant columns
+[OK  ] 27 Feature Label Correlation        P1 test                      Passed for 18 relevant columns
+[OK  ] 28 Date Train-Test Leakage (overlap) P1 train vs validation       No leaked dates found
+[OK  ] 29 Feature Drift                    P1 train vs validation       Passed for 15 columns out of 15 columns. Found column "dia_semana" has the highest categor
+[OK  ] 30 Label Drift                      P1 train vs validation       Label's drift score Kolmogorov-Smirnov is 0.09
+[OK  ] 31 Date Train-Test Leakage (overlap) P1 train vs test             No leaked dates found
+[OK  ] 32 Feature Drift                    P1 train vs test             Passed for 15 columns out of 15 columns. Found column "dia_semana" has the highest categor
+[OK  ] 33 Label Drift                      P1 train vs test             Label's drift score Kolmogorov-Smirnov is 0.04
+[OK  ] 34 Expected Types                   viajes train                 7 columnas con el tipo esperado
+[OK  ] 35 Data Duplicates                  viajes train (viaje_id)      Found 0% duplicate data
+[OK  ] 36 PercentOfNulls                   viajes train todas las columnas Passed for 7 relevant columns
+[OK  ] 37 Mixed Data Types                 viajes train                 7 columns passed: found 0 columns with negligible types mix, and 7 columns without any typ
+[OK  ] 38 Expected Types                   viajes validation            7 columnas con el tipo esperado
+[OK  ] 39 Data Duplicates                  viajes validation (viaje_id) Found 0% duplicate data
+[OK  ] 40 PercentOfNulls                   viajes validation todas las columnas Passed for 7 relevant columns
+[OK  ] 41 Mixed Data Types                 viajes validation            7 columns passed: found 0 columns with negligible types mix, and 7 columns without any typ
+[OK  ] 42 Expected Types                   viajes test                  7 columnas con el tipo esperado
+[OK  ] 43 Data Duplicates                  viajes test (viaje_id)       Found 0% duplicate data
+[OK  ] 44 PercentOfNulls                   viajes test todas las columnas Passed for 7 relevant columns
+[OK  ] 45 Mixed Data Types                 viajes test                  7 columns passed: found 0 columns with negligible types mix, and 7 columns without any typ
+[OK  ] 46 Date Train-Test Leakage (overlap) viajes train vs validation   No leaked dates found
+[OK  ] 47 Feature Drift                    viajes train vs validation   Passed for 5 columns out of 5 columns. Found column "dia_semana" has the highest categoric
+[OK  ] 48 New Category Train Test          viajes train vs validation   Passed for 1 relevant feature. Top features with new categories ratio: {'origen_id': '0.63
+[OK  ] 49 Date Train-Test Leakage (overlap) viajes train vs test         No leaked dates found
+[OK  ] 50 Feature Drift                    viajes train vs test         Passed for 5 columns out of 5 columns. Found column "dia_semana" has the highest categoric
+[OK  ] 51 New Category Train Test          viajes train vs test         Passed for 1 relevant feature. Top features with new categories ratio: {'origen_id': '1.11
+
+51 chequeos | 0 bloqueantes fallidos | 0 avisos | reportes en reports/deepchecks

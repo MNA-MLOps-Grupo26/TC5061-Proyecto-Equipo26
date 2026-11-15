@@ -1,0 +1,9 @@
+...................                                                      [100%]
+=============================== warnings summary ===============================
+../../../../../../tmp/mibici-deepchecks-repro-20261115/lib/python3.11/site-packages/deepchecks/core/serialization/dataframe/html.py:16
+  /tmp/mibici-deepchecks-repro-20261115/lib/python3.11/site-packages/deepchecks/core/serialization/dataframe/html.py:16: UserWarning:
+
+  pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+19 passed, 1 warning in 64.32s (0:01:04)
