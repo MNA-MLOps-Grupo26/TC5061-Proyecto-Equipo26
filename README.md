@@ -516,8 +516,13 @@ El registro del 24 de octubre se hizo en un almacén local que ya no existe, as�
 el modelo se reentrenó desde el commit fuente en un clon y un almacén nuevos.
 La nueva corrida coincide con los 16 parámetros y las tres métricas de validación
 publicadas. Su digest de entrenamiento es e3b4786b, frente a 10f3651e del original.
-La causa no está identificada; no se afirma identidad del conjunto de entrenamiento
-ni del binario original. La investigación queda pendiente y no bloquea la API.
+La [comparación Windows/macOS del 15 de noviembre](docs/evidence/2026-11-15-catalogo-historico/diagnostico-windows-macos.md)
+reprodujo ambos digests y localizó la diferencia en la representación numérica de
+`latitud`: Windows generó `10f3651e` y macOS `e3b4786b`, con los mismos CSV
+originales y las nueve métricas de P1 idénticas. Índice, tipos y orden de columnas
+coinciden. Queda por aislar el mecanismo exacto de conversión numérica entre
+entornos; no se afirma identidad binaria del modelo original ni de todas las
+predicciones. Esto no bloquea la API.
 
 Evidencia en [docs/evidencia-api/](docs/evidencia-api/):
 [recibo del almacén y la reproducción](docs/evidencia-api/recibo-registro-p1.json),

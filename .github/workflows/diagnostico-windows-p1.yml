@@ -1,0 +1,40 @@
+name: Diagnostico P1 en Windows
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostico:
+    runs-on: windows-2025
+    timeout-minutes: 30
+    env:
+      OMP_NUM_THREADS: "2"
+      OPENBLAS_NUM_THREADS: "2"
+      MKL_NUM_THREADS: "2"
+      PYTHONUTF8: "1"
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Obtener el codigo sin credenciales persistentes
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Preparar la misma version de Python que macOS
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.13.5"
+          architecture: x64
+      - name: Instalar dependencias congeladas del proyecto
+        run: python -m pip install -r requirements.txt
+      - name: Descargar, diagnosticar y reentrenar P1
+        run: python scripts/diagnosticar_entorno_p1.py --ingest --output reports/diagnostico-entorno/windows.json
+      - name: Conservar solo resultados; sin datos ni modelos
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: diagnostico-windows-p1
+          path: reports/diagnostico-entorno/windows.json
+          retention-days: 14
+          if-no-files-found: warn

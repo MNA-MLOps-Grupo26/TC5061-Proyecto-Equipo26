@@ -39,10 +39,16 @@ Toda la evidencia publicada de este cambio se concentra en este directorio:
 - [entrenamiento.txt](entrenamiento.txt): entrenamiento real de P1.
 - [pruebas.txt](pruebas.txt): salidas de registro, exportación, API, calidad y
   Docker, más el resumen de la suite y su repetición fuera del sandbox.
+- [diagnostico-windows-macos.md](diagnostico-windows-macos.md): explicación y
+  procedimiento de la comparación real entre entornos.
+- [macos.json](macos.json), [windows.json](windows.json) y
+  [comparacion-entornos.json](comparacion-entornos.json): resultados del diagnóstico.
 
 Se consolidaron las salidas ya existentes; esta reorganización no es una prueba
 nueva. El resumen de la suite inicial es un extracto identificado en el log.
 Los registros completos y duplicados se conservan localmente fuera de este PR.
+Los cuatro archivos de diagnóstico entre entornos documentan una prueba posterior;
+los resultados originales de la ingesta y reproducción se conservan sin cambios.
 
 ## Pruebas automatizadas
 
@@ -111,16 +117,18 @@ ya no prueba la descarga desde cero. Para entrenar, registrar y exportar,
 seguir el [README del proyecto](../../../README.md); los comandos concretos
 de esta ejecución están en [resultados.json](resultados.json).
 
-## Límites y pendiente histórico
+## Límites y diagnóstico del digest
 
 - Internet Archive es una fuente externa cuya disponibilidad futura no está
   garantizada. Si no existe una copia local válida y ninguna fuente entrega
   los bytes esperados, la ingesta se detiene antes de actualizar manifiestos
   o procesar datos. El hash verifica integridad, no disponibilidad.
-- El digest de entrenamiento de MLflow es `e3b4786b`, frente a `10f3651e`
-  del registro original de octubre. La diferencia sigue sin explicación;
-  la igualdad de métricas y datos crudos no demuestra identidad binaria del
-  modelo original ni resuelve ese pendiente.
+- La [comparación en Windows y macOS](diagnostico-windows-macos.md) reprodujo
+  la diferencia del digest y la localizó en la representación numérica de
+  `latitud`. Windows generó `10f3651e`, igual al histórico, y macOS `e3b4786b`,
+  con los mismos CSV y las nueve métricas idénticas. Queda por aislar el
+  mecanismo exacto de conversión numérica; no se afirma identidad binaria
+  del modelo original ni de todas las predicciones.
 - El alcance es P1 histórico. No reproduce P2/P3, el challenger de semana 9,
   el drift de octubre ni los intervalos bootstrap del A/B testing.
 - Las pruebas preceden al commit del PR: los runs registraron correctamente
