@@ -1,5 +1,11 @@
 # A/B pareado v1 frente a v3 en octubre: corrida local del 15 de noviembre de 2026
 
+> **Corrección (15 de noviembre de 2026, posterior):** la diferencia de v1 queda explicada y el
+> reporte se reproduce desde cero. Ver [`../coordenadas-20261115`](../coordenadas-20261115/README.md).
+> La sección «Discrepancia de v1» de abajo se conserva como registro de lo que se sabía entonces.
+> El primer punto de divergencia es la conversión de texto a float de la latitud del catálogo:
+> con FMA o sin FMA cambian 15 estaciones. Esa conversión sí explica el resultado.
+
 Corrida nueva y local de `mibici/ab_testing.py`. **No reemplaza** la evidencia histórica de
 [`../comparison.json`](../comparison.json) ni ninguna otra; solo la compara. No se reentrenó,
 registró ni promovió ningún modelo. Tampoco se cambiaron aliases, el registro MLflow ni los datos.
