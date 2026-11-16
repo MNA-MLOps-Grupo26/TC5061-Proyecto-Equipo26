@@ -1,0 +1,27 @@
+2026/11/15 10:05:35 INFO mlflow.agent.hint: Load the `instrumenting-with-mlflow-tracing` skill at <repo>/.venv/lib/python3.13/site-packages/mlflow/assistant/skills/instrumenting-with-mlflow-tracing/SKILL.md before writing any tracing code; it ships with this MLflow install. Set MLFLOW_DISABLE_AGENT_HINT=1 to silence this.
+2026/11/15 10:05:35 INFO mlflow.projects.utils: === Created directory /var/folders/dd/mhb7sggx7fv7rqxhmvtggpw80000gn/T/tmpzwsel7g4 for downloading remote URIs passed to arguments of type 'path' ===
+2026/11/15 10:05:35 INFO mlflow.projects.backend.local: === Running command 'python -m mibici.modeling.train --pregunta P1 --modelo default --learning-rate None --max-iter None' in run with ID '8504fc720e1a40e99daeba5c0282146f' ===
+2026-11-15 10:05:35.818 | INFO     | mibici.config:<module>:19 - PROJ_ROOT path is: <repo>
+Matplotlib is building the font cache; this may take a moment.
+2026/11/15 10:06:15 INFO mlflow.agent.hint: Load the `instrumenting-with-mlflow-tracing` skill at <repo>/.venv/lib/python3.13/site-packages/mlflow/assistant/skills/instrumenting-with-mlflow-tracing/SKILL.md before writing any tracing code; it ships with this MLflow install. Set MLFLOW_DISABLE_AGENT_HINT=1 to silence this.
+2026-11-15 10:06:20.366 | INFO     | __main__:main:90 - 484 estaciones cargadas; P3 verifica sus fuentes por periodo
+2026-11-15 10:06:20.372 | INFO     | __main__:main:93 - Ejecutando P1
+2026-11-15 10:06:21.222 | WARNING  | mibici.tracking:obtener_commit:93 - Hay cambios sin commit: el run no será reproducible con ese commit.
+2026-11-15 10:06:21.344 | INFO     | mibici.tracking:iniciar_run:188 - Run iniciado: p1-baseline-promedio-semanal (7d23f271e3e741e6988bfb1dd80791e6)
+val {'mae': 5.574144056847546, 'rmse': 10.119851201996987, 'wape': 0.2046685523514727}
+test {'mae': 8.639239086809736, 'rmse': 15.420399922151162, 'wape': 0.2492911599021998}
+2026-11-15 10:06:21.935 | SUCCESS  | mibici.tracking:iniciar_run:190 - Run terminado: p1-baseline-promedio-semanal
+🏃 View run p1-baseline-promedio-semanal at: http://127.0.0.1:53363/#/experiments/1/runs/7d23f271e3e741e6988bfb1dd80791e6
+🧪 View experiment at: http://127.0.0.1:53363/#/experiments/1
+2026-11-15 10:06:21.993 | WARNING  | mibici.tracking:obtener_commit:93 - Hay cambios sin commit: el run no será reproducible con ese commit.
+2026-11-15 10:06:22.013 | INFO     | mibici.tracking:iniciar_run:188 - Run iniciado: p1-hgb-lr0.05-it300 (b77adcb1769d41839eef31f7220522af)
+2026/11/15 10:06:29 WARNING mlflow.utils.environment: Failed to resolve installed pip version. ``pip`` will be added to conda.yaml environment spec without a version specifier.
+<repo>/.venv/lib/python3.13/site-packages/mlflow/types/utils.py:440: UserWarning: Hint: Inferred schema contains integer column(s). Integer columns in Python cannot represent missing values. If your input data contains missing values at inference time, it will be encoded as floats and will cause a schema enforcement error. The best way to avoid this problem is to infer the model schema based on a realistic data sample (training dataset) that includes missing values. Alternatively, you can declare integer columns as doubles (float64) whenever these columns may have missing values. See `Handling Integers With Missing Values <https://www.mlflow.org/docs/latest/models.html#handling-integers-with-missing-values>`_ for more details.
+  warnings.warn(
+2026-11-15 10:06:30.693 | SUCCESS  | mibici.tracking:iniciar_run:190 - Run terminado: p1-hgb-lr0.05-it300
+🏃 View run p1-hgb-lr0.05-it300 at: http://127.0.0.1:53363/#/experiments/1/runs/b77adcb1769d41839eef31f7220522af
+🧪 View experiment at: http://127.0.0.1:53363/#/experiments/1
+2026-11-15 10:06:30.703 | SUCCESS  | __main__:main:114 - Experimento terminado. Consulten el servidor de MLflow (MLFLOW_TRACKING_URI), por ejemplo http://127.0.0.1:5000
+2026/11/15 10:06:31 INFO mlflow.projects: === Run (ID '8504fc720e1a40e99daeba5c0282146f') succeeded ===
+🏃 View run melodic-ray-85 at: http://127.0.0.1:53363/#/experiments/1/runs/8504fc720e1a40e99daeba5c0282146f
+🧪 View experiment at: http://127.0.0.1:53363/#/experiments/1

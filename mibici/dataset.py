@@ -29,6 +29,7 @@ import typer
 
 from mibici.config import (
     DATA_END_EXCLUSIVE,
+    DOWNLOAD_FALLBACKS,
     DOWNLOADS_MANIFEST,
     ESTACIONES_PARQUET,
     MANIFESTS_DIR,
@@ -223,26 +224,53 @@ def expected_files() -> list[str]:
     return [f"datos_abiertos_{month}.csv" for month in expected_months()] + [NOMENCLATURA_FILENAME]
 
 
-def previous_urls() -> dict[str, str]:
-    """URLs del manifiesto anterior, para no consultar el portal sin necesidad."""
+def previous_downloads() -> dict[str, dict]:
+    """Fuentes y hashes congelados antes de comenzar la ingesta."""
     path = MANIFESTS_DIR / DOWNLOADS_MANIFEST
     if not path.exists():
         return {}
     data = json.loads(path.read_text(encoding="utf-8"))
-    return {item["filename"]: item.get("source_url", "") for item in data}
+    return {item["filename"]: item for item in data}
 
 
-def download(filename: str, url: str) -> Path:
-    """Descarga un archivo a data/raw de forma atómica (.part -> nombre final)."""
+def verify_frozen_csv(path: Path, expected: dict) -> dict:
+    """Rechaza fuentes alteradas sin actualizar automáticamente su identidad."""
+    required = (
+        REQUIRED_STATION_COLUMNS
+        if expected["filename"] == NOMENCLATURA_FILENAME
+        else REQUIRED_COLUMNS
+    )
+    info = verify_csv(path, required)
+    if info["sha256"] != expected["sha256"]:
+        raise ValueError(f"SHA-256 no coincide con el manifiesto: {expected['filename']}")
+    for key in ("size_bytes", "records"):
+        if key in expected and info[key] != expected[key]:
+            raise ValueError(f"{key} no coincide con el manifiesto: {expected['filename']}")
+    info["filename"] = expected["filename"]
+    return info
+
+
+def download(filename: str, url: str, expected: dict) -> tuple[Path, str]:
+    """Prueba fuentes en orden; solo publica un CSV con identidad verificada."""
     destination = RAW_DATA_DIR / filename
     temporary = destination.with_suffix(".csv.part")
-    logger.info(f"Descargando {filename}")
-    try:
-        run_curl(url, temporary)
-        temporary.replace(destination)
-    finally:
-        temporary.unlink(missing_ok=True)
-    return destination
+    sources = list(dict.fromkeys([url, *DOWNLOAD_FALLBACKS.get(filename, [])]))
+    errors = []
+    for source in sources:
+        logger.info(f"Descargando {filename} desde {source}")
+        try:
+            run_curl(source, temporary)
+            verify_frozen_csv(temporary, expected)
+            temporary.replace(destination)
+            return destination, source
+        except (subprocess.CalledProcessError, ValueError) as exc:
+            errors.append(f"{source}: {exc}")
+            logger.warning(f"Fuente rechazada para {filename}: {source}: {exc}")
+        finally:
+            temporary.unlink(missing_ok=True)
+    raise RuntimeError(
+        f"No se pudo recuperar {filename} con el hash esperado: " + "; ".join(errors)
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -464,30 +492,34 @@ def main():
     MANIFESTS_DIR.mkdir(parents=True, exist_ok=True)
 
     files = expected_files()
-    urls = previous_urls()
-    missing_locally = [f for f in files if not (RAW_DATA_DIR / f).exists()]
+    expected = previous_downloads()
+    unverified = [f for f in files if not expected.get(f, {}).get("sha256")]
+    if unverified:
+        raise ValueError("Faltan hashes congelados en el manifiesto: " + ", ".join(unverified))
+    urls = {f: expected[f].get("source_url", "") for f in files}
 
-    # Solo se consulta el portal si falta algún archivo o su URL
-    if missing_locally or any(not urls.get(f) for f in files):
+    # Un archivo ausente en disco no exige que siga enlazado en el portal.
+    missing_urls = [f for f in files if not urls[f]]
+    if missing_urls:
         links = discover_files()
-        not_published = [f for f in files if f not in links]
+        not_published = [f for f in missing_urls if f not in links]
         if not_published:
             raise RuntimeError("No se encontraron enlaces para: " + ", ".join(not_published))
-        urls.update({f: links[f] for f in files})
+        urls.update({f: links[f] for f in missing_urls})
 
     manifest = []
     for filename in files:
         destination = RAW_DATA_DIR / filename
+        downloaded_from = expected[filename].get("downloaded_from")
         if not destination.exists():
-            download(filename, urls[filename])
+            destination, downloaded_from = download(filename, urls[filename], expected[filename])
         else:
             logger.info(f"Archivo existente: {filename}")
 
-        required = (
-            REQUIRED_STATION_COLUMNS if filename == NOMENCLATURA_FILENAME else REQUIRED_COLUMNS
-        )
-        info = verify_csv(destination, required)
+        info = verify_frozen_csv(destination, expected[filename])
         info["source_url"] = urls[filename]
+        if downloaded_from:
+            info["downloaded_from"] = downloaded_from
         manifest.append(info)
         logger.success(f"{filename}: {info['records']:,} registros ({info['encoding']})")
 

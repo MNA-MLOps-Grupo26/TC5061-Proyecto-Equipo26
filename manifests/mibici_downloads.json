@@ -15,7 +15,8 @@
       "Origen_Id",
       "Destino_Id"
     ],
-    "source_url": "https://mibici.net/site/assets/files/111021/datos_abiertos_2025_08.csv"
+    "source_url": "https://mibici.net/site/assets/files/111021/datos_abiertos_2025_08.csv",
+    "downloaded_from": "https://mibici.net/site/assets/files/111021/datos_abiertos_2025_08.csv"
   },
   {
     "filename": "datos_abiertos_2025_09.csv",
@@ -33,7 +34,8 @@
       "Origen_Id",
       "Destino_Id"
     ],
-    "source_url": "https://mibici.net/site/assets/files/113216/datos_abiertos_2025_09.csv"
+    "source_url": "https://mibici.net/site/assets/files/113216/datos_abiertos_2025_09.csv",
+    "downloaded_from": "https://mibici.net/site/assets/files/113216/datos_abiertos_2025_09.csv"
   },
   {
     "filename": "datos_abiertos_2025_10.csv",
@@ -51,7 +53,8 @@
       "Origen_Id",
       "Destino_Id"
     ],
-    "source_url": "https://mibici.net/site/assets/files/115104/datos_abiertos_2025_10.csv"
+    "source_url": "https://mibici.net/site/assets/files/115104/datos_abiertos_2025_10.csv",
+    "downloaded_from": "https://mibici.net/site/assets/files/115104/datos_abiertos_2025_10.csv"
   },
   {
     "filename": "datos_abiertos_2025_11.csv",
@@ -69,7 +72,8 @@
       "Origen_Id",
       "Destino_Id"
     ],
-    "source_url": "https://mibici.net/site/assets/files/116773/datos_abiertos_2025_11.csv"
+    "source_url": "https://mibici.net/site/assets/files/116773/datos_abiertos_2025_11.csv",
+    "downloaded_from": "https://mibici.net/site/assets/files/116773/datos_abiertos_2025_11.csv"
   },
   {
     "filename": "datos_abiertos_2025_12.csv",
@@ -87,7 +91,8 @@
       "Origen_Id",
       "Destino_Id"
     ],
-    "source_url": "https://mibici.net/site/assets/files/118153/datos_abiertos_2025_12.csv"
+    "source_url": "https://mibici.net/site/assets/files/118153/datos_abiertos_2025_12.csv",
+    "downloaded_from": "https://mibici.net/site/assets/files/118153/datos_abiertos_2025_12.csv"
   },
   {
     "filename": "datos_abiertos_2026_01.csv",
@@ -105,7 +110,8 @@
       "Origen_Id",
       "Destino_Id"
     ],
-    "source_url": "https://mibici.net/site/assets/files/120163/datos_abiertos_2026_01.csv"
+    "source_url": "https://mibici.net/site/assets/files/120163/datos_abiertos_2026_01.csv",
+    "downloaded_from": "https://mibici.net/site/assets/files/120163/datos_abiertos_2026_01.csv"
   },
   {
     "filename": "datos_abiertos_2026_02.csv",
@@ -123,7 +129,8 @@
       "Origen_Id",
       "Destino_Id"
     ],
-    "source_url": "https://mibici.net/site/assets/files/121761/datos_abiertos_2026_02.csv"
+    "source_url": "https://mibici.net/site/assets/files/121761/datos_abiertos_2026_02.csv",
+    "downloaded_from": "https://mibici.net/site/assets/files/121761/datos_abiertos_2026_02.csv"
   },
   {
     "filename": "datos_abiertos_2026_03.csv",
@@ -141,7 +148,8 @@
       "Origen_Id",
       "Destino_Id"
     ],
-    "source_url": "https://mibici.net/site/assets/files/123236/datos_abiertos_2026_03.csv"
+    "source_url": "https://mibici.net/site/assets/files/123236/datos_abiertos_2026_03.csv",
+    "downloaded_from": "https://mibici.net/site/assets/files/123236/datos_abiertos_2026_03.csv"
   },
   {
     "filename": "datos_abiertos_2026_04.csv",
@@ -159,7 +167,8 @@
       "Origen_Id",
       "Destino_Id"
     ],
-    "source_url": "https://mibici.net/site/assets/files/124927/datos_abiertos_2026_04.csv"
+    "source_url": "https://mibici.net/site/assets/files/124927/datos_abiertos_2026_04.csv",
+    "downloaded_from": "https://mibici.net/site/assets/files/124927/datos_abiertos_2026_04.csv"
   },
   {
     "filename": "datos_abiertos_2026_05.csv",
@@ -177,7 +186,8 @@
       "Origen_Id",
       "Destino_Id"
     ],
-    "source_url": "https://mibici.net/site/assets/files/125943/datos_abiertos_2026_05.csv"
+    "source_url": "https://mibici.net/site/assets/files/125943/datos_abiertos_2026_05.csv",
+    "downloaded_from": "https://mibici.net/site/assets/files/125943/datos_abiertos_2026_05.csv"
   },
   {
     "filename": "datos_abiertos_2026_06.csv",
@@ -195,7 +205,8 @@
       "Origen_Id",
       "Destino_Id"
     ],
-    "source_url": "https://mibici.net/site/assets/files/127734/datos_abiertos_2026_06.csv"
+    "source_url": "https://mibici.net/site/assets/files/127734/datos_abiertos_2026_06.csv",
+    "downloaded_from": "https://mibici.net/site/assets/files/127734/datos_abiertos_2026_06.csv"
   },
   {
     "filename": "datos_abiertos_2026_07.csv",
@@ -213,7 +224,8 @@
       "Origen_Id",
       "Destino_Id"
     ],
-    "source_url": "https://mibici.net/site/assets/files/129006/datos_abiertos_2026_07.csv"
+    "source_url": "https://mibici.net/site/assets/files/129006/datos_abiertos_2026_07.csv",
+    "downloaded_from": "https://mibici.net/site/assets/files/129006/datos_abiertos_2026_07.csv"
   },
   {
     "filename": "datos_abiertos_2026_08.csv",
@@ -231,7 +243,8 @@
       "Origen_Id",
       "Destino_Id"
     ],
-    "source_url": "https://mibici.net/site/assets/files/130362/datos_abiertos_2026_08.csv"
+    "source_url": "https://mibici.net/site/assets/files/130362/datos_abiertos_2026_08.csv",
+    "downloaded_from": "https://mibici.net/site/assets/files/130362/datos_abiertos_2026_08.csv"
   },
   {
     "filename": "datos_abiertos_2026_09.csv",
@@ -249,7 +262,8 @@
       "Origen_Id",
       "Destino_Id"
     ],
-    "source_url": "https://mibici.net/site/assets/files/131825/datos_abiertos_2026_09.csv"
+    "source_url": "https://mibici.net/site/assets/files/131825/datos_abiertos_2026_09.csv",
+    "downloaded_from": "https://mibici.net/site/assets/files/131825/datos_abiertos_2026_09.csv"
   },
   {
     "filename": "nomenclatura_2026_09.csv",
@@ -264,6 +278,7 @@
       "longitude",
       "dpcapacity"
     ],
-    "source_url": "https://mibici.net/site/assets/files/1118/nomenclatura_2026_09.csv"
+    "source_url": "https://mibici.net/site/assets/files/1118/nomenclatura_2026_09.csv",
+    "downloaded_from": "https://web.archive.org/web/20261009131525id_/https://www.mibici.net/site/assets/files/1118/nomenclatura_2026_09.csv"
   }
 ]

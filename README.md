@@ -43,11 +43,48 @@ Los datos no se versionan en Git. `mlflow run . -e ingest` los reconstruye y
 actualiza dos manifiestos versionados en `manifests/`:
 
 - `mibici_downloads.json`: URL, encoding, columnas, registros y SHA-256 de cada
-CSV original, incluida la nomenclatura.
+CSV original, incluida la nomenclatura. `source_url` conserva la fuente original;
+`downloaded_from` registra la URL utilizada en una descarga verificada.
 - `mibici_processed.json`: registros limpios, duplicados e inválidos eliminados,
 SHA-256 de cada Parquet y el `data_version`, un identificador de 12 caracteres
 derivado de los hashes de los CSV originales. Ese valor se registra en cada run
-de MLflow; si MiBici modifica un archivo, cambia la versión.
+de MLflow. La ingesta exige los hashes ya registrados: si MiBici modifica un
+archivo, se detiene. Adoptar otros datos requiere revisar explícitamente el
+manifiesto y su nueva versión; no ocurre durante una reproducción.
+
+### Catálogo histórico y descarga alternativa
+
+La URL original de `nomenclatura_2026_09.csv` devolvió HTTP 404 en la revisión del
+15 de noviembre de 2026. Para conservar los datos del entrenamiento, la ingesta
+prueba primero la URL de MiBici registrada en el manifiesto y, si falla o entrega
+contenido distinto, utiliza esta [captura de Internet Archive del 9 de octubre
+de 2026](https://web.archive.org/web/20261009131525id_/https://www.mibici.net/site/assets/files/1118/nomenclatura_2026_09.csv).
+
+El CSV debe tener el SHA-256
+`206e45fe633922b634d858142fa21e6fd9f4c421b6435c02980ef290cc2df90d`.
+El archivo temporal solo pasa a `data/raw` después de verificar su contenido;
+una página HTML de error o un CSV distinto se rechazan. También se verifican los
+CSV existentes antes de reutilizarlos. Si ninguna fuente entrega los mismos
+bytes, el proceso se detiene y no actualiza los manifiestos.
+
+La alternativa está declarada en `DOWNLOAD_FALLBACKS` de `mibici/config.py`.
+Los CSV y Parquet permanecen fuera de Git. Usar otra URL con los mismos bytes
+no cambia el `data_version`. Internet Archive es una fuente externa: su
+disponibilidad futura no está garantizada.
+
+Para ejecutar únicamente la preparación de datos, sin entrenar ni registrar modelos:
+
+```bash
+uv venv --python 3.13 .venv
+uv pip install --python .venv/bin/python -r requirements.txt
+.venv/bin/python -m mibici.dataset
+.venv/bin/python -m pytest tests/test_dataset_download.py -q
+```
+
+En Windows, usar `.venv\Scripts\python.exe`. Para comprobar una descarga desde
+cero, ejecutar en un clon nuevo que incluya este cambio, con `data/raw` y
+`data/processed` vacíos; no copiar los datos de otra computadora.
+Evidencias: [descarga desde cero y reproducción de P1 del 15 de noviembre](docs/evidence/2026-11-15-catalogo-historico/README.md).
 
 ## Estructura del repositorio
 
@@ -251,8 +288,9 @@ Los valores por defecto viven en `mibici/config.py` (`P1_HIPERPARAMETROS`,
 `P1_GLM_HIPERPARAMETROS`, `P2_HIPERPARAMETROS`, `P2_HGB_HIPERPARAMETROS`,
 `P3_HIPERPARAMETROS` y `BUSQUEDAS`).
 
-La ingesta reutiliza los CSV que ya estén en `data/raw` y solo consulta el
-portal si falta alguno (~600 MB en una computadora nueva). Si cambian los
+La ingesta verifica y reutiliza los CSV que ya estén en `data/raw`; descarga los
+faltantes desde las URLs registradas (~600 MB en una computadora nueva).
+Solo consulta el portal si falta una URL en el manifiesto. Si cambian los
 manifiestos, súbanlos en un commit antes de entrenar: cada run registra el
 commit y marca `git_dirty=true` si había cambios de código sin commit.
 
@@ -478,8 +516,13 @@ El registro del 24 de octubre se hizo en un almacén local que ya no existe, as�
 el modelo se reentrenó desde el commit fuente en un clon y un almacén nuevos.
 La nueva corrida coincide con los 16 parámetros y las tres métricas de validación
 publicadas. Su digest de entrenamiento es e3b4786b, frente a 10f3651e del original.
-La causa no está identificada; no se afirma identidad del conjunto de entrenamiento
-ni del binario original. La investigación queda pendiente y no bloquea la API.
+La [comparación Windows/macOS del 15 de noviembre](docs/evidence/2026-11-15-catalogo-historico/diagnostico-windows-macos.md)
+reprodujo ambos digests y localizó la diferencia en la representación numérica de
+`latitud`: Windows generó `10f3651e` y macOS `e3b4786b`, con los mismos CSV
+originales y las nueve métricas de P1 idénticas. Índice, tipos y orden de columnas
+coinciden. Queda por aislar el mecanismo exacto de conversión numérica entre
+entornos; no se afirma identidad binaria del modelo original ni de todas las
+predicciones. Esto no bloquea la API.
 
 Evidencia en [docs/evidencia-api/](docs/evidencia-api/):
 [recibo del almacén y la reproducción](docs/evidencia-api/recibo-registro-p1.json),

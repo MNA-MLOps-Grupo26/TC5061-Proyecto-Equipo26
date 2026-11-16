@@ -1,0 +1,58 @@
+2026/11/15 10:04:48 INFO mlflow.agent.hint: Load the `instrumenting-with-mlflow-tracing` skill at <repo>/.venv/lib/python3.13/site-packages/mlflow/assistant/skills/instrumenting-with-mlflow-tracing/SKILL.md before writing any tracing code; it ships with this MLflow install. Set MLFLOW_DISABLE_AGENT_HINT=1 to silence this.
+2026/11/15 10:04:49 INFO mlflow.projects.utils: === Created directory /var/folders/dd/mhb7sggx7fv7rqxhmvtggpw80000gn/T/tmp7mkq51jb for downloading remote URIs passed to arguments of type 'path' ===
+2026/11/15 10:04:49 INFO mlflow.projects.backend.local: === Running command 'python -m mibici.dataset' in run with ID 'cacf64dc9f6f4e25a5afecd76ff223d3' ===
+2026-11-15 10:04:49.398 | INFO     | mibici.config:<module>:19 - PROJ_ROOT path is: <repo>
+2026-11-15 10:04:49.657 | INFO     | __main__:download:260 - Descargando datos_abiertos_2025_08.csv desde https://mibici.net/site/assets/files/111021/datos_abiertos_2025_08.csv
+2026-11-15 10:04:52.041 | SUCCESS  | __main__:main:524 - datos_abiertos_2025_08.csv: 374,727 registros (utf-8-sig)
+2026-11-15 10:04:52.041 | INFO     | __main__:download:260 - Descargando datos_abiertos_2025_09.csv desde https://mibici.net/site/assets/files/113216/datos_abiertos_2025_09.csv
+2026-11-15 10:04:54.454 | SUCCESS  | __main__:main:524 - datos_abiertos_2025_09.csv: 376,789 registros (utf-8-sig)
+2026-11-15 10:04:54.454 | INFO     | __main__:download:260 - Descargando datos_abiertos_2025_10.csv desde https://mibici.net/site/assets/files/115104/datos_abiertos_2025_10.csv
+2026-11-15 10:04:57.140 | SUCCESS  | __main__:main:524 - datos_abiertos_2025_10.csv: 420,064 registros (utf-8-sig)
+2026-11-15 10:04:57.141 | INFO     | __main__:download:260 - Descargando datos_abiertos_2025_11.csv desde https://mibici.net/site/assets/files/116773/datos_abiertos_2025_11.csv
+2026-11-15 10:04:59.783 | SUCCESS  | __main__:main:524 - datos_abiertos_2025_11.csv: 380,328 registros (utf-8-sig)
+2026-11-15 10:04:59.783 | INFO     | __main__:download:260 - Descargando datos_abiertos_2025_12.csv desde https://mibici.net/site/assets/files/118153/datos_abiertos_2025_12.csv
+2026-11-15 10:05:02.089 | SUCCESS  | __main__:main:524 - datos_abiertos_2025_12.csv: 335,420 registros (utf-8-sig)
+2026-11-15 10:05:02.089 | INFO     | __main__:download:260 - Descargando datos_abiertos_2026_01.csv desde https://mibici.net/site/assets/files/120163/datos_abiertos_2026_01.csv
+2026-11-15 10:05:04.491 | SUCCESS  | __main__:main:524 - datos_abiertos_2026_01.csv: 357,180 registros (cp1252)
+2026-11-15 10:05:04.492 | INFO     | __main__:download:260 - Descargando datos_abiertos_2026_02.csv desde https://mibici.net/site/assets/files/121761/datos_abiertos_2026_02.csv
+2026-11-15 10:05:06.815 | SUCCESS  | __main__:main:524 - datos_abiertos_2026_02.csv: 333,756 registros (utf-8-sig)
+2026-11-15 10:05:06.815 | INFO     | __main__:download:260 - Descargando datos_abiertos_2026_03.csv desde https://mibici.net/site/assets/files/123236/datos_abiertos_2026_03.csv
+2026-11-15 10:05:09.122 | SUCCESS  | __main__:main:524 - datos_abiertos_2026_03.csv: 376,243 registros (utf-8-sig)
+2026-11-15 10:05:09.122 | INFO     | __main__:download:260 - Descargando datos_abiertos_2026_04.csv desde https://mibici.net/site/assets/files/124927/datos_abiertos_2026_04.csv
+2026-11-15 10:05:11.379 | SUCCESS  | __main__:main:524 - datos_abiertos_2026_04.csv: 351,851 registros (utf-8-sig)
+2026-11-15 10:05:11.380 | INFO     | __main__:download:260 - Descargando datos_abiertos_2026_05.csv desde https://mibici.net/site/assets/files/125943/datos_abiertos_2026_05.csv
+2026-11-15 10:05:13.467 | SUCCESS  | __main__:main:524 - datos_abiertos_2026_05.csv: 315,895 registros (utf-8-sig)
+2026-11-15 10:05:13.467 | INFO     | __main__:download:260 - Descargando datos_abiertos_2026_06.csv desde https://mibici.net/site/assets/files/127734/datos_abiertos_2026_06.csv
+2026-11-15 10:05:15.715 | SUCCESS  | __main__:main:524 - datos_abiertos_2026_06.csv: 355,303 registros (utf-8-sig)
+2026-11-15 10:05:15.716 | INFO     | __main__:download:260 - Descargando datos_abiertos_2026_07.csv desde https://mibici.net/site/assets/files/129006/datos_abiertos_2026_07.csv
+2026-11-15 10:05:18.205 | SUCCESS  | __main__:main:524 - datos_abiertos_2026_07.csv: 388,257 registros (utf-8-sig)
+2026-11-15 10:05:18.205 | INFO     | __main__:download:260 - Descargando datos_abiertos_2026_08.csv desde https://mibici.net/site/assets/files/130362/datos_abiertos_2026_08.csv
+2026-11-15 10:05:20.539 | SUCCESS  | __main__:main:524 - datos_abiertos_2026_08.csv: 393,524 registros (utf-8-sig)
+2026-11-15 10:05:20.539 | INFO     | __main__:download:260 - Descargando datos_abiertos_2026_09.csv desde https://mibici.net/site/assets/files/131825/datos_abiertos_2026_09.csv
+2026-11-15 10:05:23.279 | SUCCESS  | __main__:main:524 - datos_abiertos_2026_09.csv: 490,056 registros (utf-8-sig)
+2026-11-15 10:05:23.279 | INFO     | __main__:download:260 - Descargando nomenclatura_2026_09.csv desde https://mibici.net/site/assets/files/1118/nomenclatura_2026_09.csv
+2026-11-15 10:05:23.592 | WARNING  | __main__:download:268 - Fuente rechazada para nomenclatura_2026_09.csv: https://mibici.net/site/assets/files/1118/nomenclatura_2026_09.csv: Command '['curl', '-fLsS', '--retry', '3', '--max-time', '300', '-o', '<repo>/data/raw/nomenclatura_2026_09.csv.part', 'https://mibici.net/site/assets/files/1118/nomenclatura_2026_09.csv']' returned non-zero exit status 22.
+2026-11-15 10:05:23.593 | INFO     | __main__:download:260 - Descargando nomenclatura_2026_09.csv desde https://web.archive.org/web/20261009131525id_/https://www.mibici.net/site/assets/files/1118/nomenclatura_2026_09.csv
+2026-11-15 10:05:26.056 | SUCCESS  | __main__:main:524 - nomenclatura_2026_09.csv: 484 registros (utf-8-sig)
+2026-11-15 10:05:26.058 | SUCCESS  | __main__:main:531 - Manifiesto generado: <repo>/manifests/mibici_downloads.json
+2026-11-15 10:05:27.528 | SUCCESS  | __main__:generate_monthly_report:215 - Reporte mensual generado: <repo>/reports/mibici_resumen_mensual.csv (14 meses, 471 estaciones distintas)
+2026-11-15 10:05:28.247 | INFO     | mibici.preprocess:procesar:192 - datos_abiertos_2025_08.csv: 374,727 viajes, 0 duplicados, 0 con fin antes de inicio
+2026-11-15 10:05:28.649 | INFO     | mibici.preprocess:procesar:192 - datos_abiertos_2025_09.csv: 376,789 viajes, 0 duplicados, 0 con fin antes de inicio
+2026-11-15 10:05:29.094 | INFO     | mibici.preprocess:procesar:192 - datos_abiertos_2025_10.csv: 420,064 viajes, 0 duplicados, 0 con fin antes de inicio
+2026-11-15 10:05:29.509 | INFO     | mibici.preprocess:procesar:192 - datos_abiertos_2025_11.csv: 380,328 viajes, 0 duplicados, 0 con fin antes de inicio
+2026-11-15 10:05:29.870 | INFO     | mibici.preprocess:procesar:192 - datos_abiertos_2025_12.csv: 335,420 viajes, 0 duplicados, 0 con fin antes de inicio
+2026-11-15 10:05:30.269 | INFO     | mibici.preprocess:procesar:192 - datos_abiertos_2026_01.csv: 357,180 viajes, 0 duplicados, 0 con fin antes de inicio
+2026-11-15 10:05:30.637 | INFO     | mibici.preprocess:procesar:192 - datos_abiertos_2026_02.csv: 333,756 viajes, 0 duplicados, 0 con fin antes de inicio
+2026-11-15 10:05:31.048 | INFO     | mibici.preprocess:procesar:192 - datos_abiertos_2026_03.csv: 376,243 viajes, 0 duplicados, 0 con fin antes de inicio
+2026-11-15 10:05:31.431 | INFO     | mibici.preprocess:procesar:192 - datos_abiertos_2026_04.csv: 351,851 viajes, 0 duplicados, 0 con fin antes de inicio
+2026-11-15 10:05:31.768 | INFO     | mibici.preprocess:procesar:192 - datos_abiertos_2026_05.csv: 315,895 viajes, 0 duplicados, 0 con fin antes de inicio
+2026-11-15 10:05:32.146 | INFO     | mibici.preprocess:procesar:192 - datos_abiertos_2026_06.csv: 355,303 viajes, 0 duplicados, 0 con fin antes de inicio
+2026-11-15 10:05:32.573 | INFO     | mibici.preprocess:procesar:192 - datos_abiertos_2026_07.csv: 388,257 viajes, 0 duplicados, 0 con fin antes de inicio
+2026-11-15 10:05:32.999 | INFO     | mibici.preprocess:procesar:192 - datos_abiertos_2026_08.csv: 393,524 viajes, 0 duplicados, 0 con fin antes de inicio
+2026-11-15 10:05:33.554 | INFO     | mibici.preprocess:procesar:192 - datos_abiertos_2026_09.csv: 489,298 viajes, 758 duplicados, 0 con fin antes de inicio
+2026-11-15 10:05:33.562 | INFO     | mibici.preprocess:procesar:184 - nomenclatura_2026_09.csv: 484 estaciones, 4 sin capacidad
+2026-11-15 10:05:33.562 | SUCCESS  | mibici.preprocess:procesar:203 - Normalización completada: 5,249,393 registros originales -> 5,248,635 registros normalizados
+2026-11-15 10:05:33.606 | SUCCESS  | mibici.preprocess:generar_manifiesto:171 - Manifiesto generado: <repo>/manifests/mibici_processed.json (data_version=cd917f9aa025)
+2026/11/15 10:05:33 INFO mlflow.projects: === Run (ID 'cacf64dc9f6f4e25a5afecd76ff223d3') succeeded ===
+🏃 View run trusting-whale-530 at: http://127.0.0.1:53363/#/experiments/1/runs/cacf64dc9f6f4e25a5afecd76ff223d3
+🧪 View experiment at: http://127.0.0.1:53363/#/experiments/1
