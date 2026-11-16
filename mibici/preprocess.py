@@ -21,6 +21,7 @@ from mibici.config import (
     PROCESSED_MANIFEST,
     RAW_DATA_DIR,
 )
+from mibici.coordenadas import a_numerico
 
 # Solo se conservan columnas operativas. Usuario_Id, Genero y
 # Año_de_nacimiento se descartan aquí y nunca llegan a data/processed.
@@ -80,22 +81,38 @@ def normalizar_archivo(archivo: Path, encoding: str = "utf-8-sig") -> dict:
     }
 
 
-def normalizar_estaciones(archivo: Path, encoding: str = "utf-8-sig") -> dict:
+def leer_estaciones(
+    archivo: Path, encoding: str = "utf-8-sig", coordenadas: str = "pandas"
+) -> pd.DataFrame:
+    """Lee y normaliza el catálogo de estaciones sin escribirlo.
+
+    ``coordenadas`` elige la conversión texto -> float de latitud y longitud
+    (ver ``mibici.coordenadas``). ``"pandas"`` conserva el comportamiento original,
+    que depende de la plataforma; ``"sin_fma"`` y ``"con_fma"`` son deterministas.
+    """
+    texto = {} if coordenadas == "pandas" else {"latitude": str, "longitude": str}
+    df = pd.read_csv(archivo, encoding=encoding, usecols=list(COLUMNAS_ESTACIONES), dtype=texto)
+    df = df.rename(columns=COLUMNAS_ESTACIONES)
+
+    df["estacion_id"] = pd.to_numeric(df["estacion_id"], errors="raise").astype("int64")
+    for columna in ["latitud", "longitud"]:
+        df[columna] = a_numerico(df[columna], coordenadas)
+    df["capacidad"] = pd.to_numeric(df["capacidad"], errors="coerce")
+    df["nombre"] = df["nombre"].astype("string").str.strip()
+    df.loc[df["capacidad"] <= 0, "capacidad"] = pd.NA
+
+    return df.drop_duplicates("estacion_id").sort_values("estacion_id").reset_index(drop=True)
+
+
+def normalizar_estaciones(
+    archivo: Path, encoding: str = "utf-8-sig", coordenadas: str = "pandas"
+) -> dict:
     """Normaliza el catálogo de estaciones y lo guarda como Parquet.
 
     Capacidad 0 o nula se guarda como nula: no permite calcular el indicador
     de riesgo de P2 y no debe confundirse con una estación sin anclajes.
     """
-    df = pd.read_csv(archivo, encoding=encoding, usecols=list(COLUMNAS_ESTACIONES))
-    df = df.rename(columns=COLUMNAS_ESTACIONES)
-
-    df["estacion_id"] = pd.to_numeric(df["estacion_id"], errors="raise").astype("int64")
-    for columna in ["latitud", "longitud", "capacidad"]:
-        df[columna] = pd.to_numeric(df[columna], errors="coerce")
-    df["nombre"] = df["nombre"].astype("string").str.strip()
-    df.loc[df["capacidad"] <= 0, "capacidad"] = pd.NA
-
-    df = df.drop_duplicates("estacion_id").sort_values("estacion_id").reset_index(drop=True)
+    df = leer_estaciones(archivo, encoding, coordenadas)
 
     PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
     df.to_parquet(PROCESSED_DATA_DIR / ESTACIONES_PARQUET, index=False)

@@ -1,0 +1,13 @@
+{
+  "date": "2026-11-13",
+  "rows": 14618,
+  "max_absolute_difference": 0.0,
+  "artifact_sha256": "278b7a9e51ce2f564b9ae096f6e3e687e49468490d527d35627404490efd2224",
+  "loaded_via": "skops.io.load with fixed allowlist + mibici.residual_model.predict_residual_demand",
+  "raw_data_published": false,
+  "registry_modified": false,
+  "retrained": false,
+  "untrusted_types": [
+    "sklearn.ensemble._hist_gradient_boosting.predictor.TreePredictor"
+  ]
+}

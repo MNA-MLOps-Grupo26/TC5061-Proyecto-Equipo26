@@ -1,0 +1,76 @@
+{
+  "current_sha256": "0db793d79974a70f2c44d194e2352d8722edc5e19e86db2eb388b96b84d6ed15",
+  "v1_model_sha256": "2cac5ef209865bf0eb70a388c594dfd4791dfab73b51088802a3df07dbb09fae",
+  "reference": {
+    "original": {
+      "mae": 8.054406442839335,
+      "rmse": 15.891006470864005,
+      "wape": 0.18526307128976108,
+      "bias_prediction_minus_actual": -3.9076860550677495
+    },
+    "candidate": {
+      "mae": 7.766359766419322,
+      "rmse": 13.861818201448893,
+      "wape": 0.17863757848317163,
+      "bias_prediction_minus_actual": 2.3314146316266644
+    }
+  },
+  "models": {
+    "v1": {
+      "latitud_thresholds": 151,
+      "stations_with_latitud_equal_to_threshold": 152,
+      "stations_one_ulp_below_threshold": 0,
+      "metrics": {
+        "sin_cambio": {
+          "rows_changed": 0,
+          "mae": 8.034345051707092,
+          "rmse": 15.701217812163025,
+          "wape": 0.1848016300945742,
+          "bias_prediction_minus_actual": -3.884778825552489
+        },
+        "mas_1_ulp": {
+          "rows_changed": 1141,
+          "mae": 8.056100228589232,
+          "rmse": 15.890398848740091,
+          "wape": 0.18530203082729615,
+          "bias_prediction_minus_actual": -3.9174829365174464
+        },
+        "menos_1_ulp": {
+          "rows_changed": 0,
+          "mae": 8.034345051707092,
+          "rmse": 15.701217812163025,
+          "wape": 0.1848016300945742,
+          "bias_prediction_minus_actual": -3.884778825552489
+        }
+      }
+    },
+    "v3": {
+      "latitud_thresholds": 76,
+      "stations_with_latitud_equal_to_threshold": 75,
+      "stations_one_ulp_below_threshold": 2,
+      "metrics": {
+        "sin_cambio": {
+          "rows_changed": 0,
+          "mae": 7.766359766419322,
+          "rmse": 13.861818201448893,
+          "wape": 0.17863757848317163,
+          "bias_prediction_minus_actual": 2.3314146316266644
+        },
+        "mas_1_ulp": {
+          "rows_changed": 654,
+          "mae": 7.766311204314186,
+          "rmse": 13.855694063883128,
+          "wape": 0.17863646148407186,
+          "bias_prediction_minus_actual": 2.329544083505356
+        },
+        "menos_1_ulp": {
+          "rows_changed": 0,
+          "mae": 7.766359766419322,
+          "rmse": 13.861818201448893,
+          "wape": 0.17863757848317163,
+          "bias_prediction_minus_actual": 2.3314146316266644
+        }
+      }
+    }
+  }
+}

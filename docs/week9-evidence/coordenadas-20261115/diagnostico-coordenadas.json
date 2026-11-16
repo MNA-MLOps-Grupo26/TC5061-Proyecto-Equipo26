@@ -1,0 +1,92 @@
+{
+  "entorno": {
+    "plataforma": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+    "maquina": "arm64",
+    "python": "3.13.9",
+    "pandas": "3.0.6"
+  },
+  "sha256": {
+    "catalogo_csv": "206e45fe633922b634d858142fa21e6fd9f4c421b6435c02980ef290cc2df90d",
+    "panel_reporte": "f9f2af4d67593ae9e5ef1e166c80690b56fb32ca8939a40f1e03148347b46c77",
+    "panel_local": "0db793d79974a70f2c44d194e2352d8722edc5e19e86db2eb388b96b84d6ed15"
+  },
+  "columnas_distintas_entre_paneles": {
+    "latitud": {
+      "filas": 465,
+      "estaciones": 15,
+      "max_abs": 7.105427357601002e-15
+    }
+  },
+  "dtype_fecha": {
+    "reporte": "datetime64[ns]",
+    "local": "datetime64[us]"
+  },
+  "conversion_csv_a_float": {
+    "estaciones": 470,
+    "coincidencias": {
+      "pandas read_csv (este equipo)": {
+        "panel_reporte": 455,
+        "panel_local": 470
+      },
+      "Python float() (redondeo correcto)": {
+        "panel_reporte": 449,
+        "panel_local": 458
+      },
+      "precise_xstrtod sin FMA": {
+        "panel_reporte": 470,
+        "panel_local": 455
+      },
+      "precise_xstrtod con FMA": {
+        "panel_reporte": 455,
+        "panel_local": 470
+      }
+    }
+  },
+  "estaciones_con_latitud_distinta": [
+    21,
+    34,
+    51,
+    59,
+    92,
+    164,
+    341,
+    342,
+    352,
+    374,
+    375,
+    377,
+    385,
+    389,
+    400
+  ],
+  "umbrales_latitud_en_estaciones_distintas": {
+    "v1_oficial": {
+      "umbral_en_valor_reporte": [],
+      "umbral_en_valor_local": [
+        21,
+        51,
+        92,
+        342,
+        352,
+        400
+      ]
+    },
+    "v3": {
+      "umbral_en_valor_reporte": [
+        59,
+        342
+      ],
+      "umbral_en_valor_local": []
+    }
+  },
+  "efecto_en_predicciones": {
+    "v1_predicciones_distintas": 31,
+    "v1_panel_local_con_latitud_del_reporte_igual_al_reporte": true,
+    "v3_predicciones_distintas": 0,
+    "v1_mae": {
+      "panel_local": 8.034345051707092,
+      "panel_reporte": 8.054406442839335
+    },
+    "huella_predicciones_v1_reporte": "97d400333db22c0482d8328d93b7c18b25e2809e573961ca639a21b67669c1d3"
+  }
+}

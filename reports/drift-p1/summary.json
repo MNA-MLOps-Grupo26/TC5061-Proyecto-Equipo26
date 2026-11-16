@@ -1,0 +1,165 @@
+{
+  "reference_window": [
+    "2025-08-01",
+    "2026-08-01"
+  ],
+  "current_window": [
+    "2026-10-01",
+    "2026-11-01"
+  ],
+  "intervals": "left-closed, right-open",
+  "reference_n": 137290,
+  "current_n": 14618,
+  "reference_actual_first_date": "2025-08-02 00:00:00",
+  "reference_stations": 454,
+  "current_stations": 473,
+  "new_station_ids": [
+    104,
+    124,
+    180,
+    432,
+    434,
+    440,
+    445,
+    446,
+    491,
+    492,
+    511,
+    512,
+    513,
+    514,
+    515,
+    516,
+    517,
+    518,
+    519
+  ],
+  "october_raw_trips": 635532,
+  "october_duplicates_removed": 0,
+  "october_invalid_removed": 0,
+  "october_days_present": 31,
+  "october_sha256": "0cdfb05299e6db658ac9cc7723494a9704b0749e3671c29c8566826ea889b900",
+  "october_url": "https://mibici.net/site/assets/files/133188/datos_abiertos_2026_10.csv",
+  "catalog_manifest_mismatch": true,
+  "catalog_source_verified_and_numeric_values_equal": true,
+  "catalog_sha256": "bcfd7d47b881edd6159cec56c68325a805d4354417f46ab600f54eec77014eaa",
+  "original_data_version": "cd917f9aa025",
+  "source_files": [
+    {
+      "file": "datos_abiertos_2025_08.parquet",
+      "sha256": "eb1d81f34a3829cc1e62dfc110c5d3f06f4f1243ef6b80c2a65d7ddb0d9a45f6",
+      "rows": 374727
+    },
+    {
+      "file": "datos_abiertos_2025_09.parquet",
+      "sha256": "03a614bfbdae8190f57260fa0aacf8456a34d90e603f273e36c10560b46060e7",
+      "rows": 376789
+    },
+    {
+      "file": "datos_abiertos_2025_10.parquet",
+      "sha256": "1eaa3056abe4dffea2969cd0b2ea63ac13e0b03d04d1c67cb69a09ee478bd390",
+      "rows": 420064
+    },
+    {
+      "file": "datos_abiertos_2025_11.parquet",
+      "sha256": "850a4a8e0f2eca0a4c033da3d6a80b23e54a829e2db98ee16cb3dc9d8b6bb0ba",
+      "rows": 380328
+    },
+    {
+      "file": "datos_abiertos_2025_12.parquet",
+      "sha256": "becde4edf214adb82e2db1c324c06c5ab149266ad8abbff378786df48b3ef080",
+      "rows": 335420
+    },
+    {
+      "file": "datos_abiertos_2026_01.parquet",
+      "sha256": "63d82edc996d8ba2709f99d3d558708988b288df68f8819e4c19d6ae1ee5d78e",
+      "rows": 357180
+    },
+    {
+      "file": "datos_abiertos_2026_02.parquet",
+      "sha256": "9189df7f0a737e807687893f4dec87d62befe4020e83cd3e676df61fcc5983b7",
+      "rows": 333756
+    },
+    {
+      "file": "datos_abiertos_2026_03.parquet",
+      "sha256": "a86f62eb61ff7e4771647a91e3f241ceaae82025e0e3be15f8b2a58faee4376d",
+      "rows": 376243
+    },
+    {
+      "file": "datos_abiertos_2026_04.parquet",
+      "sha256": "1ac7dbc50c8f695b7cd84df65185d75c11fde2f99b1b7535c1083620a550347c",
+      "rows": 351851
+    },
+    {
+      "file": "datos_abiertos_2026_05.parquet",
+      "sha256": "038cd0bc79ed602d8acfa30b828723688570ea31a22e42cbd581c90a16ec02c9",
+      "rows": 315895
+    },
+    {
+      "file": "datos_abiertos_2026_06.parquet",
+      "sha256": "b544764647458b8743e29e7b0ba755de567208cda4884ac9138ff9624728daa9",
+      "rows": 355303
+    },
+    {
+      "file": "datos_abiertos_2026_07.parquet",
+      "sha256": "f7243ecb744c53c8adeff654ac152cc2d109e5f8a824eea208c9d3563f74d9b2",
+      "rows": 388257
+    },
+    {
+      "file": "datos_abiertos_2026_08.parquet",
+      "sha256": "2c747257b7c9c7f6a48c4bc4f373d5a308f4d2f0cca840a82fcaeefb561a0a4d",
+      "rows": 393524
+    },
+    {
+      "file": "datos_abiertos_2026_09.parquet",
+      "sha256": "6eecaf2eca7386fd1b2ad0bfcf14af116196ae0d054a6e610ff02ab0e8c7873d",
+      "rows": 489298
+    }
+  ],
+  "reference_missing": {
+    "salidas_lag1": 0,
+    "llegadas_lag1": 0,
+    "saldo_lag1": 0,
+    "salidas_lag7": 2704,
+    "salidas_media7": 0,
+    "salidas_media28": 0,
+    "llegadas_media7": 0,
+    "llegadas_media28": 0,
+    "salidas_mismo_dia_media4": 2704,
+    "dias_historia": 0,
+    "dias_desde_ultimo_viaje": 0,
+    "dia_semana": 0,
+    "es_fin_semana": 0,
+    "mes": 0,
+    "dia_mes": 0,
+    "capacidad": 103,
+    "latitud": 103,
+    "longitud": 103,
+    "salidas": 0
+  },
+  "reference_target_mean": 31.71466239347367,
+  "reference_date_count": 364,
+  "current_missing": {
+    "salidas_lag1": 0,
+    "llegadas_lag1": 0,
+    "saldo_lag1": 0,
+    "salidas_lag7": 12,
+    "salidas_media7": 0,
+    "salidas_media28": 0,
+    "llegadas_media7": 0,
+    "llegadas_media28": 0,
+    "salidas_mismo_dia_media4": 12,
+    "dias_historia": 0,
+    "dias_desde_ultimo_viaje": 0,
+    "dia_semana": 0,
+    "es_fin_semana": 0,
+    "mes": 0,
+    "dia_mes": 0,
+    "capacidad": 72,
+    "latitud": 72,
+    "longitud": 72,
+    "salidas": 0
+  },
+  "current_target_mean": 43.47550964564236,
+  "current_date_count": 31
+}

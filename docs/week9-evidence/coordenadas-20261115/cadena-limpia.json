@@ -1,0 +1,164 @@
+{
+  "descripcion": "Cadena completa en un clon limpio sin datos: python -m mibici.dataset -> octubre verificado -> accuracy_monitoring --coordenadas MODO con el v1 oficial -> ab_testing predict/compare con v3 portable.",
+  "commit": "c7d5a72f8df32ccea06895295cd0040ed79bfa4a",
+  "entorno": {
+    "plataforma": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.9",
+    "pandas": "3.0.6",
+    "numpy": "2.5.4",
+    "scikit-learn": "1.9.1",
+    "mlflow": "3.17.2",
+    "requirements": "requirements-accuracy.txt sin pywin32==312 (sin wheel para macOS)",
+    "hilos": "OMP/OPENBLAS/MKL_NUM_THREADS=2"
+  },
+  "datos": {
+    "data_version": "cd917f9aa025",
+    "estaciones_parquet_sha256": "80ef17e6566e9a1821896e9739a19fc765c8590f27660488267606ed5a56afce",
+    "estaciones_parquet_igual_al_manifiesto": true,
+    "octubre_sha256": "0cdfb05299e6db658ac9cc7723494a9704b0749e3671c29c8566826ea889b900"
+  },
+  "v1_oficial": {
+    "registered_model_name": "mibici-equipo26-p1-demand",
+    "version": "1",
+    "run_id": "51ef51ad5b534386a3c020692887c6bc",
+    "model_sha256": "2cac5ef209865bf0eb70a388c594dfd4791dfab73b51088802a3df07dbb09fae"
+  },
+  "v3": {
+    "registered_model_name": "mibici-equipo26-p1-demand",
+    "source_registry_version": 3,
+    "source_run_id": "c9973a366f47463c91f80a509bd074ca",
+    "artifact_sha256": "278b7a9e51ce2f564b9ae096f6e3e687e49468490d527d35627404490efd2224",
+    "loader": "skops.io.load with fixed allowlist + mibici.residual_model.predict_residual_demand",
+    "trusted_types": [
+      "sklearn.ensemble._hist_gradient_boosting.predictor.TreePredictor",
+      "numpy.dtype"
+    ]
+  },
+  "modos": {
+    "sin_fma": {
+      "coordenadas_cambiadas_vs_parquet": {
+        "latitud": 15,
+        "longitud": 0
+      },
+      "huella_latitud_estaciones": "eac869d8b0dd9fa26873001191e7941275a48e9253643acf9dcbfbae6ee053f2",
+      "v1_mae": {
+        "septiembre": 7.487992599450225,
+        "octubre": 8.054406442839335
+      },
+      "predicciones_sha256": "c6750f9e929aa83923b591c3d977f488ba2dbba4b9809238194b5b7af2761922",
+      "ab_metricas": {
+        "original_v1": {
+          "mae": 8.054406442839337,
+          "rmse": 15.891006470864003,
+          "wape": {
+            "proportion": 0.1852630712897611,
+            "percent": 18.52630712897611
+          },
+          "bias_prediction_minus_actual": -3.9076860550677495,
+          "actual_mean": 43.47550964564236
+        },
+        "candidate_v3": {
+          "mae": 7.766359766419323,
+          "rmse": 13.861818201448893,
+          "wape": {
+            "proportion": 0.17863757848317166,
+            "percent": 17.863757848317167
+          },
+          "bias_prediction_minus_actual": 2.3314146316266644,
+          "actual_mean": 43.47550964564236
+        }
+      },
+      "ab_intervalos": {
+        "mae": {
+          "low": -0.8293064017834273,
+          "high": 0.45244189065362084
+        },
+        "rmse": {
+          "low": -3.5421410417507837,
+          "high": 0.03219258241520311
+        },
+        "wape": {
+          "proportion": {
+            "low": -0.0185662575414544,
+            "high": 0.010910624964224092
+          },
+          "percentage_points": {
+            "low": -1.85662575414544,
+            "high": 1.0910624964224092
+          }
+        },
+        "bias": "not computed (not part of the published method)"
+      },
+      "comparacion_con_reporte": {
+        "tolerancia_abs": 1e-09,
+        "todo_dentro": true,
+        "max_abs_diferencia": 1.7763568394002505e-15
+      },
+      "paneles_identicos_a_los_de_Kim": {
+        "current": true,
+        "reference": true,
+        "nota": "assert_frame_equal(check_exact=True) tras convertir fecha de datetime64[ns] (Kim) a datetime64[us]"
+      }
+    },
+    "con_fma": {
+      "coordenadas_cambiadas_vs_parquet": {
+        "latitud": 0,
+        "longitud": 0
+      },
+      "huella_latitud_estaciones": "8e26cbf7c1a2f607c75e7f69fe8949d1341578992014f60a3ac9fb9fd08b42b0",
+      "v1_mae": {
+        "septiembre": 7.477021536287801,
+        "octubre": 8.034345051707092
+      },
+      "predicciones_sha256": "f4838752b40c2bd31a8e64adea780910e5917cf81da45632c6fda4972a861c59",
+      "ab_metricas": {
+        "original_v1": {
+          "mae": 8.034345051707092,
+          "rmse": 15.701217812163023,
+          "wape": {
+            "proportion": 0.1848016300945742,
+            "percent": 18.48016300945742
+          },
+          "bias_prediction_minus_actual": -3.884778825552489,
+          "actual_mean": 43.47550964564236
+        },
+        "candidate_v3": {
+          "mae": 7.766359766419323,
+          "rmse": 13.861818201448893,
+          "wape": {
+            "proportion": 0.17863757848317166,
+            "percent": 17.863757848317167
+          },
+          "bias_prediction_minus_actual": 2.3314146316266644,
+          "actual_mean": 43.47550964564236
+        }
+      },
+      "ab_intervalos": {
+        "mae": {
+          "low": -0.8081980660834576,
+          "high": 0.46920582810702255
+        },
+        "rmse": {
+          "low": -3.280481221336122,
+          "high": 0.23667520366641187
+        },
+        "wape": {
+          "proportion": {
+            "low": -0.017973313270967323,
+            "high": 0.011226144923358052
+          },
+          "percentage_points": {
+            "low": -1.7973313270967322,
+            "high": 1.1226144923358052
+          }
+        },
+        "bias": "not computed (not part of the published method)"
+      },
+      "comparacion_con_reporte": {
+        "tolerancia_abs": 1e-09,
+        "todo_dentro": false,
+        "max_abs_diferencia": 0.26165982041466185
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "candidates": [
+    {
+      "loss": "squared_error",
+      "validation": {
+        "n": 14119,
+        "stations": 471,
+        "days": 30,
+        "mae": 6.772132829679936,
+        "rmse": 12.204655992549656,
+        "wape": 0.19541453027966862,
+        "bias_prediction_minus_actual": -1.8423998555135837,
+        "actual_mean": 34.65521637509739
+      }
+    },
+    {
+      "loss": "absolute_error",
+      "validation": {
+        "n": 14119,
+        "stations": 471,
+        "days": 30,
+        "mae": 6.786290315986342,
+        "rmse": 12.593611115932886,
+        "wape": 0.19582305424192498,
+        "bias_prediction_minus_actual": -2.151705554450032,
+        "actual_mean": 34.65521637509739
+      }
+    }
+  ],
+  "selected": {
+    "loss": "squared_error",
+    "validation": {
+      "n": 14119,
+      "stations": 471,
+      "days": 30,
+      "mae": 6.772132829679936,
+      "rmse": 12.204655992549656,
+      "wape": 0.19541453027966862,
+      "bias_prediction_minus_actual": -1.8423998555135837,
+      "actual_mean": 34.65521637509739
+    }
+  }
+}

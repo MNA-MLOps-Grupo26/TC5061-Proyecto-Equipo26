@@ -1,0 +1,68 @@
+{
+  "protocol": {
+    "design": "Predict correction to prior seven-day average, then clip total demand at zero",
+    "candidates": [
+      "squared_error",
+      "absolute_error"
+    ],
+    "max_iter": 300,
+    "max_leaf_nodes": 31,
+    "min_samples_leaf": 50,
+    "l2_regularization": 10,
+    "learning_rate": 0.05,
+    "selection": "September WAPE; do not choose loss using October",
+    "disclosure": "Iterative retrospective development; October inspected previously, not pristine holdout"
+  },
+  "selected": {
+    "loss": "squared_error",
+    "validation": {
+      "n": 14119,
+      "stations": 471,
+      "days": 30,
+      "mae": 6.772132829679936,
+      "rmse": 12.204655992549656,
+      "wape": 0.19541453027966862,
+      "bias_prediction_minus_actual": -1.8423998555135837,
+      "actual_mean": 34.65521637509739
+    }
+  },
+  "original": {
+    "n": 14618,
+    "stations": 473,
+    "days": 31,
+    "mae": 8.054406442839335,
+    "rmse": 15.891006470864005,
+    "wape": 0.18526307128976108,
+    "bias_prediction_minus_actual": -3.9076860550677495,
+    "actual_mean": 43.47550964564236
+  },
+  "candidate": {
+    "n": 14618,
+    "stations": 473,
+    "days": 31,
+    "mae": 7.766359766419322,
+    "rmse": 13.861818201448893,
+    "wape": 0.17863757848317163,
+    "bias_prediction_minus_actual": 2.3314146316266644,
+    "actual_mean": 43.47550964564236
+  },
+  "intervals": {
+    "mae": {
+      "low": -0.8293064017834273,
+      "high": 0.45244189065361984
+    },
+    "rmse": {
+      "low": -3.5421410417507837,
+      "high": 0.03219258241520311
+    },
+    "wape": {
+      "low": -0.0185662575414544,
+      "high": 0.01091062496422409
+    }
+  },
+  "fit_n": 165857,
+  "evaluation_n": 14618,
+  "no_github_write": true,
+  "no_registry_write": true,
+  "roundtrip_verified": true
+}

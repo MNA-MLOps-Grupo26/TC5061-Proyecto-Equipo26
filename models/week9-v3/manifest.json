@@ -1,0 +1,16 @@
+{
+  "registered_model_name": "mibici-equipo26-p1-demand",
+  "source_registry_version": 3,
+  "source_run_id": "c9973a366f47463c91f80a509bd074ca",
+  "source_model_id": "m-6ab08bf0744d46528302473d5553c940",
+  "artifact": "residual_estimator.skops",
+  "sha256": "278b7a9e51ce2f564b9ae096f6e3e687e49468490d527d35627404490efd2224",
+  "bytes": 2220248,
+  "export_type": "exact_estimator_bytes_with_existing_prediction_wrapper",
+  "training_changed": false,
+  "source_registry_changed": false,
+  "scope": "portable_team_copy_not_shared_mlflow_registry",
+  "prediction_wrapper": "mibici/residual_model.py",
+  "note": "Estimator predicts residuals. Use predict_residual_demand to add salidas_media7 and clip at zero. No raw data, registry DB, credentials, or historical MLflow environment metadata are included.",
+  "archive": "residual_estimator.zip"
+}
