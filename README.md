@@ -680,8 +680,49 @@ Al arrancar, MLflow avisará que el modelo declara `mlflow==3.17.1` (y `psutil`,
 3.17.2. Los metadatos del modelo no se modifican para ocultar el aviso; la carga
 y las predicciones se verificaron idénticas con ambas versiones.
 
-### Pruebas del registrador
+### Docker Compose: API MiBici y MLflow (Semana 10)
 
+Docker Compose permite iniciar conjuntamente la API de predicción P1 y MLflow mediante un solo comando.
+
+**Requisitos:** Docker Engine, Docker Compose y el modelo exportado en `models/p1/`.
+
+```bash
+docker compose config --quiet
+docker compose build
+docker compose up -d
+docker compose ps
+```
+
+**Servicios disponibles:**
+
+- API MiBici: http://localhost:8000
+- Documentación de la API: http://localhost:8000/docs
+- MLflow: http://localhost:5055
+
+**Verificación:**
+
+```bash
+curl -sS http://localhost:8000/health
+curl -sS -X POST http://localhost:8000/predict -H "Content-Type: application/json" -d @docs/evidencia-api/peticion-predict.json
+curl -sS -o /dev/null -w 'HTTP %{http_code}\n' http://localhost:5055/
+```
+
+La API utiliza el modelo P1 empaquetado en la imagen. MLflow utiliza un volumen Docker llamado `mlflow-data` para conservar su base de datos y artefactos entre reinicios. Este almacén es independiente del registro histórico utilizado para exportar el modelo P1.
+
+Los puertos se publican únicamente en `127.0.0.1`. Se pueden modificar mediante las variables `API_PORT` y `MLFLOW_PORT`.
+
+**Administración:**
+
+```bash
+docker compose logs api
+docker compose logs mlflow
+docker compose restart
+docker compose down
+```
+
+`docker compose down` conserva el volumen de MLflow. No utilizar `docker compose down -v` si se desea conservar su información.
+
+### Pruebas del registrador
 ```bash
 python -m pytest tests/test_registrar_p1.py
 ```
