@@ -1,0 +1,6 @@
+# Variante de prueba: limita el modelo a un hilo de OpenMP por predicción.
+# Uso: docker compose -f docker-compose.yml -f pruebas_carga/compose-omp1.yml up -d
+services:
+  api:
+    environment:
+      OMP_NUM_THREADS: "1"
