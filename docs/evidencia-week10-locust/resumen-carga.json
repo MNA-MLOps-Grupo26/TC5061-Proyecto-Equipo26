@@ -1,0 +1,279 @@
+{
+  "base": {
+    "config": "base",
+    "parametros": {
+      "usuarios": 200,
+      "tasa_alta_usuarios_por_s": 0.8333,
+      "rampa_s": 240,
+      "duracion_s": 300,
+      "espera_entre_peticiones_s": [
+        0.5,
+        1.5
+      ],
+      "mezcla": "/predict 10 : /health 1",
+      "compose": [
+        "docker-compose.yml"
+      ],
+      "codigo_salida_locust": 0
+    },
+    "entorno": {
+      "sistema": "macOS-26.7.3-arm64-arm-64bit-Mach-O",
+      "cpu_logicas_host": 11,
+      "docker": "29.8.0",
+      "locust": "2.47.0",
+      "modelo": {
+        "nombre": "mibici-equipo26-p1-demand",
+        "version": "1",
+        "run_id": "51ef51ad5b534386a3c020692887c6bc",
+        "alias_consultado": "champion",
+        "logged_model_id": "m-8917791035574d139539ba27ae896ad4",
+        "source_sha": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+        "data_version": "cd917f9aa025"
+      }
+    },
+    "prediccion_de_control": 122.55957713166208,
+    "predict_total": {
+      "peticiones": 15873,
+      "fallas": 0,
+      "rps_media": 53.14,
+      "p50_ms": 1200.0,
+      "p95_ms": 2100.0,
+      "p99_ms": 2200.0,
+      "max_ms": 2353.6183329997584
+    },
+    "meseta_usuarios_maximos": {
+      "usuarios": 200,
+      "segundos": 60,
+      "rps_media": 60.43,
+      "p50_ms_mediana": 2000.0,
+      "p95_ms_mediana": 2200.0
+    },
+    "por_tramo_de_usuarios": [
+      {
+        "usuarios": "1-25",
+        "segundos": 26,
+        "rps_media": 7.34,
+        "p50_ms_mediana": 69.0,
+        "p95_ms_mediana": 110.0,
+        "fallas_por_s_media": 0.0,
+        "api_cpu_pct_media": 118.8
+      },
+      {
+        "usuarios": "26-50",
+        "segundos": 30,
+        "rps_media": 26.51,
+        "p50_ms_mediana": 110.0,
+        "p95_ms_mediana": 140.0,
+        "fallas_por_s_media": 0.0,
+        "api_cpu_pct_media": 317.7
+      },
+      {
+        "usuarios": "51-75",
+        "segundos": 30,
+        "rps_media": 46.64,
+        "p50_ms_mediana": 140.0,
+        "p95_ms_mediana": 160.0,
+        "fallas_por_s_media": 0.0,
+        "api_cpu_pct_media": 465.4
+      },
+      {
+        "usuarios": "76-100",
+        "segundos": 30,
+        "rps_media": 64.29,
+        "p50_ms_mediana": 160.0,
+        "p95_ms_mediana": 240.0,
+        "fallas_por_s_media": 0.0,
+        "api_cpu_pct_media": 544.2
+      },
+      {
+        "usuarios": "101-125",
+        "segundos": 30,
+        "rps_media": 73.02,
+        "p50_ms_mediana": 305.0,
+        "p95_ms_mediana": 570.0,
+        "fallas_por_s_media": 0.0,
+        "api_cpu_pct_media": 573.3
+      },
+      {
+        "usuarios": "126-150",
+        "segundos": 30,
+        "rps_media": 60.12,
+        "p50_ms_mediana": 1100.0,
+        "p95_ms_mediana": 1300.0,
+        "fallas_por_s_media": 0.0,
+        "api_cpu_pct_media": 580.6
+      },
+      {
+        "usuarios": "151-175",
+        "segundos": 30,
+        "rps_media": 60.04,
+        "p50_ms_mediana": 1400.0,
+        "p95_ms_mediana": 1500.0,
+        "fallas_por_s_media": 0.0,
+        "api_cpu_pct_media": 574.9
+      },
+      {
+        "usuarios": "176-200",
+        "segundos": 89,
+        "rps_media": 59.56,
+        "p50_ms_mediana": 2000.0,
+        "p95_ms_mediana": 2200.0,
+        "fallas_por_s_media": 0.0,
+        "api_cpu_pct_media": 579.0
+      }
+    ],
+    "contenedores": {
+      "api": {
+        "cpu_pct_media": 495.5,
+        "cpu_pct_max": 595.0,
+        "mem_mib_media": 216.5,
+        "mem_mib_max": 228.2
+      },
+      "mlflow": {
+        "cpu_pct_media": 0.6,
+        "cpu_pct_max": 10.3,
+        "mem_mib_media": 1659.9,
+        "mem_mib_max": 1660.9
+      }
+    }
+  },
+  "omp1": {
+    "config": "omp1",
+    "parametros": {
+      "usuarios": 200,
+      "tasa_alta_usuarios_por_s": 0.8333,
+      "rampa_s": 240,
+      "duracion_s": 300,
+      "espera_entre_peticiones_s": [
+        0.5,
+        1.5
+      ],
+      "mezcla": "/predict 10 : /health 1",
+      "compose": [
+        "docker-compose.yml",
+        "pruebas_carga/compose-omp1.yml"
+      ],
+      "codigo_salida_locust": 0
+    },
+    "entorno": {
+      "sistema": "macOS-26.7.3-arm64-arm-64bit-Mach-O",
+      "cpu_logicas_host": 11,
+      "docker": "29.8.0",
+      "locust": "2.47.0",
+      "modelo": {
+        "nombre": "mibici-equipo26-p1-demand",
+        "version": "1",
+        "run_id": "51ef51ad5b534386a3c020692887c6bc",
+        "alias_consultado": "champion",
+        "logged_model_id": "m-8917791035574d139539ba27ae896ad4",
+        "source_sha": "8c7c709feb1a118f1a87a931e4a362492fa3f744",
+        "data_version": "cd917f9aa025"
+      }
+    },
+    "prediccion_de_control": 122.55957713166208,
+    "predict_total": {
+      "peticiones": 29208,
+      "fallas": 0,
+      "rps_media": 97.63,
+      "p50_ms": 69.0,
+      "p95_ms": 380.0,
+      "p99_ms": 510.0,
+      "max_ms": 753.8365829968825
+    },
+    "meseta_usuarios_maximos": {
+      "usuarios": 200,
+      "segundos": 60,
+      "rps_media": 146.87,
+      "p50_ms_mediana": 260.0,
+      "p95_ms_mediana": 400.0
+    },
+    "por_tramo_de_usuarios": [
+      {
+        "usuarios": "1-25",
+        "segundos": 26,
+        "rps_media": 8.37,
+        "p50_ms_mediana": 18.5,
+        "p95_ms_mediana": 30.0,
+        "fallas_por_s_media": 0.0,
+        "api_cpu_pct_media": 15.2
+      },
+      {
+        "usuarios": "26-50",
+        "segundos": 30,
+        "rps_media": 28.64,
+        "p50_ms_mediana": 13.0,
+        "p95_ms_mediana": 35.0,
+        "fallas_por_s_media": 0.0,
+        "api_cpu_pct_media": 26.9
+      },
+      {
+        "usuarios": "51-75",
+        "segundos": 30,
+        "rps_media": 50.44,
+        "p50_ms_mediana": 10.0,
+        "p95_ms_mediana": 37.0,
+        "fallas_por_s_media": 0.0,
+        "api_cpu_pct_media": 35.9
+      },
+      {
+        "usuarios": "76-100",
+        "segundos": 30,
+        "rps_media": 73.08,
+        "p50_ms_mediana": 10.0,
+        "p95_ms_mediana": 40.0,
+        "fallas_por_s_media": 0.0,
+        "api_cpu_pct_media": 44.5
+      },
+      {
+        "usuarios": "101-125",
+        "segundos": 30,
+        "rps_media": 95.93,
+        "p50_ms_mediana": 13.0,
+        "p95_ms_mediana": 57.0,
+        "fallas_por_s_media": 0.0,
+        "api_cpu_pct_media": 66.8
+      },
+      {
+        "usuarios": "126-150",
+        "segundos": 30,
+        "rps_media": 115.56,
+        "p50_ms_mediana": 35.0,
+        "p95_ms_mediana": 225.0,
+        "fallas_por_s_media": 0.0,
+        "api_cpu_pct_media": 98.3
+      },
+      {
+        "usuarios": "151-175",
+        "segundos": 30,
+        "rps_media": 133.9,
+        "p50_ms_mediana": 50.5,
+        "p95_ms_mediana": 245.0,
+        "fallas_por_s_media": 0.0,
+        "api_cpu_pct_media": 120.4
+      },
+      {
+        "usuarios": "176-200",
+        "segundos": 89,
+        "rps_media": 146.0,
+        "p50_ms_mediana": 250.0,
+        "p95_ms_mediana": 390.0,
+        "fallas_por_s_media": 0.0,
+        "api_cpu_pct_media": 143.0
+      }
+    ],
+    "contenedores": {
+      "api": {
+        "cpu_pct_media": 84.5,
+        "cpu_pct_max": 151.2,
+        "mem_mib_media": 205.0,
+        "mem_mib_max": 215.8
+      },
+      "mlflow": {
+        "cpu_pct_media": 0.6,
+        "cpu_pct_max": 5.3,
+        "mem_mib_media": 1657.2,
+        "mem_mib_max": 1657.9
+      }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+# Entorno aislado para pruebas de carga (Semana 10). No forma parte de la imagen de la API.
+locust==2.47.0
+pandas==3.0.6
+matplotlib==3.11.2
