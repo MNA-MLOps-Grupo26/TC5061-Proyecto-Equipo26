@@ -222,3 +222,6 @@ cython_debug/
 .venv-accuracy/
 # Salidas locales de la prueba E2E (datos, modelos y predicciones)
 /e2e/
+
+# Resultados crudos de pruebas de carga (se resumen en docs/evidencia-week10-locust/)
+/reports/locust/
