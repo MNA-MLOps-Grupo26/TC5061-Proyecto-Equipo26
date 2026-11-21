@@ -1,0 +1,3 @@
+NAME                                IMAGE                  COMMAND                  SERVICE   CREATED          STATUS          PORTS
+tc5061-proyecto-equipo26-api-1      mibici-p1-api:week10   "uvicorn api.main:ap…"   api       19 minutes ago   Up 12 minutes   127.0.0.1:8000->8000/tcp
+tc5061-proyecto-equipo26-mlflow-1   mibici-mlflow:week10   "mlflow server --bac…"   mlflow    19 minutes ago   Up 12 minutes   127.0.0.1:5055->5000/tcp

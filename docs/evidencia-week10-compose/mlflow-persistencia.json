@@ -1,0 +1,11 @@
+{
+  "experiment": {
+    "experiment_id": "1",
+    "name": "week10-compose-persistencia",
+    "artifact_location": "mlflow-artifacts:/1",
+    "lifecycle_stage": "active",
+    "last_update_time": 1795139890225,
+    "creation_time": 1795139890225,
+    "workspace": "default"
+  }
+}

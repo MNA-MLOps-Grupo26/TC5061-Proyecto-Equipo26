@@ -1,0 +1,38 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Containerfile
+      args:
+        MODEL_DIR: models/p1
+    image: mibici-p1-api:week10
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+    environment:
+      MODEL_PATH: /app/modelo
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    depends_on:
+      - mlflow
+    networks:
+      - mibici-network
+    restart: unless-stopped
+
+  mlflow:
+    build:
+      context: .
+      dockerfile: docker/mlflow/Dockerfile
+    image: mibici-mlflow:week10
+    ports:
+      - "127.0.0.1:${MLFLOW_PORT:-5055}:5000"
+    volumes:
+      - mlflow-data:/mlflow
+    networks:
+      - mibici-network
+    restart: unless-stopped
+
+networks:
+  mibici-network:
+    driver: bridge
+
+volumes:
+  mlflow-data:
