@@ -682,45 +682,93 @@ y las predicciones se verificaron idénticas con ambas versiones.
 
 ### Docker Compose: API MiBici y MLflow (Semana 10)
 
-Docker Compose permite iniciar conjuntamente la API de predicción P1 y MLflow mediante un solo comando.
+Docker Compose levanta la API de predicción P1 y MLflow con un solo comando.
 
-**Requisitos:** Docker Engine, Docker Compose y el modelo exportado en `models/p1/`.
+**Requisitos:** Docker Engine con Compose v2 (o `podman-compose`) y el modelo exportado
+en `models/p1/` (ver [Reproducir el modelo desde cero](#reproducir-el-modelo-desde-cero-clon-y-almacén-independientes)).
 
 ```bash
-docker compose config --quiet
-docker compose build
-docker compose up -d
-docker compose ps
+docker compose up -d --build --wait
 ```
+
+`--wait` regresa cuando los dos servicios pasan su healthcheck. MLflow arranca
+primero y la API espera a que esté sano (`depends_on: condition: service_healthy`).
 
 **Servicios disponibles:**
 
-- API MiBici: http://localhost:8000
-- Documentación de la API: http://localhost:8000/docs
-- MLflow: http://localhost:5055
+| Servicio | URL | Healthcheck |
+|---|---|---|
+| API MiBici | http://localhost:8000 (documentación en `/docs`) | `GET /health` |
+| MLflow | http://localhost:5055 | `GET /health` |
 
 **Verificación:**
 
 ```bash
+docker compose ps    # ambos servicios en estado "healthy"
 curl -sS http://localhost:8000/health
 curl -sS -X POST http://localhost:8000/predict -H "Content-Type: application/json" -d @docs/evidencia-api/peticion-predict.json
-curl -sS -o /dev/null -w 'HTTP %{http_code}\n' http://localhost:5055/
+curl -sS http://localhost:5055/health
 ```
 
-La API utiliza el modelo P1 empaquetado en la imagen. MLflow utiliza un volumen Docker llamado `mlflow-data` para conservar su base de datos y artefactos entre reinicios. Este almacén es independiente del registro histórico utilizado para exportar el modelo P1.
+**Configuración** (variables de entorno o archivo `.env` junto al Compose):
 
-Los puertos se publican únicamente en `127.0.0.1`. Se pueden modificar mediante las variables `API_PORT` y `MLFLOW_PORT`.
+| Variable | Valor por defecto | Uso |
+|---|---|---|
+| `API_PORT` / `MLFLOW_PORT` | `8000` / `5055` | Puertos publicados, solo en `127.0.0.1` |
+| `MODEL_DIR` | `models/p1` | Modelo que se copia a la imagen de la API |
+| `OMP_NUM_THREADS` | `1` | Hilos de OpenMP por predicción; ver [pruebas de carga](#semana-10-pruebas-de-carga-y-finops) |
+| `API_MEMORY` / `MLFLOW_MEMORY` | `1g` / `3g` | Límites de memoria por contenedor |
+
+`OMP_NUM_THREADS=1` es el valor por defecto porque en la prueba de carga duplicó las
+peticiones por segundo de la API con unas 5 veces menos CPU. La API utiliza el modelo
+P1 empaquetado en la imagen. MLflow utiliza el volumen `mlflow-data` para conservar su
+base de datos y artefactos entre reinicios; este almacén es independiente del registro
+histórico utilizado para exportar el modelo P1. Los logs rotan a 3 archivos de 10 MB.
 
 **Administración:**
 
 ```bash
-docker compose logs api
+docker compose logs -f api
 docker compose logs mlflow
 docker compose restart
 docker compose down
 ```
 
 `docker compose down` conserva el volumen de MLflow. No utilizar `docker compose down -v` si se desea conservar su información.
+
+### CI/CD con GitHub Actions (Semana 10)
+
+El workflow [`.github/workflows/week10-ci.yml`](.github/workflows/week10-ci.yml) se
+ejecuta automáticamente en cada `push` (cualquier rama) y en cada pull request. Si
+llega un push nuevo a la misma rama, la corrida anterior se cancela.
+
+| Job | Qué hace | Optimización |
+|---|---|---|
+| Pruebas automatizadas | Instala `requirements.txt` y ejecuta `pytest` | Caché de pip |
+| Construccion de imagen Docker | Construye la imagen de la API con un artefacto temporal | Caché de capas con Buildx (`type=gha`) |
+| Levantamiento con Docker Compose | Genera un modelo sintético, levanta el Compose con `--wait` y prueba MLflow, `/health`, `/predict` y `OMP_NUM_THREADS=1`; muestra logs si falla y siempre apaga | Caché de pip |
+
+El modelo real no se versiona en Git, así que el job de Compose usa
+[`scripts/modelo_ci.py`](scripts/modelo_ci.py): un modelo con la misma firma de 18
+variables y un `registry.json` con sus SHA-256, que pasa la verificación de arranque
+de la API. Sus predicciones no tienen valor de negocio.
+
+**Cómo ejecutar el pipeline:**
+
+1. Crear una rama, hacer commit y `git push`: el workflow corre solo.
+2. Ver el resultado en la pestaña **Actions** del repositorio o en los checks del PR.
+   Para volver a correrlo: **Actions → Semana 10 - CI MiBici → Re-run jobs**.
+3. El PR solo se aprueba y se hace merge con los tres jobs en verde.
+
+**Reproducir el pipeline en local:**
+
+```bash
+python -m pytest -q                                        # job de pruebas
+docker build -f Containerfile -t mibici-p1-api:local .     # job de imagen (con models/p1)
+python scripts/modelo_ci.py --destino models/ci-smoke      # job de Compose
+MODEL_DIR=models/ci-smoke docker compose up -d --build --wait
+docker compose down -v
+```
 
 ### Pruebas del registrador
 ```bash
@@ -860,3 +908,27 @@ auditable. Véase la [justificación del ciclo de vida](docs/evidence/2026-10-24
 ## Semana 9: drift y comparación de versiones
 
 Código, evidencia y reproducción en [docs/week9.md](docs/week9.md). Registro alternativo local aislado, sin cambios al modelo servido. El A/B pareado v1 frente a v3 se genera con `python -m mibici.ab_testing` ([instrucciones](docs/week9.md#ab-pareado-v1-frente-a-v3)).
+
+## Semana 10: pruebas de carga y FinOps
+
+**Pruebas de carga con Locust.** El escenario simula de 0 a 200 usuarios en 240 s y
+mantiene 200 durante 60 s; cada usuario hace `/predict` y `/health` en proporción 10:1.
+Mientras corre, se registra `docker stats` (CPU y memoria por contenedor). Código en
+[`pruebas_carga/locustfile.py`](pruebas_carga/locustfile.py); resultados, gráficas e
+interpretación en [docs/evidencia-week10-locust](docs/evidencia-week10-locust/README.md).
+
+```bash
+python -m pip install -r requirements-locust.txt
+python scripts/prueba_carga.py --config base   # sin OMP_NUM_THREADS (Compose original)
+python scripts/prueba_carga.py --config omp1   # OMP_NUM_THREADS=1 (valor actual)
+python scripts/graficas_carga.py               # gráficas y resumen-carga.json
+```
+
+Para una corrida interactiva: `docker compose up -d --wait` y luego
+`locust -f pruebas_carga/locustfile.py --host http://localhost:8000` (UI en
+http://localhost:8089).
+
+**FinOps.** Costo por inferencia con base en la capacidad medida y una tarifa de
+referencia de EC2: [docs/evidencia-week10-finops](docs/evidencia-week10-finops/README.md).
+Con `OMP_NUM_THREADS=1` el costo estimado baja de USD 1.54 a USD 0.74 por millón de
+inferencias.
