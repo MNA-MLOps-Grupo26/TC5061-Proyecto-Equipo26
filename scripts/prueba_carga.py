@@ -9,8 +9,10 @@ Locust sube de 0 a N usuarios y deja los resultados en ``reports/locust/<config>
 - ``resumen.json``: parámetros, entorno y métricas agregadas (base de gráficas y FinOps).
 
 Configuraciones:
-- ``base``: docker-compose.yml tal cual.
-- ``omp1``: además ``pruebas_carga/compose-omp1.yml`` (``OMP_NUM_THREADS=1`` en la API).
+- ``base``: además ``pruebas_carga/compose-base.yml`` (sin ``OMP_NUM_THREADS``, como
+  el Compose original de la semana 10).
+- ``omp1``: además ``pruebas_carga/compose-omp1.yml`` (``OMP_NUM_THREADS=1`` en la API,
+  hoy también el valor por defecto del Compose).
 
 Requisitos: Docker con Compose, el modelo exportado en ``models/p1/`` y el entorno de
 ``requirements-locust.txt``. Uso desde la raíz del repositorio:
@@ -36,7 +38,7 @@ import pandas as pd
 
 RAIZ = Path(__file__).resolve().parents[1]
 CONFIGS = {
-    "base": ["docker-compose.yml"],
+    "base": ["docker-compose.yml", "pruebas_carga/compose-base.yml"],
     "omp1": ["docker-compose.yml", "pruebas_carga/compose-omp1.yml"],
 }
 ANSI = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")

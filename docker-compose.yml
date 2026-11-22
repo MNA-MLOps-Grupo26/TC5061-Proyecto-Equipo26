@@ -1,34 +1,76 @@
+# Valores por defecto compartidos por los servicios: reinicio y rotación de logs.
+x-servicio-base: &servicio-base
+  restart: unless-stopped
+  networks:
+    - mibici-network
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
 services:
   api:
+    <<: *servicio-base
     build:
       context: .
       dockerfile: Containerfile
       args:
-        MODEL_DIR: models/p1
-    image: mibici-p1-api:week10
+        # El CI usa un modelo sintético (scripts/modelo_ci.py); localmente, models/p1.
+        MODEL_DIR: ${MODEL_DIR:-models/p1}
+    image: ${API_IMAGE:-mibici-p1-api:week10}
     ports:
       - "127.0.0.1:${API_PORT:-8000}:8000"
     environment:
       MODEL_PATH: /app/modelo
       MLFLOW_TRACKING_URI: http://mlflow:5000
+      # Prueba de carga (PR #31): con un hilo de OpenMP por predicción la API
+      # atiende ~2x peticiones/s con ~5x menos CPU. Se puede sobrescribir.
+      OMP_NUM_THREADS: ${OMP_NUM_THREADS:-1}
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     depends_on:
-      - mlflow
-    networks:
-      - mibici-network
-    restart: unless-stopped
+      mlflow:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          # Uso medido en la prueba de carga: ~217 MiB.
+          memory: ${API_MEMORY:-1g}
 
   mlflow:
+    <<: *servicio-base
     build:
       context: .
       dockerfile: docker/mlflow/Dockerfile
-    image: mibici-mlflow:week10
+    image: ${MLFLOW_IMAGE:-mibici-mlflow:week10}
     ports:
       - "127.0.0.1:${MLFLOW_PORT:-5055}:5000"
     volumes:
       - mlflow-data:/mlflow
-    networks:
-      - mibici-network
-    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=3)"
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          # Uso medido en la prueba de carga: ~1.66 GiB.
+          memory: ${MLFLOW_MEMORY:-3g}
 
 networks:
   mibici-network:

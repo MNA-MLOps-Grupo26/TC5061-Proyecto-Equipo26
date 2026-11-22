@@ -1,0 +1,10 @@
+# Configuración base de la prueba de carga (PR #31): la API sin OMP_NUM_THREADS,
+# es decir, el modelo usa todos los hilos disponibles. Desde el PR #33 el
+# docker-compose.yml fija OMP_NUM_THREADS=1, así que este override restaura el
+# escenario original para poder reproducir la comparación.
+# Uso: docker compose -f docker-compose.yml -f pruebas_carga/compose-base.yml up -d
+services:
+  api:
+    environment: !override
+      MODEL_PATH: /app/modelo
+      MLFLOW_TRACKING_URI: http://mlflow:5000
