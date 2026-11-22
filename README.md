@@ -684,7 +684,7 @@ y las predicciones se verificaron idénticas con ambas versiones.
 
 Docker Compose levanta la API de predicción P1 y MLflow con un solo comando.
 
-**Requisitos:** Docker Engine con Compose v2 (o `podman-compose`) y el modelo exportado
+**Requisitos:** Docker Engine con Docker Compose v2.24.4 o posterior y el modelo exportado
 en `models/p1/` (ver [Reproducir el modelo desde cero](#reproducir-el-modelo-desde-cero-clon-y-almacén-independientes)).
 
 ```bash
@@ -762,12 +762,16 @@ de la API. Sus predicciones no tienen valor de negocio.
 
 **Reproducir el pipeline en local:**
 
+El smoke test utiliza el proyecto de Compose local. Ejecútalo en una copia de
+prueba sin el entorno habitual en uso. `docker compose down` conserva el volumen
+de MLflow; no agregues `-v`.
+
 ```bash
 python -m pytest -q                                        # job de pruebas
 docker build -f Containerfile -t mibici-p1-api:local .     # job de imagen (con models/p1)
 python scripts/modelo_ci.py --destino models/ci-smoke      # job de Compose
 MODEL_DIR=models/ci-smoke docker compose up -d --build --wait
-docker compose down -v
+docker compose down
 ```
 
 ### Pruebas del registrador
@@ -916,6 +920,7 @@ mantiene 200 durante 60 s; cada usuario hace `/predict` y `/health` en proporci�
 Mientras corre, se registra `docker stats` (CPU y memoria por contenedor). Código en
 [`pruebas_carga/locustfile.py`](pruebas_carga/locustfile.py); resultados, gráficas e
 interpretación en [docs/evidencia-week10-locust](docs/evidencia-week10-locust/README.md).
+La configuración `base` requiere Compose v2.24.4 o posterior por la etiqueta `!override`.
 
 ```bash
 python -m pip install -r requirements-locust.txt
